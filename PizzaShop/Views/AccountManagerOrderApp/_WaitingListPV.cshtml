@@ -1,0 +1,229 @@
+@model List<Entities.ViewModel.WaitingListVM>
+
+
+<div class="table-responsive p-3 mt-4 " style="max-height: 400px; overflow-y: auto;">
+    <table class="table text-secondary align-middle text-center">
+        <thead class="bg-light" style="position: sticky; top: 0; z-index: 10;">
+            <tr>
+                <th class="text-start text-secondary border-top-0 border-bottom-0">
+                    #Token No
+                </th>
+                <th class="text-secondary border-top-0 border-bottom-0">Created At</th>
+                <th class="text-secondary border-top-0 border-bottom-0">Waiting Time</th>
+                <th class="text-secondary border-top-0 border-bottom-0">Name</th>
+                <th class="text-secondary border-top-0 border-bottom-0">No. Of Persons</th>
+                <th class="text-secondary border-top-0 border-bottom-0">Phone Number</th>
+                <th class="text-secondary border-top-0 border-bottom-0">Email</th>
+                <th class="text-secondary border-top-0 border-bottom-0">Action</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Any(waitingdata => waitingdata.WaitingListId != null))
+            {
+                @foreach (var waitingdata in Model)
+                {
+                    if (waitingdata.WaitingListId != null)
+                    {
+                        <tr class="tblclass" data-id="@waitingdata.WaitingListId" data-sectionid="@waitingdata.SectionId">
+                            <td class="text-start">
+                                <div class="d-flex align-items-center">
+                                    <div class="ms-2">
+                                        <p class="text-secondary mb-0 ">#@waitingdata.WaitingListId</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <p class="text-secondary mb-0">
+                                    @waitingdata.CreatedAt.ToString("MMMM dd, yyyy hh:mm tt")
+                                </p>
+                            </td>
+                            <td>
+                                <p class="text-secondary mb-0 ">
+                                    @waitingdata.Duration.Hours.ToString("00") hrs
+                                    @waitingdata.Duration.Minutes.ToString("00") min
+                                    @waitingdata.Duration.Seconds.ToString("00") sec
+                                </p>
+                            </td>
+                            <td>
+                                <p class="text-secondary mb-0 ">
+                                    @waitingdata.Name
+                                </p>
+                            </td>
+                            <td>
+                                <p class="text-secondary mb-0 ">
+                                    @waitingdata.NoOfPerson
+                                </p>
+                            </td>
+                            <td>
+                                <p class="text-secondary mb-0 ">
+                                    @waitingdata.Phone
+                                </p>
+                            </td>
+                            <td>
+                                <p class="text-secondary mb-0">
+                                    @waitingdata.Email
+                                </p>
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center">
+                                    <a class="btn editIcon" data-id="@waitingdata.WaitingListId">
+                                        <i class="bi bi-pen"></i>
+                                    </a>
+                                    <a class="btn deletebtn" data-id="@waitingdata.WaitingListId">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    <a class="btn assigntablebtn" 
+                                        data-id="@waitingdata.WaitingListId">
+                                        <i class="bi bi-person-check"></i>
+                                    </a>
+
+                                </div>
+                            </td>
+
+
+                        </tr>
+                    }
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="8" class="text-center text-muted">
+                        <p class="mb-0">No Tables found!</p>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div id="waitingtokendetaildeletemodal" class="modal fade" data-backdrop="true">
+    <div class="modal-dialog modal-dialog-centered w-xl">
+        <div class="modal-content h-100 no-radius">
+            <div class="modal-header">
+                <h5 class="modal-title text-secondary">Cancel Confirmation</h5>
+                <button class="close" data-bs-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body d-flex flex-column align-items-center justify-content-center">
+                <img class="img-fluid" src="~/assest/toppng.com-warning-icon-2400x2400.png" alt="" style="width: 50px;">
+                <div class="fs-5 text-secondary">Are you sure you want to cancel the Waiting token?</div>
+            </div>
+            <div class="modal-footer d-flex align-items-center justify-content-center">
+                <button type="submit"
+                    class="btn  webybg  fs-6 fw-bold deletewaitingtokenbtn text-white px-4">YES</button>
+                <button type="button" class="btn  webyborder webybtn fw-bold px-4" data-bs-dismiss="modal">NO</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="assignwaitingtokendetailmodal" class="modal fade" data-backdrop="true">
+    <div class="modal-dialog modal-dialog-centered w-xl">
+        <div class="modal-content h-100 no-radius">
+            <div class="d-flex justify-content-between align-items-center p-3">
+                <div class="modal-title fw-bold fs-4 text-secondary text-md">Assign Table</div>
+                <button class="close fs-2" data-bs-dismiss="modal">&times;</button>
+            </div>
+
+            <form id="assigntabletocustoemer">
+                <div class="row d-flex justify-space-between ps-3 mb-2" id="waitingtokenDeatils">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-floating">
+                                <select class="form-select" asp-items="ViewBag.Sections" id="selectsectionId"
+                                    aria-label="Floating label select example">
+                                    <option selected>Sections</option>
+                                </select>
+                                <label for="floatingSelect">Section*</label>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-floating">
+                                <select class="form-select" id="tableDropdown"
+                                    aria-label="Floating label select example">
+                                    <option value="">Tables</option>
+                                </select>
+                                <label for="floatingSelect">Table*</label>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn finalsavebtn assigntablefinalbtn px-4 ">Assign</button>
+                    <button type="button" class="btn finalcancelbtn px-4" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        function checkFields() {
+            @* console.log("Checking fields..."); *@
+
+                let isValid = true;
+
+            // Check all input and select fields inside the modal
+            $("#assigntabletocustoemer select").each(function () {
+                @* console.log($(this).attr("name"), ":", $(this).val()); / *@
+
+                if (!$(this).val().trim()) {
+                    isValid = false;
+                }
+            });
+
+            @* $(".savewaitingtoken").prop("disabled", !isValid); *@
+            @* console.log("Assign button enabled:", isValid); *@
+        }
+
+        $(document).on("input change", "#assigntabletocustoemer select", function () {
+            @* console.log("Field changed:", $(this).attr("name"));  *@
+                checkFields();
+        });
+        checkFields();
+
+        $('#selectsectionId').change(function () {
+            var selectedValue = $(this).val();
+            console.log(selectedValue);
+            console.log("Selected section ID:", selectedValue); // Debugging log
+            if (selectedValue === "Sections") {
+                $('#tableDropdown').prop('disabled', true);
+                toastr.warning("Please Select a Section.");
+                $('#tableDropdown').html('<option value="">Tables</option>');
+                $(".savewaitingtoken").prop('disabled', true);
+
+                return;
+            }
+            $.ajax({
+                url: '@Url.Action("GetTableListBySection", "AccountManagerOrderApp")',
+                type: 'GET',
+                data: { sectionId: selectedValue },
+                success: function (response) {
+                    let options = '<option value="">Tables</option>';
+                    let TableName = response.map(item => item.tableName);
+                    response.forEach(item => {
+                        options += `<option value="${item.tableId}">${item.tableName}</option>`;
+                    });
+                    $('#tableDropdown').html(options);
+                    if (TableName.length > 0) {
+                        $('#tableDropdown').prop('disabled', false);
+                    } else {
+                        $('#tableDropdown').prop('disabled', true);
+                        toastr.warning("There are No Available Table in The Section.");
+                    }
+                    checkFields();
+                },
+                error: function (xhr, status, error) {
+                    // Handle any errors here
+                    console.error(error);
+                }
+            });
+        });
+    });
+
+</script>

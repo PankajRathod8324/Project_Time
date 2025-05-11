@@ -1,0 +1,411 @@
+/* LoginPage */
+.loginBackground {
+    background-color: rgb(209, 235, 250);
+}
+
+.togglePassword {
+    font-size: 1.2rem;
+    color: #6c757d;
+    /* Adjust color as needed */
+}
+
+#emailicon {
+    font-size: 1.2rem;
+    color: #6c757d;
+    /* Adjust color as needed */
+}
+
+.webybtn {
+    color: rgba(0, 102, 167, 1) !important;
+}
+
+.canView, .canEdit, .canDelete {
+    border:  1px solid rgba(0, 102, 167, 1) !important;
+}
+
+input[type="checkbox"]{
+    accent-color: rgba(0, 102, 167, 1) !important;
+  }
+
+input,
+select,
+textarea,
+button,
+.modal-body,
+.modal-header,
+.modal-footer,
+.modal-content {
+    border-radius: 0.3rem !important;
+    border-color: lightgrey;
+}
+
+.webyborder {
+    border-color: rgba(0, 102, 167, 1) !important;
+}
+
+.webyborderdiv {
+    border: 1px solid rgba(0, 102, 167, 1) !important;
+    border-radius: 0.2rem !important;
+}
+
+.webyborderitemdiv {
+    border: 1px solid rgb(221, 226, 230) !important;
+    border-radius: 0.2rem !important;
+}
+
+.finalsavebtn {
+    color: white !important;
+    font-weight: 600 !important;
+    background-color: rgba(0, 102, 167, 1) !important;
+}
+
+.finalcancelbtn {
+    border-color: rgba(0, 102, 167, 1) !important;
+    font-weight: 600 !important;
+    color: rgba(0, 102, 167, 1) !important;
+    background-color: white !important;
+}
+
+.webybg {
+    background-color: rgba(0, 102, 167, 1) !important;
+}
+
+.instructionIcon {
+    color: rgb(41, 200, 240);
+    /* Adjust color as needed */
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+    /* Optional: Adds underline only on hover */
+}
+
+
+.forgotBackground {
+    background-color: rgb(209, 235, 250);
+}
+
+.resetPasswordBackground {
+    background-color: rgb(209, 235, 250);
+}
+
+.input-group-text {
+    background-color: #fff;
+    border: 1px solid white;
+    border-left: 0;
+}
+
+.iconsize {
+    height: 100px;
+    width: 100px;
+}
+
+
+
+.form-control:focus+.input-group-text {
+    border-color: white;
+    background-color: white;
+    box-shadow: 0 0 0 0.2rem white;
+}
+
+.form-check-input:checked {
+    /* color:  */
+    background-color: rgba(0, 102, 167, 1) !important;
+}
+
+.vh-100 {
+    height: 100vh;
+}
+
+.vw-100 {
+    width: 100vw;
+}
+
+.loginText {
+    margin-top: 5rem;
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+/* Sidebar */
+
+.sidebar-item {
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: 0.3s ease;
+}
+
+/* Active state */
+.dashboardicon.active {
+    border-radius: 5px;
+    /* Optional: Add border radius */
+}
+
+.dashboardicon.active div  {
+    color: rgba(0, 102, 167, 1);
+    /* Blue text */
+    background-color: #dee5f8;
+    font-weight: bold;
+}
+
+.dashboardicon.active img {
+    filter: brightness(0) saturate(100%) invert(22%) sepia(97%) saturate(2424%) hue-rotate(185deg) brightness(89%) contrast(89%);
+}
+
+
+
+.sidebar ul li img {
+    margin-right: 8px;
+    width: 24px;
+    height: 24px;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100% ;
+    background-color: white;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+.sidebar.show {
+    transform: translateX(0);
+    /* Show sidebar when toggled */
+}
+
+.logo {
+    height: 100px;
+    width: 100px;
+}
+
+/* Main Content */
+#content {
+    margin-left: 250px;
+    padding-top: 100px;
+    padding-right: 100px;
+    transition: margin-left 0.3s ease;
+}
+
+/* Overlay */
+.overlay {
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+}
+
+.overlay.show {
+    display: block;
+    /* Show overlay when sidebar is toggled */
+}
+
+
+#toggleSwitch {
+    height: 25px;
+    width: 50px;
+}
+
+.hoverIcon a {
+    visibility: hidden;
+
+}
+
+.allbodybgcolor
+{
+    background-color:  rgb(245,245,245) !important;
+}
+.hoverDiv:hover , .hoverCategoryDiv:hover, .hoverModifierDiv:hover {
+    /* transition: box-shadow 0.3s ease; */
+    color: rgba(0, 102, 167, 1) !important;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(194, 184, 184, 0.2);
+}
+
+
+.hoverDiv:hover .hoverIcon a , .hoverCategoryDiv:hover .hoverIcon a, .hoverModifierDiv:hover .hoverIcon a {
+    visibility: visible;
+    color: rgba(0, 102, 167, 1) !important;
+}
+
+
+.categoryTobevisible {
+    display: none;
+}
+
+
+.sorting-link {
+    text-decoration: none !important;
+    /* Remove underline */
+
+    /* Set text color to black */
+    font-weight: bold;
+}
+
+.icon-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.active-icon {
+    color: grey !important;
+    /* Highlight active arrow */
+    font-weight: bold;
+}
+
+.inactive-icon {
+    color: lightgray !important;
+    /* Dim inactive arrow */
+}
+
+.table-body-container {
+    display: block;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.table-body-container tr {
+    display: table;
+    width: 100%;
+    overflow-x: auto !important;
+    table-layout: fixed;
+    color: #333 !important;
+}
+
+/* Container Styling */
+.categoryTobehidden {
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Styling */
+.categoryTobehidden h3 {
+    font-weight: bold;
+    color: #333;
+}
+
+/* Category List Styling */
+.hoverDiv, .hoverCategoryDiv, .hoverModifierDiv {
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+i {
+    cursor: pointer;
+}
+
+/* Hover Effect */
+/* .hoverDiv:hover {
+    background-color: #f8f9fa;
+} */
+
+/* Active Category - Blue Text and Icon */
+/* .hoverDiv.active {
+    background-color: #e3f2fd;
+    /* Light Blue */
+/* }  */
+
+.categoryTobehidden {
+    background-image: linear-gradient(120deg, #ffffff 0%, #e1e2e2 100%);
+    border-right: 2px solid #3b9fdd;
+    border-radius: 0 !important;
+}
+
+
+.hoverDiv.active p,
+.hoverDiv.active .fa-grip-vertical,
+.hoverDiv.active .edit-btn i,
+.hoverDiv.active .fa-trash-can,
+.hoverCategoryDiv.active p,  
+.hoverCategoryDiv.active .fa-grip-vertical,
+.hoverCategoryDiv.active .edit-btn i,
+.hoverCategoryDiv.active .fa-trash-can,
+.hoverModifierDiv.active p,
+.hoverModifierDiv.active .fa-grip-vertical,
+.hoverModifierDiv.active .edit-btn i,
+.hoverModifierDiv.active .fa-trash-can {
+    color: rgba(0, 102, 167, 1) !important;
+    /* Make text and icons blue */
+    font-weight: bold;
+}
+
+/* Icon Styling */
+.hoverIcon a {
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s ease-in-out;
+}
+
+.hoverIcon a:hover {
+    color: rgba(0, 102, 167, 1);
+}
+
+/* Plus Icon */
+.bi-plus-square {
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.bi-plus-square:hover {
+    transform: scale(1.1);
+}
+
+/* .modal-backdrop {
+    display: none;
+} */
+
+.text-nav-color {
+    color: rgb(207, 204, 204) !important;
+}
+
+.card-bg-color {
+    background-color: rgb(240, 233, 233) !important;
+}
+
+.active-tab {
+    /* border-bottom: 2px solid rgba(0, 102, 167, 1) !important; */
+    /* color: rgba(0, 102, 167, 1) !important; */
+}
+
+.box-border {
+    border: 1px solid rgb(207, 204, 204) !important;
+    border-style: dashed !important;
+    background-color: #333;
+    /* border-radius: 10px; */
+    /* padding: 20px; */
+    /* box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); */
+}
+/* 
+.table td,
+.table th {
+    white-space: nowrap;
+} */
+
+.table-responsive {
+    overflow-x: auto;
+}

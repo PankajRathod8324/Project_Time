@@ -1,0 +1,112 @@
+@foreach (var user in Model)
+{
+    var modalId = "deleteModal" + user.UserId;
+    <div class="userlist">
+
+        <tr>
+            <td>
+                <div class="d-flex align-items-center">
+                    <img src="@(string.IsNullOrEmpty(user.ProfilePhoto) ? Url.Content("~/assest/Default_pfp.svg.png") : @user.ProfilePhoto)"
+                        alt="" style="width:50px;height:50px;" class="img-fluid rounded-circle" />
+                    <div class="ms-3">
+                        @user.FirstName
+                    </div>
+                </div>
+            </td>
+            <td class="text-wrap text-break">
+                @user.Email
+            </td>
+            <td class="text-wrap text-break">
+                @user.Phone
+            </td>
+            <td class="text-wrap text-break">
+                @user.RoleName
+            </td>
+            <td class="text-wrap text-break">
+                @if (@user.IsActive ?? false)
+                {
+                    <span class="badge  rounded-pill fw-bold fs-6 d-inline px-4 py-1 text-white"
+                        style="background-color: #99d363;">Active</span>
+
+                }
+                else
+                {
+                    <span class="badge badge-danger rounded-pill fw-bold fs-6  bg-danger d-inline px-4 py-1 ">Inactive</span>
+                }
+            </td>
+            <td>
+                <div class="d-flex align-items-center">
+                    <a class="text-black" permission="UserEdit" asp-area="" asp-controller="User" asp-action="Edituser"
+                        asp-route-id="@user.UserId">
+                        <i class="bi bi-pen editIcon"></i>
+                    </a>
+                    <div>
+                        <i class="bi bi-trash ms-4 deleteIcon" data-id="@user.UserId" data-status="@user.RoleName"
+                            data-deleteId="#@modalId"></i>
+                    </div>
+                </div>
+
+
+                <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Delete Confirmation</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body d-flex flex-column align-items-center justify-content-center">
+                                <img class="img-fluid" src="~/assest/toppng.com-warning-icon-2400x2400.png" alt=""
+                                    style="width: 50px;">
+                                <div class="fs-4">Are you sure you want to delete this user?</div>
+                            </div>
+                            <div class="modal-footer d-flex align-items-center justify-content-center">
+
+                                <button type="submit" class="btn btn-primary deleteuser">Yes</button>
+
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+    </div>
+}
+
+<script>
+    $(document).ready(function () {
+        let userId = 0;
+        $(".deleteIcon").click(function (e) {
+            e.preventDefault();
+            userId = $(this).data("id");
+            var status = $(this).data("status");
+            console.log(userId);
+            console.log(status);
+            if (status == "Super Admin") {
+                toastr.warning("Super Admin Can't Deleted", "UnAuthorise");
+            }
+            else {
+                $("#deleteUserModal").modal("show");
+            }
+        });
+        $(".deleteuser").click(function () {
+            console.log(userId);
+            $.ajax({
+                url: '/User/Delete',
+                type: 'POST',
+                data: { userId: userId },
+                success: function (response) {
+                    $("#deleteUserModal").modal("hide");
+                    toastr.success('User Deleted Successfully!', "Success");
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', xhr.responseText); // Log detailed error
+                }
+            });
+        });
+
+    });
+
+</script>

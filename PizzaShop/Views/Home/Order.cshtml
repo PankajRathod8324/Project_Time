@@ -1,0 +1,306 @@
+@model Entities.ViewModel.OrderVM
+
+@{
+    ViewData["Title"] = "Order Page";
+    if (TempData["Message"] != null)
+    {
+        <div class="alert alert-@TempData["MessageType"]">@TempData["Message"]</div>
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Page</title>
+    <link rel="stylesheet" href="~/css/style.css">
+    <link rel="stylesheet" href="~/css/media.css">
+    <link rel="stylesheet" href="~/css/site.css">
+    <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+
+</head>
+
+<body class="allbodybgcolor ms-4 pe-4">
+
+    <!-- Overlay for small screens -->
+    <div class="overlay" id="overlay"></div>
+
+    <div class="content pe-0" id="content">
+        <!-- Main content goes here -->
+        @* data-id="@Model.SectionId" *@
+        <form method="get" id="searchForm">
+            <!-- Orders Header and Filters -->
+            <div class="row gx-3 gy-2 mb-3 align-items-center justify-content-between mx-0 rounded">
+                <div class="d-none Categoryid" id="Categoryidsearch"></div>
+
+                <!-- Title -->
+                <div class="col-12 col-md-3 col-lg-2">
+                    <h1 class="webybtn mb-0">Orders</h1>
+                </div>
+
+                <!-- Filters and Controls -->
+                <div class="col-12 col-md-9 col-lg-10 d-flex flex-wrap align-items-center justify-content-end gap-3">
+
+                    <!-- Search -->
+                    <div class="position-relative" style="max-width: 250px; flex: 1 1 auto;">
+                        <input class="form-control form-control-lg" type="search" name="search" placeholder="Search"
+                            id="searchInput" style="height: 60px;">
+                        <i class="fa fa-search position-absolute"
+                            style="top: 50%; right: 15px; transform: translateY(-50%);"></i>
+                    </div>
+
+                    <!-- Order Status -->
+                    <div style="max-width: 200px; flex: 1 1 auto;">
+                        <select id="orderStatus" name="orderStatus" class="form-select" style="height: 60px;">
+                            <option value="">All Status</option>
+                            <option value="On Hold">On Hold</option>
+                            <option value="Failed">Failed</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                            <option value="Served">Served</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                    </div>
+
+                    <!-- Date Filter -->
+                    <div style="max-width: 200px; flex: 1 1 auto;">
+                        <select class="form-select" id="datefilter" name="datefilter" style="height: 60px;">
+                            <option value="All time">All time</option>
+                            <option value="Recent">Recent</option>
+                            <option value="Last 7 days">Last 7 days</option>
+                            <option value="Last 30 days">Last 30 days</option>
+                            <option value="Current Month">Current Month</option>
+                            <option value="Current Year">Current Year</option>
+                        </select>
+                    </div>
+
+                    <!-- Export Button -->
+                    <div>
+                        <a class="btn fs-5 text-white exportBtn align-items-center d-flex justify-content-center"
+                            style="background-color: rgba(0, 102, 167, 1); height: 60px; width: 140px;">
+                            <i class="fa-solid fa-arrow-up-right-from-square me-2"></i>Export
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Range and Buttons -->
+            <div class="row gx-3 gy-2 mb-3 align-items-center justify-content-end mx-0 rounded">
+                <div class="col-12 d-flex flex-wrap align-items-center justify-content-end gap-3">
+
+                    <!-- Start Date -->
+                    <div class="form-floating" style="max-width: 200px;">
+                        <input type="date" id="startDate" name="startDate" class="form-control">
+                        <label for="startDate">Start Date</label>
+                    </div>
+
+                    <!-- End Date -->
+                    <div class="form-floating" style="max-width: 200px;">
+                        <input type="date" id="endDate" name="endDate" class="form-control">
+                        <label for="endDate">End Date</label>
+                    </div>
+
+                    <!-- Search Button -->
+                    <button type="button" class="btn text-white saveBtn"
+                        style="background-color: rgba(0, 102, 167, 1); height: 40px; width: 80px;">
+                        Search
+                    </button>
+
+                    <!-- Clear Button -->
+                    <button type="button" class="btn cleareverything"
+                        style="background-color: white; border-color: rgba(0, 102, 167, 1); color: rgba(0, 102, 167, 1); height: 40px; width: 80px;">
+                        Clear
+                    </button>
+                </div>
+            </div>
+
+        </form>
+        <div id="orderTable"></div>
+
+
+
+        <div class="modal " id="newtaxModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal modal-dialog-centered">
+                <div class="modal-content">
+                    <form id="AddTax">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-secondary" id="exampleModalLabel">Add New Tax</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div class="modal-body">
+
+
+                            <!-- Category Dropdown -->
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script src='https://code.jquery.com/jquery-3.7.0.js'></script>
+    <script src="~/js/userPage.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#startDate").change(function () {
+                let startDate = this.value;
+                endDate.min = startDate;
+            });
+            $("#endDate").change(function () {
+                let endDate = this.value;
+                startDate.max = endDate;
+            });
+            // Handle Page Size Change
+            $("#pageSizeDropdown").change(function () {
+                console.log("Dropdown changed");
+                loadTaxes(1); // Reset to page 1 when changing page size
+            });
+            $("#searchInput").keyup(function () {
+                loadTaxes(1); // Reset to page 1 on search
+            });
+            $("#orderStatus").change(function () {
+                loadTaxes(1); // Reset to page 1 on search
+            });
+            $("#datefilter").change(function () {
+                loadTaxes(1); // Reset to page 1 on search
+            });
+
+
+
+            // Handle Pagination
+            $(document).on("click", ".pagination-btn", function (e) {
+                e.preventDefault();
+                var page = $(this).data("page"); // Get page number from button
+                loadTaxes(page);
+            });
+            $.ajax({
+                url: '/Order/Order',  // Ensure this route matches your controller
+                type: 'GET',
+                success: function (data) {
+                    $("#orderTable").html(data);  // Update the menu items container
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching items:', error);
+                }
+            });
+
+
+            $('.exportBtn').click(function () {
+                var page = 1;
+                var orderStatus = $("#orderStatus").val();
+                var search = $("#searchInput").val();
+                var pageSize = $("#pageSizeDropdown").val();
+                var filterdate = $("#datefilter").val();
+                var startDate = $("#startDate").val();
+                var endDate = $("#endDate").val();
+                console.log("Search:", search);
+                console.log("Page:", page, "PageSize:", pageSize);
+
+                $.ajax({
+                    url: '/Order/ExportToExcel',
+                    type: 'GET',
+                    data: {
+                        search: search,
+                        page: page,
+                        pageSize: pageSize,
+                        orderStatus: orderStatus,
+                        filterdate: filterdate,
+                        startDate: startDate,
+                        endDate: endDate
+                    },
+                    xhrFields: {
+                        responseType: 'blob'
+                    },
+                    success: function (data, status, xhr) {
+                        var filename = xhr.getResponseHeader('Content-Disposition')
+                            .split('filename=')[1]
+                            .replace(/['"]/g, '');
+
+                        var blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                        var link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = filename || "Orders.xlsx";
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        toastr.success('Exported Successfully', "Success");
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error exporting file:', error);
+                        toastr.error('Export Failed', "Error");
+                    }
+                });
+            });
+
+
+        });
+        function loadTaxes(page = 1) {
+            var search = $("#searchInput").val();
+            var orderStatus = $("#orderStatus").val();
+            var filterdate = $("#datefilter").val();
+            @* var sortOrder = $("#sortOrder").val(); *@
+            var pageSize = $("#pageSizeDropdown").val();
+            var startDate = $("#startDate").val();
+            var endDate = $("#endDate").val();
+            console.log(search);
+            console.log("Page:", page, "PageSize:", pageSize);
+
+            console.log("Starta Date:" + startDate);
+            console.log(endDate);
+
+            $.ajax({
+                url: '/Order/Order',  // Ensure this route matches your controller
+                type: 'GET',
+                data: {
+                    search: search,
+                    page: page,
+                    pageSize: pageSize,
+                    orderStatus: orderStatus,
+                    filterdate: filterdate,
+                    startDate: startDate,
+                    endDate: endDate
+                },
+                success: function (data) {
+                    $("#orderTable").html(data);  // Update the menu items container
+
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching items:', error);
+                }
+            });
+        }
+
+    </script>
+
+
+
+
+</body>
+
+</html>

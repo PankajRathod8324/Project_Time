@@ -1,0 +1,118 @@
+@model List<Entities.ViewModel.OrderVM>
+
+<div>
+    <div class="d-flex justify-content-between">
+
+        <span class="fs-5 fw-bold OrderId" data-orderid="@Model.FirstOrDefault().OrderId">OrderId ID:
+            #@Model.FirstOrDefault().OrderId</span>
+    </div>
+</div>
+<div
+    class="d-flex justify-content-between pb-2 text-secondary border border-bottom border-top-0 border-start-0 border-end-0">
+    <span>
+        Item
+    </span>
+    <span>
+        Quantity
+    </span>
+</div>
+@foreach (var item in Model.FirstOrDefault().OrderItems)
+{
+    <span class="d-flex justify-content-between text-secondary ps-3 pt-2">
+        <span><input class="form-check-input" type="checkbox" value="@item.ItemId" id="@item.ItemId">@item.ItemName
+            <ul>
+
+                @if (item.Modifiers != null && item.Modifiers.Any())
+                {
+                    <li>
+                        @foreach (var modifier in item.Modifiers)
+                        {
+                        <span class="d-flex justify-content-between text-secondary">
+                            <span>@modifier.ModifierName</span>
+                        </span>
+                        }
+                    </li>
+                }
+
+            </ul>
+        </span>
+        <span class="input-group border border-primary" style="width: 120px; height: 40px;">
+            <button class="btn  btn-minus" type="button">-</button>
+            <input type="text" class="form-control bg-white text-center qty-input" value="@item.Quantity" readonly>
+            <button class="btn  btn-plus" type="button">+</button>
+        </span>
+    </span>
+
+}
+
+<script>
+    @* let maxQty;  *@
+        @* maxQty = 0;  *@
+    var status = '@Model.FirstOrDefault().OrderItems.FirstOrDefault().Status';
+    $(document).ready(function () {
+        $('.prepareitem').submit(function (e) {
+            e.preventDefault();
+
+            var prepare = [];
+
+            let orderId = $(".OrderId").data("orderid");   // orderId from form attribute
+            let items = $(this).find('.form-check-input:checked');
+
+            if (items.length == 0) {
+                alert('Please select at least one item.');
+                return;
+            }
+
+            items.each(function (index) {
+                let itemId = $(this).val();
+                let quantity = $(this).closest('.d-flex').find('.qty-input').val();
+
+                prepare.push({
+                    orderId: orderId,
+                    itemId: itemId,
+                    quantity: quantity,
+                    status: status
+                });
+            });
+
+            console.log(prepare);
+
+            $.ajax({
+                type: "POST",
+                url: '/AccountManagerOrderApp/MakePrepare',
+                data: JSON.stringify(prepare),
+                contentType: "application/json",
+                success: function (response) {
+                    alert(response.message);
+                }
+            });
+        });
+        $('.btn-plus').click(function () {
+            let input = $(this).siblings('.qty-input');
+            let current = parseInt(input.val());
+            console.log(current);
+            @* console.log(maxQty); *@
+
+            if (current < 0) {
+                input.val(current + 1);
+                @* if (maxQty == 0) {
+                    maxQty = current;
+                } *@
+            }
+        });
+
+        $('.btn-minus').click(function () {
+            let input = $(this).siblings('.qty-input');
+            let current = parseInt(input.val());
+            console.log(current);
+            @* console.log(maxQty); *@
+
+            if (current > 1) {
+                input.val(current - 1);
+                @* if (maxQty == 0) {
+                    maxQty = current;
+                } *@
+            }
+        });
+    });
+</script>

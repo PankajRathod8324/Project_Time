@@ -1,0 +1,229 @@
+@model IEnumerable< Entities.ViewModel.PermissionVM>
+
+@{
+    ViewData["Title"] = "Permission Page";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/style.css">
+    <link rel="stylesheet" href="~/css/media.css">
+    <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body class="allbodybgcolor ms-4 pe-4">
+    <div class="content pe-0" id="content">
+        <div class="row">
+            <div class="col-6">
+                <h1 class="d-flex justify-content-start webybtn">Permission</h1>
+            </div>
+            <div class="col d-flex justify-content-end align-items-center">
+                <a class="btn bg-body-tertiary finalcancelbtn px-3 py-2" onclick="history.back()">
+                    Back
+                </a>
+            </div>
+        </div>
+        <div class="row d-flex mb-2 mt-2 bg-white shadow-lg rounded pt-3">
+            <div class="col ms-3">
+                <form>
+                    <div class="row me-5 mt-1">
+                        <div class="col-md-4 col-sm-6 mt-1 pe-0">
+                            <div class="form-floating mb-3">
+                                <select class="form-select border border-primary" asp-for="@Model.First().Role"
+                                    aria-label="Role" disabled>
+                                    <option value="Chef">Chef</option>
+                                    <option value="Super Admin">Super Admin</option>
+                                    <option value="Account Manager">Account Manager</option>
+                                </select>
+                                <label asp-for="@Model.First().Role">Role</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive overflow-x-auto">
+                        <table id="table" class="table align-middle table-hover bg-white">
+                            <thead class="bg-light ">
+                                <tr>
+                                    <th class="text-start border-top-0 text-secondary">
+                                        <input type="checkbox" class="me-2 text-primary" id="selectAll" />
+                                        Permission
+                                    </th>
+                                    <th class="border-top-0 text-secondary">Can View</th>
+                                    <th class="border-top-0 text-secondary">Can Add/Edit</th>
+                                    <th class="border-top-0 text-secondary">Can Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var permission in Model)
+                                {
+                                    <tr class="tblclass" data-id="@permission.PermissionId">
+                                        <td class="d-flex gap-3">
+                                            <input type="checkbox" name="chkItem" class="checkclass" />
+                                            <p class="fw-normal mb-1 text-secondary">@permission.PermissionName</p>
+                                        </td>
+                                        <td>
+                                            <div class="form-check form-switch">
+
+                                                <input class="form-check-input canView" type="checkbox" id="toggleSwitch"
+                                                    @(permission.CanView ?? false ? "checked" : "")
+                                                    style="border-radius: 1rem !important;">
+
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input canEdit" type="checkbox" id="toggleSwitch"
+                                                    @(permission.CanAddEdit ?? false ? "checked" : "")
+                                                    style="border-radius: 1rem !important;">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input canDelete" type="checkbox" id="toggleSwitch"
+                                                    @(permission.CanDelete ?? false ? "checked" : "")
+                                                    style="border-radius: 1rem !important;">
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex justify-content-end gap-3 m-3 gap-2">
+                        <div class=" ">
+                            <button type="submit" class="btn finalsavebtn savebtn px-3" id="savebtn">Save
+                            </button>
+                        </div>
+                        <div class="">
+                            <button type="button" class="btn finalcancelbtn px-3" onclick="this.form.reset()" >Cancel</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    @* <script src="~/js/userPage.js"></script> *@
+    <script>
+
+        $(document).on('change', '.canEdit', function () {
+            const row = $(this).closest('tr');
+            if ($(this).is(':checked')) {
+                row.find('.canView').prop('checked', true);
+                row.find('.checkclass').prop('checked', true);
+            }
+        });
+
+        $(document).on('change', '.canDelete', function () {
+            const row = $(this).closest('tr');
+            if ($(this).is(':checked')) {
+                row.find('.canView').prop('checked', true);
+                row.find('.canEdit').prop('checked', true);
+                 row.find('.checkclass').prop('checked', true);
+            }
+        });
+
+         $(document).on('change', '.canView', function () {
+            const row = $(this).closest('tr');
+            if (!$(this).is(':checked')) {
+                row.find('.canDelete').prop('checked', false);
+                row.find('.canEdit').prop('checked', false);
+                 row.find('.checkclass').prop('checked', true);
+            }
+        });
+
+
+        $(document).ready(function () {
+            $('#selectAll').click(function () {
+                $('input[name="chkItem"]').prop('checked', this.checked);
+            });
+        });
+
+        // selectAll 
+        document.addEventListener('DOMContentLoaded', function () {
+            // If selectAll is Pressed  And Perticuler checkbox is unchecked then selectAll checkbox also unchecked
+            document.querySelectorAll('input[name="chkItem"]').forEach(function (checkbox) {
+                checkbox.addEventListener('change', function () {
+                    if (!this.checked) {
+                        document.getElementById('selectAll').checked = false;
+                    }
+                });
+            });
+            // If All checkbox is checked then selectAll checkbox also checked
+            document.querySelectorAll('input[name="chkItem"]').forEach(function (checkbox) {
+                checkbox.addEventListener('change', function () {
+                    let flag = Array.from(document.querySelectorAll('input[name="chkItem"]')).every(function (checkbox) {
+                        return checkbox.checked;
+                    });
+                    if (this.checked && flag) {
+                        document.getElementById('selectAll').checked = true;
+                    }
+                });
+            });
+        })
+
+        function UpdatePermission() {
+
+            let Permission = [];
+
+            $('tbody tr').each(function () {
+                @* let row *@
+                @* let RoleId = '@Model.First().RoleId'; *@
+                let permissionId = $(this).attr("data-id");
+                let checkeditem = $(this).find(".checkclass").is(":checked");
+                let canView = $(this).find(".canView").is(":checked");
+                let canAddEdit = $(this).find(".canEdit").is(":checked");
+                let canDelete = $(this).find(".canDelete").is(":checked");
+
+                if (checkeditem) {
+                    Permission.push({
+                            @* RoleId = RoleId, *@
+                        PermissionId: permissionId,
+                        CanView: canView,
+                        CanAddEdit: canAddEdit,
+                        CanDelete: canDelete
+                    });
+        }
+
+            })
+        console.log("Hiiiii");
+        console.log(Permission);
+
+        @* if (Permission.length === 0) {
+                alert("No Permission Selected.");
+                return
+            } *@
+
+            $.ajax({
+                url: '@Url.Action("Permission", "RoleAndPermission")',
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(Permission),
+            })
+        }
+
+        $("#savebtn").click(function () {
+
+            console.log("Save button is Pressed");
+            UpdatePermission();
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script src='https://code.jquery.com/jquery-3.7.0.js'></script>
+</body>
+
+</html>

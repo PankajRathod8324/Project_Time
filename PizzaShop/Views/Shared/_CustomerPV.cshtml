@@ -1,0 +1,263 @@
+@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList< Entities.ViewModel.CustomerVM>
+
+
+<body>
+    <div class="table-responsive bg-white p-4" style="max-height: 450px; overflow-y: auto;">
+        <table class="table  align-middle text-center">
+            <thead class="bg-light">
+                <tr>
+                    <th class="text-secondary fs-6 border-top-0">
+                        <a href="#" class="sorting-link text-secondary">
+                            Name
+                            <span class="icon-box">
+                                <i class="fa-solid fa-arrow-up ajax-sort @(ViewBag.SortBy == "Name" && ViewBag.IsAsc ? "active-icon" : "inactive-icon")"
+                                    data-sortby="Name" data-isasc="@(ViewBag.SortBy == "Name" ? !ViewBag.IsAsc : true)">
+                                </i>
+
+                                <i class="fa-solid fa-arrow-down ajax-sort @(ViewBag.SortBy == "Name" && !ViewBag.IsAsc ? "active-icon" : "inactive-icon")"
+                                    data-sortby="Name"
+                                    data-isasc="@(ViewBag.SortBy == "Name" ? !ViewBag.IsAsc : false)">
+                                </i>
+                            </span>
+                        </a>
+
+
+
+                    </th>
+                    <th class="text-secondary fs-6 border-top-0">Email</th>
+                    <th class="text-secondary fs-6 border-top-0">Phone Number</th>
+                    <th class="text-secondary fs-6 border-top-0">
+                        <a href="#" class="sorting-link text-secondary">
+                            Date
+                            <span class="icon-box">
+                                <i class="fa-solid fa-arrow-up ajax-sort @(ViewBag.SortBy == "Date" && ViewBag.IsAsc ? "active-icon" : "inactive-icon")"
+                                    data-sortby="Date" data-isasc="@(ViewBag.SortBy == "Date" ? !ViewBag.IsAsc : true)">
+                                </i>
+
+                                <i class="fa-solid fa-arrow-down ajax-sort @(ViewBag.SortBy == "Date" && !ViewBag.IsAsc ? "active-icon" : "inactive-icon")"
+                                    data-sortby="Date"
+                                    data-isasc="@(ViewBag.SortBy == "Date" ? !ViewBag.IsAsc : false)">
+                                </i>
+                            </span>
+                        </a>
+                    </th>
+                    <th class="text-secondary fs-6 border-top-0">
+
+                        <a href="#" class="sorting-link text-secondary">
+                            Total Order
+                            <span class="icon-box">
+                                <i class="fa-solid fa-arrow-up ajax-sort @(ViewBag.SortBy == "TotalOrder" && ViewBag.IsAsc ? "active-icon" : "inactive-icon")"
+                                    data-sortby="TotalOrder"
+                                    data-isasc="@(ViewBag.SortBy == "TotalOrder" ? !ViewBag.IsAsc : true)">
+                                </i>
+
+                                <i class="fa-solid fa-arrow-down ajax-sort @(ViewBag.SortBy == "TotalOrder" && !ViewBag.IsAsc ? "active-icon" : "inactive-icon")"
+                                    data-sortby="TotalOrder"
+                                    data-isasc="@(ViewBag.SortBy == "TotalOrder" ? !ViewBag.IsAsc : false)">
+                                </i>
+                            </span>
+                        </a>
+
+                    </th>
+
+
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any(customer => customer.CustomerId != null))
+                {
+                    @foreach (var customer in Model)
+                    {
+                        if (customer.CustomerId != null)
+                        {
+                            <tr class="tblclass selectedorder" data-id="@customer.CustomerId">
+                                <td>
+                                    <p class=" text-secondary  mb-0 ">@customer.Name</p>
+                                </td>
+                                <td>
+                                    <p class="text-secondary  mb-0">@customer.Email</p>
+                                </td>
+                                <td>
+                                    <p class=" text-secondary  mb-0">@customer.Phone</p>
+                                </td>
+                                <td>
+                                    <p class=" text-secondary  mb-0">@customer.Date</p>
+                                </td>
+                                <td>
+                                    <p class=" text-secondary  mb-0">@customer.TotalOrder</p>
+                                </td>
+                            </tr>
+                        }
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            <p class="mb-0">No Customer found!</p>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+
+        <div class="modal" id="customerHistory" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-secondary" id="exampleModalLabel">Customer History</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body" id="customerDetail">
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="d-flex justify-content-end align-items-center my-3 gap-2">
+            <form id="paginationForm" method="get" class="d-flex align-items-center me-3">
+                <span class="me-2">Items per page:</span>
+                <select id="pageSizeDropdown" class="form-select form-select-sm w-auto me-3">
+                    <option value="5" selected="@(ViewBag.PageSize == 5)">5</option>
+                    <option value="10" selected="@(ViewBag.PageSize == 10)">10</option>
+                    <option value="15" selected="@(ViewBag.PageSize == 15)">15</option>
+                </select>
+
+
+                <span id="pagination-summary" class="text-muted">
+                    Showing @(Model.PageSize * (Model.PageNumber - 1) + 1) -
+                    @((Model.PageSize * Model.PageNumber) > Model.TotalItemCount ? Model.TotalItemCount :
+                                        (Model.PageSize *
+                                        Model.PageNumber))
+                    of @Model.TotalItemCount results
+                </span>
+            </form>
+
+            <div id="paginationContainer">
+                @if (Model.HasPreviousPage)
+                {
+                    <button class="btn btn-outline-dark pagination-btn" data-page="@(Model.PageNumber - 1)">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                }
+
+                <span class="mx-2">Page @Model.PageNumber of @Model.PageCount</span>
+
+                @if (Model.HasNextPage)
+                {
+                    <button class="btn btn-outline-dark pagination-btn" data-page="@(Model.PageNumber + 1)">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                }
+            </div>
+
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            // Handle Page Size Change
+            $("#pageSizeDropdown").change(function () {
+                console.log("Dropdown changed");
+                loadCustomers(1); // Reset to page 1 when changing page size
+            });
+            $(document).on("click", ".ajax-sort", function (e) {
+                e.preventDefault();
+
+                const sortBy = $(this).data("sortby");
+                const isAsc = $(this).data("isasc");
+
+                $.ajax({
+                    url: '/Customer/Customer',
+                    type: 'GET',
+                    data: {
+                        sortBy: sortBy,
+                        isAsc: isAsc
+                    },
+                    success: function (data) {
+                        $("#orderTable").html(data);
+                    },
+                    error: function () {
+                        alert("Failed to load data.");
+                    }
+                });
+            });
+            $(".saveBtn").click(function () {
+                console.log("Search Button Clicked");
+                loadCustomers(1); // Reset to page 1 on search
+            });
+            $(".cleareverything").on("click", function () {
+                console.log("Clcikerf");
+                $("#startDate").val("");
+                $("#endDate").val("");
+                @* loadTaxes(1); *@
+            });
+            $(".selectedorder").click(function () {
+                var customerId = $(this).data("id");
+                console.log(customerId);
+                $.ajax({
+                    url: '/Customer/CustomerDetails',  // Ensure this route matches your controller
+                    type: 'GET',
+                    data: {
+                        customerId: customerId
+                    },
+                    success: function (data) {
+                        $("#customerDetail").html(data);  // Update the menu items container
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching items:', error);
+                    }
+                });
+                $('#customerHistory').modal("show");
+            });
+
+
+
+        });
+
+        function loadCustomers(page = 1) {
+            var search = $("#searchInput").val();
+            var orderStatus = $("#orderStatus").val();
+            var filterdate = $("#datefilter").val();
+            var startDate = $("#startDate").val();
+            var endDate = $("#endDate").val();
+            console.log(startDate);
+            console.log(endDate);
+            @* var sortOrder = $("#sortOrder").val(); *@
+            var pageSize = $("#pageSizeDropdown").val();
+            console.log(search);
+            @* console.log("Page:", page, "PageSize:", pageSize); *@
+
+                $.ajax({
+                    url: '/Customer/Customer',  // Ensure this route matches your controller
+                    type: 'GET',
+                    data: {
+                        search: search,
+                        page: page,
+                        pageSize: pageSize,
+                        orderStatus: orderStatus,
+                        filterdate: filterdate,
+                        startDate: startDate,
+                        endDate: endDate
+                    },
+                    success: function (data) {
+                        $("#orderTable").html(data);  // Update the menu items container
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching items:', error);
+                    }
+                });
+        }
+
+    </script>
+
+</body>

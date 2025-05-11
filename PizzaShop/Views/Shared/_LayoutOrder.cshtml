@@ -1,0 +1,428 @@
+@using DAL.Interfaces
+@using BLL.Interfaces
+@using Newtonsoft.Json
+@using System.Security.Claims
+
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IUserService _userService
+
+@{
+
+    @* var userDataJson = HttpContextAccessor.HttpContext.Session.GetString("UserData");
+    var userEmail = HttpContextAccessor.HttpContext.Session.GetString("UserEmail");
+    User user = !string.IsNullOrEmpty(userDataJson) ? JsonConvert.DeserializeObject<User>(userDataJson) : null;
+    if (!string.IsNullOrEmpty(userDataJson))
+    {
+        user = JsonConvert.DeserializeObject<User>(userDataJson);
+    } *@
+
+    var userEmail = HttpContextAccessor.HttpContext.Request.Cookies["email"];
+    var userPhoto = HttpContextAccessor.HttpContext.Request.Cookies["ProfilePhoto"];
+    var userName = HttpContextAccessor.HttpContext.Request.Cookies["Name"];
+
+    @* User user = null; *@
+
+    // Fetch user details from the database based on email
+    var user = _userService.GetUserByEmail(userEmail); // Call your service method
+
+    var isChef = user.RoleId == 1;
+    var isAccountManager = user.RoleId == 3;
+
+
+}
+
+@{
+    @if (TempData["Message"] != null)
+    {
+        @TempData["Message"]
+    }
+}
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PizzaShop</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- jQuery (must be before Bootstrap 4) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap 4 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/style.css">
+    <link rel="stylesheet" href="~/css/media.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/PizzaShop.styles.css" asp-append-version="true" />
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+    @* <!-- jQuery (required for Toastr) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> *@
+
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <!-- Bootstrap JS (with Popper.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        /* Ensure the dropdown is properly positioned */
+        .dropdown-menu {
+            position: absolute !important;
+            right: 0 !important;
+            left: auto !important;
+            min-width: 150px;
+            z-index: 1050;
+        }
+
+
+        .toast-success {
+            background-color: #28a745 !important;
+            color: white !important;
+        }
+
+        .toast-error {
+            background-color: #dc3545 !important;
+            color: white !important;
+        }
+
+        .toast-warning {
+            background-color: #ffc107 !important;
+            color: white !important;
+        }
+
+        .toast-info {
+            background-color: #17a2b8 !important;
+            color: white !important;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg position-fixed w-100 z-5" style="background-color:  #0066b2 !important;">
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between w-100 align-items-center">
+                    <button class="navbar-toggler" type="button" aria-label="Toggle navigation" id="sidebarToggle">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <!-- PIZZASHOP Logo and Name in the navbar -->
+                    <div class="d-flex align-items-center justify-content-center">
+                        <div class="bg-white me-1">
+                            <img src="~/assest/logos/pizzashop_logo.png" alt="Pizzashop Logo" style="width: 60px;">
+                        </div>
+
+                        <div class="fs-3 fw-bold text-white">PIZZASHOP</div>
+                    </div>
+
+
+
+
+                    <div class="d-flex  justify-content-between flex-row align-items-center">
+                        <!-- Dropdown for small screens -->
+                        <div class="d-md-none m-2 w-100">
+                            <div class="d-flex flex-wrap">
+                                <!-- Main Pill with Dropdown -->
+                                <div class="dropdown">
+                                    <span id="mainPill"
+                                        class="badge rounded-pill border border-white me-3 d-flex align-items-center justify-content-center gap-2 px-3 py-2 text-white"
+                                        style="background-color: transparent;" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                        <i class="fa-solid fa-square"></i>
+                                        <span id="pillText">Tables</span> <!-- Default main pill text -->
+                                        <i class="fa-solid fa-chevron-down ms-2"></i> <!-- Arrow icon -->
+                                    </span>
+
+                                    <!-- Dropdown Menu -->
+                                    <ul class="dropdown-menu p-0">
+                                        <!-- KOT Option -->
+                                        @if (isChef || isAccountManager)
+                                        {
+                                            <li>
+                                                <a class="dropdown-item d-flex align-items-center gap-2" href="#"
+                                                    onclick="changePillAndRedirect('KOT', '@Url.Action("KOT", "AccountManagerOrderApp")')">
+                                                    <i class="fa-solid fa-clipboard-list"></i>
+                                                    <span>KOT</span>
+                                                </a>
+                                            </li>
+                                        }
+
+                                        <!-- Waiting List Option -->
+                                        @if (isAccountManager)
+                                        {
+                                            <li>
+                                                <a class="dropdown-item d-flex align-items-center gap-2" href="#"
+                                                    onclick="changePillAndRedirect('Waiting List', '@Url.Action("WaitingList", "AccountManagerOrderApp")')">
+                                                    <i class="fa-solid fa-clock"></i>
+                                                    <span>Waiting List</span>
+                                                </a>
+                                            </li>
+                                        }
+
+                                        <!-- Menu Option -->
+                                        @if (isAccountManager)
+                                        {
+                                            <li>
+                                                <a class="dropdown-item d-flex align-items-center gap-2" href="#"
+                                                    onclick="changePillAndRedirect('Menu', '@Url.Action("MenuOrderApp", "AccountManagerOrderApp")')">
+                                                    <i class="fa-solid fa-bell-concierge"></i>
+                                                    <span>Menu</span>
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-none d-md-flex">
+                            @if (isChef || isAccountManager)
+                            {
+                                <a class="ms-2" asp-controller="AccountManagerOrderApp" asp-action="KOT" style="text-decoration: none;">
+                                    <span
+                                        class="badge rounded-pill border border-white me-3 d-flex align-items-center justify-content-center gap-2 px-3 py-2 text-white" style="background-color: @(ViewContext.RouteData.Values["action"]?.ToString() == "KOT" ? "#39A7ED" : "transparent");"  >
+                                        <i class="fa-solid fa-clipboard-list"></i>
+                                        <span>KOT</span>
+                                    </span>
+                                </a>
+                            }
+
+                            @if (isAccountManager)
+                            {
+                                <a class="ms-2" asp-controller="AccountManagerOrderApp" asp-action="WaitingList" style="text-decoration: none;">
+                                    <span
+                                        class="badge rounded-pill border border-white me-3 d-flex align-items-center justify-content-center gap-2 px-3 py-2 text-white" style="background-color: @(ViewContext.RouteData.Values["action"]?.ToString() == "WaitingList" ? "#39A7ED" : "transparent");">
+                                        <i class="fa-solid fa-clock"></i>
+                                        <span>Waiting List</span>
+                                    </span>
+                                </a>
+
+                                <a class="ms-2" asp-controller="AccountManagerOrderApp" asp-action="Table" style="text-decoration: none;">
+                                    <span
+                                        class="badge rounded-pill border border-white me-3 d-flex align-items-center justify-content-center gap-2 px-3 py-2 text-white" style="background-color: @(ViewContext.RouteData.Values["action"]?.ToString() == "Table" ? "#39A7ED" : "transparent");" >
+                                        <i class="fa-solid fa-square"></i>
+                                        <span>Tables</span>
+                                    </span>
+                                </a>
+
+                                <a class="ms-2" asp-controller="AccountManagerOrderApp" asp-action="MenuOrderApp" style="text-decoration: none;">
+                                    <span
+                                        class="badge rounded-pill border border-white me-3 d-flex align-items-center justify-content-center gap-2 px-3 py-2 text-white" style="background-color: @(ViewContext.RouteData.Values["action"]?.ToString() == "MenuOrderApp" ? "#39A7ED" : "transparent");" >
+                                        <i class="fa-solid fa-bell-concierge"></i>
+                                        <span>Menu</span>
+                                    </span>
+                                </a>
+                            }
+                        </div>
+
+                        <div class="dropdown">
+                            <a class="nav-link d-flex align-items-center dropdown-toggle" href="#" id="userDropdown"
+                                role="button">
+                                <img src="@userPhoto" alt="User Image" class="rounded-circle me-2"
+                                    style="width: 45px; height: 45px;">
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow p-3" aria-labelledby="userDropdown"
+                                data-bs-auto-close="outside">
+                                <!-- Profile Section -->
+                                <li class="d-flex align-items-center p-2 border-bottom">
+                                    <img src="@userPhoto" alt="User Image" class="rounded-circle me-2"
+                                        style="width: 40px; height: 40px;">
+                                    <div>
+                                        <p class="mb-0 fw-bold">@userName</p>
+                                        <small class="text-muted">@userEmail</small>
+                                    </div>
+                                </li>
+
+                                <!-- My Profile -->
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center py-2" asp-area=""
+                                        asp-controller="User" asp-action="Profile">
+                                        <i class="fa-solid fa-user me-2"></i> My Profile
+                                    </a>
+                                </li>
+
+                                <!-- Change Password -->
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center py-2" asp-area=""
+                                        asp-controller="User" asp-action="Changepassword">
+                                        <i class="fa-solid fa-lock me-2"></i> Change Password
+                                    </a>
+                                </li>
+
+                                <!-- Logout -->
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="#"
+                                        data-bs-toggle="modal" data-bs-target="#LogoutModel">
+                                        <i class="fa-solid fa-sign-out-alt me-2"></i> Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Profile Dropdown -->
+
+                </div>
+
+            </div>
+        </nav>
+    </header>
+
+
+
+    <div class="modal fade" id="LogoutModel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Logout Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-flex flex-column align-items-center justify-content-center">
+                    <img class="img-fluid" src="~/assest/toppng.com-warning-icon-2400x2400.png" alt=""
+                        style="width: 50px;">
+                    <div class="fs-4">Are you sure you want to log out?</div>
+                </div>
+                <div class="modal-footer d-flex align-items-center justify-content-center">
+                    <form asp-controller="Authentication" asp-action="Logout" method="post">
+                        <button type="submit" class="btn btn-primary">Yes</button>
+                    </form>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Main Content -->
+    <div>
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+
+
+    <!-- jQuery -->
+    @* <script src="~/lib/jquery/dist/jquery.min.js"></script> *@
+
+    <!-- Bootstrap JavaScript -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Dropdown Initialization Script -->
+    <script>
+        toastr.option = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "5000",
+        };
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var dropdownTrigger = document.getElementById("userDropdown");
+            var dropdownMenu = new bootstrap.Dropdown(dropdownTrigger, {
+                autoClose: "outside" // Keeps the dropdown open when clicking inside
+            });
+
+            dropdownTrigger.addEventListener("click", function (event) {
+                event.preventDefault();
+                dropdownMenu.toggle(); // Ensures dropdown toggles properly
+            });
+        });
+        function handleMenuSelect(select) {
+            const val = select.value;
+            if (val) {
+                window.location.href = val;
+            }
+        }
+        window.onload = function () {
+            setDefaultPillFromUrl();
+        }
+
+        // Function to set the default pill text based on the current page URL
+        function setDefaultPillFromUrl() {
+            const currentUrl = window.location.pathname;
+
+            // Check the current URL and update the pill based on the page
+            if (currentUrl.includes("/AccountManagerOrderApp/WaitingList")) {
+                changePill("Waiting List");
+            } else if (currentUrl.includes("/AccountManagerOrderApp/KOT")) {
+                changePill("KOT");
+            } else if (currentUrl.includes("/AccountManagerOrderApp/MenuOrderApp")) {
+                changePill("Menu");
+            } else {
+                changePill("Tables");  // Default if no match
+            }
+        }
+
+        // Function to change the pill text
+        function changePill(option) {
+            document.getElementById('pillText').textContent = option;
+        }
+
+        // Function to change the pill and redirect to the selected option's URL
+        function changePillAndRedirect(option, url) {
+            changePill(option);  // Change the pill text
+            window.location.href = url;  // Redirect to the selected page
+        }
+
+
+        @* $(".menupermit").click(function () {
+
+            console.log("Save button is Pressed");
+            $.ajax({
+                url: '/Home/Menu',
+                type: 'GET',
+                success: function (data) {
+                    window.location.href = '/Home/Menu';
+                },
+                error: function (xhr, status, error) {
+                    toastr.error('You do not have Permission', "UnAuthorise");
+                }
+            });
+        }); *@
+
+
+
+
+            $(document).ready(function () {
+                var message = "@TempData["Message"]";
+                var messageType = "@TempData["MessageType"]";
+
+                if (message) {
+                    switch (messageType) {
+                        case "success":
+                            toastr.success(message);
+                            break;
+                        case "error":
+                            toastr.error(message);
+                            break;
+                        case "warning":
+                            toastr.warning(message);
+                            break;
+                        case "info":
+                            toastr.info(message);
+                            break;
+                    }
+                }
+            });
+
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+
+</html>

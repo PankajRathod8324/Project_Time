@@ -1,0 +1,197 @@
+@model Entities.ViewModel.MenuCategoryVM
+
+@{
+    Layout = "_LayoutOrder";
+    ViewData["Title"] = "Table View";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizza Shop</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
+    <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <style>
+        .prev-btn, .next-btn {
+            display: block !important
+        }
+    </style>
+</head>
+
+<body style="background-color: rgb(245,245,245);">
+    <div style="padding-top: 100px; padding-left: 50px; padding-right: 50px;">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col">
+                    <div class="fs-2 fw-bold webybtn mb-3">KOT</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bootstrap Tabs -->
+        <ul class="nav nav-tabss border-0 bg-white p-3 pt-2 pb-0 rounded-3" id="categoryTabs">
+            <li class="nav-item">
+                <a class="nav-link active text-nav-color border-bottom border-primary fs-5 fw-bold" data-category="0"
+                    aria-selected="true" onclick="showCategory(0, 'All')">
+                    All
+                </a>
+            </li>
+            @foreach (var category in Model.menuCategories)
+            {
+                <li class="nav-item">
+                    <a class="nav-link categoryBtn text-nav-color fs-5 fw-bold" data-category="@category.CategoryId"
+                        onclick="showCategory(@category.CategoryId, '@category.CategoryName')">
+                        @category.CategoryName
+                    </a>
+                </li>
+            }
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content mt-3 bg-white" id="categoryTabContent">
+            <div class="d-flex align-items-center justify-content-between p-3">
+
+                <input type="hidden" id="selectedCategoryId" value="0" />
+                <div id="categoryName">
+                </div>
+                <div class="fs-3 fw-bold webybtn mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn text-center progressbtn"
+                            onclick="handleStatus('In Progress')"
+                            style="background-color: rgba(0, 102, 167, 1); border-color: rgba(0, 102, 167, 1); color: white;">
+                            In Progress
+                        </button>
+
+                        <button type="button" class="btn readybtn" onclick="handleStatus('Ready')"
+                            style="background-color: white; border-color: rgba(0, 102, 167, 1); color: rgba(0, 102, 167, 1);">
+                            Ready
+                        </button>
+
+                        <button class="btn  pagination-btn prev-btn"
+                            style="background-color: white; border-color: rgba(0, 102, 167, 1); color: rgba(0, 102, 167, 1);">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button class="btn  pagination-btn next-btn"
+                            style="background-color: white; border-color: rgba(0, 102, 167, 1); color: rgba(0, 102, 167, 1);overflow: visible !important;">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Placeholder for Partial View -->
+            <div class="category-content" id="kotcard">
+
+            </div>
+
+        </div>
+    </div>
+
+
+
+</body>
+
+<script>
+    $(document).ready(function () {
+        // Show the initial category content
+        showCategory(0, 'All');
+        $(".card-container").click(function () {
+            $("#kotmodal").modal("show");
+        });
+    }); 
+    function showCategory(categoryId, categoryName) {
+        // Hide all category contents
+
+        $('#selectedCategoryId').val(categoryId);
+
+        $('#categoryName').html(`<span class="fs-3 fw-bold webybtn">${categoryName}</span>`);
+
+        $(".category-content").hide();
+        var status = "In Progress";
+        console.log(categoryId);
+        console.log(status);
+
+
+        $.ajax({
+            url: '@Url.Action("GetKOT", "AccountManagerOrderApp")',
+            type: 'GET',
+            data: { categoryId: categoryId, status: status },
+            success: function (data) {
+                $('#kotcard').html(data);
+                $('#kotcard').find('.category-content').show();  // Ensure newly added content is visible
+                $('#kotcard').show();
+
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching category items:", error);
+            }
+        });
+
+        $(".nav-link").removeClass("text-primary border-bottom border-primary fw-bold").addClass("text-nav-color");
+
+        // Add active style to selected
+        $(`[data-category="${categoryId}"]`)
+            .removeClass("text-nav-color")
+            .addClass("text-primary border-bottom border-primary fw-bold");
+    }
+    $(".readybtn").click(function () {
+        $(this).css({
+            "background-color": "rgba(0, 102, 167, 1)",
+            "border-color": "rgba(0, 102, 167, 1)",
+            "color": "white"
+        });
+        $(".progressbtn").css({
+            "background-color": "white",
+            "border-color": "rgba(0, 102, 167, 1)",
+            "color": "rgba(0, 102, 167, 1)"
+        });
+    });
+    $(".progressbtn").click(function () {
+        $(this).css({
+            "background-color": "rgba(0, 102, 167, 1)",
+            "border-color": "rgba(0, 102, 167, 1)",
+            "color": "white"
+        });
+        $(".readybtn").css({
+            "background-color": "white",
+            "border-color": "rgba(0, 102, 167, 1)",
+            "color": "rgba(0, 102, 167, 1)"
+        });
+    });
+    function handleStatus(status) {
+        var categoryId = $('#selectedCategoryId').val();
+        console.log("Selected CategoryId:", categoryId, "Status:", status);
+        window.myselectedstatus = status;
+        
+
+        $.ajax({
+            url: '@Url.Action("GetKOT", "AccountManagerOrderApp")',
+            type: 'GET',
+            data: { categoryId: categoryId, status: status },
+            success: function (data) {
+                @* console.log("Category items fetched successfully:", data); *@
+                $('#kotcard').html(data);
+                $('#kotcard').find('.category-content').show();  // Ensure newly added content is visible
+                $('#kotcard').show();
+            },
+            error: function (xhr, status, error) {
+                $('#kotcard').empty();
+                
+                console.log("IN Error Page");
+                @* console.error("Error fetching category items:", error); *@
+            }
+        });
+
+    }
+</script>
+
+</html>

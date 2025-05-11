@@ -1,0 +1,113 @@
+@model List<Entities.ViewModel.WaitingListVM>
+
+<table class="table ">
+  <thead>
+    <tr>
+      <th class="border-0"></th>
+      <th class="border-0 text-secondary">ID</th>
+      <th class="border-0 text-secondary">Name</th>
+      <th class="border-0 text-secondary" >No. Of Persons</th>
+    </tr>
+  </thead>
+  <tbody>
+    @if (Model.Any(temp => temp.WaitingListId != null))
+    {
+    @foreach(var ele in Model)
+    {
+    <tr>
+     <td><input type="radio" id="dataradio" data-id="@ele.WaitingListId" data-no="@ele.NoOfPerson"></td>
+      <td>#@ele.WaitingListId</td>
+      <td>@ele.Name</td>
+      <td>@ele.NoOfPerson</td>
+    </tr>
+    }
+    }
+    else{
+        <tr>
+            <td colspan="6" class="text-center text-muted">
+                <p class="mb-0">No Record found!</p>
+            </td>
+        </tr>
+    }
+    
+  </tbody>
+</table>
+
+<div id="customerDetail">
+    <div class="modal-title fw-bold webybtn text-md mb-3">Customer Details</div>
+   
+        <div class="row d-flex justify-space-between"></div>
+        <div class="row">
+            <div class="col">
+                <div class="form-floating mb-3">
+                    <input type="email" class="form-control required" id="email" name="email">
+                    <label for="floatingInput">Email*</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control required" id="name" name="name">
+                    <label for="floatingInput">Name*</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control required" id="phone" name="phone">
+                    <label>Mobile Number*</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control " name="noOfPerson" id ="noOfPerson">
+                    <label>No. Of Persons*</label>
+                </div>
+            </div>
+            <div class="col">
+                 <div class="form-floating"> <select class="form-select" asp-for="@Model.First().SectionId"
+                                            asp-items="ViewBag.Sections" id="floatingSelect"
+                                            aria-label="Floating label select example" disabled>
+                                            <option selected>Select a Section</option>
+                                        </select>
+                                        <label for="floatingSelect">Status*</label>
+                                        <span asp-validation-for="@Model.First().SectionId" class="text-danger"></span>
+                                    </select>
+                                    <label for="floatingSelect">Section Name*</label>
+                                    <span asp-validation-for="@Model.First().SectionId" class="text-danger"></span>
+                                </div>
+            </div>
+        </div>
+</div>
+
+<script>
+    @* $(document).ready(function () {
+      
+        $("#email").blur(function () {
+            var email = $(this).val();
+            console.log(email);
+            $.ajax({
+                    url: '@Url.Action("GetWaitingDataByEmail","AccountManagerOrderApp")',
+                    type: 'GET',
+                    data: { email: email },
+                    success: function (response) {
+                        $("#customerDetail").html(response); // Append fetched HTML
+                        console.log("Heloo!");
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching modifier groups:', error);
+                    }
+                });
+        })
+        
+
+       
+    }); *@
+</script>

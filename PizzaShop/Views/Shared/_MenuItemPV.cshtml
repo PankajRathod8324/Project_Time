@@ -1,0 +1,372 @@
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList< Entities.ViewModel.MenuCategoryVM>
+
+@{
+    ViewData["Title"] = "Menu Item Page";
+    @* if (TempData["Message"] != null)
+    {
+        <div class="alert alert-@TempData["MessageType"]">@TempData["Message"]</div>
+    } *@
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Page</title>
+    <link rel="stylesheet" href="~/css/style.css">
+    <link rel="stylesheet" href="~/css/media.css">
+    <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
+    @* <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> *@
+    @* <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" /> *@
+</head>
+
+<body class="bg-white">
+
+    <div class="table-responsive " style="max-height: 400px; overflow-y: auto;">
+        <table class="table align-bottom text-center">
+            <thead style="position: sticky; top: 0; z-index: 10;">
+                <tr>
+                    <th class="text-start text-secondary border-top-0 fs-5">
+                        <input type="checkbox" class="me-2" id="selectAll" />
+                        Name
+                    </th>
+                    <th class="text-secondary border-top-0 fs-5">Item Type</th>
+                    <th class="text-secondary border-top-0 fs-5">Rate</th>
+                    <th class="text-secondary border-top-0 fs-5">Quantity</th>
+                    <th class="text-secondary border-top-0 fs-5">Available</th>
+                    <th class="text-secondary border-top-0 fs-5">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any(menuitem => menuitem.ItemId != null))
+                {
+                    @foreach (var menuitem in Model)
+                    {
+                        if (menuitem.ItemId != null)
+                        {
+                            <tr class="tblclass " data-id="@menuitem.ItemId">
+                                <td class="text-start ">
+                                    <div class="d-flex align-items-center">
+                                        <input type="checkbox" name="chkItem" class="checkclass me-2" />
+                                        <img src="@(string.IsNullOrEmpty(menuitem.ItemPhoto) ? Url.Content("~/assest/dining-menu.png") : @menuitem.ItemPhoto)"
+                                            alt="Menu Icon" class="rounded-circle"
+                                            style="width: 45px; height: 45px; object-fit: cover;" />
+                                        <div class="ms-2">
+                                            <p class="text-secondary mb-0 fw-bold">@menuitem.ItemName</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <img src="~/assest/icons/@(menuitem.ItemtypeId == 1 ? "veg-icon.svg" : (menuitem.ItemtypeId == 2 ? "non-veg-icon.svg" : "vegan-icon.svg"))"
+                                        class="rounded-circle" style="width: 24px; height: 24px;" />
+                                <td class="fw-bold text-secondary align-items-center">
+                                    @menuitem.Rate
+                                </td>
+                                <td class="fw-bold text-secondary mb-0">
+                                    @menuitem.Quantity
+                                </td>
+                                <td>
+                                    <div class="form-check form-switch d-flex justify-content-center">
+                                        <input class="form-check-input canView" type="checkbox" id="toggleSwitch"
+                                            @(menuitem.IsAvailable ? "checked" : "") style="border-radius: 1rem !important;"
+                                            disabled>
+                                    </div>
+                                </td>
+                                <td>
+                                    <i class="bi bi-pen text-secondary edititembtn"
+                                        onclick="editItem(@menuitem.ItemId, @Model.PageNumber)"></i>
+
+                                    <i class="bi bi-trash text-secondary ms-2 deletesinglebtn"
+                                        data-id="@menuitem.ItemId"></i>
+                                </td>
+                            </tr>
+                        }
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            <p class="mb-0">No items found!</p>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="d-flex justify-content-end align-items-center my-3 gap-2">
+        <form id="paginationForm" method="get" class="d-flex align-items-center me-3">
+            <span class="me-2">Items per page:</span>
+            <select id="pageSizeDropdown" class="form-select form-select-sm w-auto me-3"
+                data-categoryid="@Model.FirstOrDefault()?.CategoryId">
+                <option value="5" selected="@(ViewBag.PageSize == 5)">5</option>
+                <option value="10" selected="@(ViewBag.PageSize == 10)">10</option>
+                <option value="15" selected="@(ViewBag.PageSize == 15)">15</option>
+            </select>
+
+
+            <span id="pagination-summary" class="text-muted">
+                Showing @(Model.PageSize * (Model.PageNumber - 1) + 1) -
+                @((Model.PageSize * Model.PageNumber) > Model.TotalItemCount ? Model.TotalItemCount : (Model.PageSize *
+                                Model.PageNumber))
+                of @Model.TotalItemCount results
+            </span>
+        </form>
+
+        <div id="paginationContainer">
+            @if (Model.HasPreviousPage)
+            {
+                <button class="btn btn-outline-dark pagination-btn" data-page="@(Model.PageNumber - 1)"
+                    data-categoryid="@Model.FirstOrDefault()?.CategoryId">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+            }
+
+            <span class="mx-2">Page @Model.PageNumber of @Model.PageCount</span>
+
+            @if (Model.HasNextPage)
+            {
+                <button class="btn btn-outline-dark pagination-btn" data-page="@(Model.PageNumber + 1)"
+                    data-categoryid="@Model.FirstOrDefault()?.CategoryId">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            }
+        </div>
+
+    </div>
+
+
+
+    <div class="modal" id="editMenuItemModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title text-secondary" id="exampleModalLabel">Edit Menu Item</h5>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body" id="modalbody">
+                    @* Editmodal will be shown here *@
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal" id="deleteSingleItemModel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Delete Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-flex flex-column align-items-center justify-content-center">
+                    <img class="img-fluid" src="~/assest/toppng.com-warning-icon-2400x2400.png" alt=""
+                        style="width: 50px;">
+                    <div class="fs-4">Are you sure you want to delete this item?</div>
+                </div>
+                <div class="modal-footer d-flex align-items-center justify-content-center">
+                    <button type="submit"
+                        class="btn  webybg  fs-6 fw-bold text-white px-4 deletesingleitembtn ">YES</button>
+                    <button type="button" class="btn  webyborder webybtn fw-bold px-4"
+                        data-bs-dismiss="modal">NO</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script>
+       
+        
+
+        $(document).ready(function () {
+             let selectedItemId = 0;
+            $("#pageSizeDropdown").change(function (event) {
+                event.preventDefault();
+
+                var selectedPageSize = $(this).val();
+                var categoryId = $(this).data("categoryid");
+                var currentPage = 1;
+                console.log("dropdown");
+
+
+                $.ajax({
+                    url: '@Url.Action("MenuItem", "Menu")',
+                    type: 'GET',
+                    data: {
+                        categoryId: categoryId,
+                        PageSize: selectedPageSize,
+                        PageNumber: currentPage
+                    },
+                    beforeSend: function () {
+                        $("#pageSizeDropdown").prop("disabled", true);
+                    },
+                    success: function (data) {
+                        $("#menuItemsContainer").html(data);
+                        $("#pageSizeDropdown").prop("disabled", false);
+                    },
+                    error: function () {
+                        alert("Failed to update items per page.");
+                        $("#pageSizeDropdown").prop("disabled", false);
+                    }
+                });
+            });
+
+
+
+
+            $('#selectAll').click(function () {
+                $('input[name="chkItem"]').prop('checked', this.checked);
+            });
+
+            // If selectAll is Pressed  And Perticuler checkbox is unchecked then selectAll checkbox also unchecked
+            document.querySelectorAll('input[name="chkItem"]').forEach(function (checkbox) {
+                checkbox.addEventListener('change', function () {
+                    if (!this.checked) {
+                        document.getElementById('selectAll').checked = false;
+                    }
+                });
+            });
+            // If All checkbox is checked then selectAll checkbox also checked
+            document.querySelectorAll('input[name="chkItem"]').forEach(function (checkbox) {
+                checkbox.addEventListener('change', function () {
+                    let flag = Array.from(document.querySelectorAll('input[name="chkItem"]')).every(function (checkbox) {
+                        return checkbox.checked;
+                    });
+                    if (this.checked && flag) {
+                        document.getElementById('selectAll').checked = true;
+                    }
+                });
+            });
+
+            $('.edititembtn').click(function () {
+                $('#editMenuItemModal').modal('show');
+            });
+
+            $('.deletesinglebtn').click(function () {
+                $('#deleteSingleItemModel').modal('show');
+                selectedItemId = $(this).data('id');    
+                console.log("delete button clicked");
+            });
+            $('.deletesingleitembtn').click(function () {
+                deleteItem();
+            });
+
+            function deleteItem() {
+                var itemid = selectedItemId;
+                var Item = [];
+                Item.push({ ItemId: itemid });
+
+                $.ajax({
+                    url: '@Url.Action("DeleteItem", "Menu")',
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(Item),
+                    success: function () {
+                        let currentPage = parseInt('@Model.PageNumber');
+                        let totalItems = parseInt('@Model.TotalItemCount');
+                        let pageSize = parseInt('@Model.PageSize');
+                        let categoryId = '@Model.FirstOrDefault()?.CategoryId';
+
+                        // If the last item of the page is deleted, move to the previous page
+                        let newPage = (totalItems - 1) % pageSize === 0 && currentPage > 1 ? currentPage - 1 : currentPage;
+                        $('#deleteSingleItemModel').modal('hide');
+                        toastr.success("Item deleted successfully!");
+
+                            $.ajax({
+                                url: '@Url.Action("MenuItem", "Menu")',
+                                type: 'GET',
+                                data: { categoryId: categoryId, PageNumber: newPage },
+                                success: function (data) {
+                                    $("#menuItemsContainer").html(data); // Update only menu items list
+                                },
+                                error: function () {
+                                    alert("Failed to refresh the menu list.");
+                                }
+                            });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error deleting item:', error);
+                    }
+                });
+            }
+
+        });
+
+
+        var ItemIdTemp = 0;
+        function loadModifiersForEdit(ItemIdTemp) {
+            console.log("initial-scale load KJdknsd" + ItemIdTemp);
+
+
+        }
+        var selectedModifierGroups = [];
+        function editItem(itemid, pagenumber) {
+            ItemIdTemp = itemid;
+            console.log(pagenumber);
+            console.log("HOmenefhjmdejhedj," + itemid);
+            $.ajax({
+                url: '@Url.Action("EditMenuItem", "Menu")',
+                type: 'GET',
+                data: { itemId: itemid, pagenumber: pagenumber },
+                success: function (data) {
+                    $("#modalbody").html(data);
+                    selectedModifierGroups = data.ModifierGroupIds || [];
+                    @* console.log(data); *@
+                        // Call function to load modifiers separately
+                        loadModifiersForEdit(ItemIdTemp);
+
+
+
+                    @* $("#modifierList").append(data); *@
+                        @* $("#editItemModal").modal("show"); *@
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching items:', error);
+                }
+            });
+        }
+
+
+
+        // selectAll 
+
+
+
+    </script>
+
+    @* <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <!-- jQuery -->
+    <script src='https://code.jquery.com/jquery-3.7.0.js'></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    @*  *@
+    @* <script src="~/js/userPage.js"></script>  *@
+
+
+
+
+</body>
+
+</html>

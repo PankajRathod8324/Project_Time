@@ -1,0 +1,57 @@
+d:\Training\Assignment\Pizza_Shop\BLL\bin\Debug\net7.0\BLL.deps.json
+d:\Training\Assignment\Pizza_Shop\BLL\bin\Debug\net7.0\BLL.runtimeconfig.json
+d:\Training\Assignment\Pizza_Shop\BLL\bin\Debug\net7.0\BLL.dll
+d:\Training\Assignment\Pizza_Shop\BLL\bin\Debug\net7.0\BLL.pdb
+d:\Training\Assignment\Pizza_Shop\BLL\bin\Debug\net7.0\DAL.dll
+d:\Training\Assignment\Pizza_Shop\BLL\bin\Debug\net7.0\DAL.pdb
+d:\Training\Assignment\Pizza_Shop\BLL\obj\Debug\net7.0\BLL.csproj.AssemblyReference.cache
+d:\Training\Assignment\Pizza_Shop\BLL\obj\Debug\net7.0\BLL.GeneratedMSBuildEditorConfig.editorconfig
+d:\Training\Assignment\Pizza_Shop\BLL\obj\Debug\net7.0\BLL.AssemblyInfoInputs.cache
+d:\Training\Assignment\Pizza_Shop\BLL\obj\Debug\net7.0\BLL.AssemblyInfo.cs
+d:\Training\Assignment\Pizza_Shop\BLL\obj\Debug\net7.0\BLL.csproj.CoreCompileInputs.cache
+d:\Training\Assignment\Pizza_Shop\BLL\obj\Debug\net7.0\BLL.sourcelink.json
+d:\Training\Assignment\Pizza_Shop\BLL\obj\Debug\net7.0\BLL.csproj.Up2Date
+d:\Training\Assignment\Pizza_Shop\BLL\obj\Debug\net7.0\BLL.dll
+d:\Training\Assignment\Pizza_Shop\BLL\obj\Debug\net7.0\refint\BLL.dll
+d:\Training\Assignment\Pizza_Shop\BLL\obj\Debug\net7.0\BLL.pdb
+d:\Training\Assignment\Pizza_Shop\BLL\obj\Debug\net7.0\BLL.genruntimeconfig.cache
+d:\Training\Assignment\Pizza_Shop\BLL\obj\Debug\net7.0\ref\BLL.dll
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\bin\Debug\net7.0\BLL.deps.json
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\bin\Debug\net7.0\BLL.runtimeconfig.json
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\bin\Debug\net7.0\BLL.dll
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\bin\Debug\net7.0\BLL.pdb
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\bin\Debug\net7.0\DAL.dll
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\bin\Debug\net7.0\Entities.dll
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\bin\Debug\net7.0\DAL.pdb
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\bin\Debug\net7.0\Entities.pdb
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\obj\Debug\net7.0\BLL.csproj.AssemblyReference.cache
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\obj\Debug\net7.0\BLL.GeneratedMSBuildEditorConfig.editorconfig
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\obj\Debug\net7.0\BLL.AssemblyInfoInputs.cache
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\obj\Debug\net7.0\BLL.AssemblyInfo.cs
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\obj\Debug\net7.0\BLL.csproj.CoreCompileInputs.cache
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\obj\Debug\net7.0\BLL.sourcelink.json
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\obj\Debug\net7.0\BLL.csproj.Up2Date
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\obj\Debug\net7.0\BLL.dll
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\obj\Debug\net7.0\refint\BLL.dll
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\obj\Debug\net7.0\BLL.pdb
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\obj\Debug\net7.0\BLL.genruntimeconfig.cache
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\BLL\obj\Debug\net7.0\ref\BLL.dll
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\bin\Debug\net7.0\BLL.deps.json
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\bin\Debug\net7.0\BLL.runtimeconfig.json
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\bin\Debug\net7.0\BLL.dll
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\bin\Debug\net7.0\BLL.pdb
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\bin\Debug\net7.0\DAL.dll
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\bin\Debug\net7.0\Entities.dll
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\bin\Debug\net7.0\DAL.pdb
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\bin\Debug\net7.0\Entities.pdb
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\obj\Debug\net7.0\BLL.csproj.AssemblyReference.cache
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\obj\Debug\net7.0\BLL.GeneratedMSBuildEditorConfig.editorconfig
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\obj\Debug\net7.0\BLL.AssemblyInfoInputs.cache
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\obj\Debug\net7.0\BLL.AssemblyInfo.cs
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\obj\Debug\net7.0\BLL.csproj.CoreCompileInputs.cache
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\obj\Debug\net7.0\BLL.csproj.Up2Date
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\obj\Debug\net7.0\BLL.dll
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\obj\Debug\net7.0\refint\BLL.dll
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\obj\Debug\net7.0\BLL.pdb
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\obj\Debug\net7.0\BLL.genruntimeconfig.cache
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\BLL\obj\Debug\net7.0\ref\BLL.dll

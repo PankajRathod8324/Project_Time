@@ -1,0 +1,163 @@
+@model Entities.ViewModel.MenuModifierGroupVM
+
+<form id="editMenuModifierForm" asp-action="EditMenuModifier" asp-controller="Menu" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ModifierId" />
+
+    <div class="row d-flex justify-content-between">
+        <div class="col mt-1 pe-0">
+            <div class="row">
+                <!-- Modifier Groups Multi-Select Dropdown -->
+                <div class="col-md-6">
+                    <div class="form-group position-relative">
+                        <div class="dropdown w-100">
+                            <button class="btn btn-light dropdown-toggle w-100 text-start" type="button"
+                                id="editModifierDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Select Modifier Groups
+                            </button>
+                            <ul class="dropdown-menu w-100 overflow-auto custom-dropdown"
+                                aria-labelledby="editModifierDropdown">
+                                @foreach (var group in ViewBag.ModifierGroups)
+                                {
+                                    var groupId = Convert.ToInt32(group.Value); // Ensure correct type comparison
+                                                                                <li>
+                                                                                    <div class="form-check dropdown-item">
+                                                                                        <input class="form-check-input modifier-group-checkbox" type="checkbox"
+                                                                                            name="ModifierGroupIds" value="@group.Value" id="editModGroup_@group.Value"
+                                                                                            @(Model.ModifierGroupIds.Contains(groupId) ? "checked" : "")>
+                                                                                        <label class="form-check-label"
+                                                                                            for="editModGroup_@group.Value">@group.Text</label>
+                                                                                    </div>
+                                                                                </li>
+                                }
+                            </ul>
+                        </div>
+                        <span asp-validation-for="ModifierGroupIds" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Name Input -->
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input type="text" asp-for="ModifierName" class="form-control" id="editModifierName"
+                            name="ModifierName">
+                        <label for="editModifierName">Name*</label>
+                        <span asp-validation-for="ModifierName" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rate, Quantity, Unit -->
+            <div class="row mt-3">
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <input type="text" asp-for="ModifierRate" class="form-control" id="editModifierRate"
+                            name="ModifierRate">
+                        <label for="editModifierRate">Rate*</label>
+                        <span asp-validation-for="ModifierRate" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <input type="text" asp-for="Quantity" class="form-control" id="editQuantity" name="Quantity">
+                        <label for="editQuantity">Quantity*</label>
+                        <span asp-validation-for="Quantity" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <select class="form-select" asp-for="UnitId" asp-items="ViewBag.Units" id="editUnitSelect"
+                            name="UnitId">
+                            <option value="" disabled selected>Select a unit</option>
+                        </select>
+                        <label for="editUnitSelect">Unit*</label>
+                        <span asp-validation-for="UnitId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <div class="form-floating">
+                        <input type="text" asp-for="ModifierDecription" class="form-control" id="editDescription"
+                            name="ModifierDecription">
+                        <label for="editDescription">Description</label>
+                        <span asp-validation-for="ModifierDecription" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+        <button type="submit" class="btn webybg  fs-6 fw-bold text-white px-4" id="saveEditModifier">Save</button>
+        <button type="button" class="btn webyborder webybtn fw-bold px-4" data-bs-dismiss="modal">Cancel</button>
+    </div>
+</form>
+
+<script>
+    @* let selectedModifierGroupId = '@Model.ModifierGroupIds.FirstOrDefault().groupId'; *@
+    $(document).ready(function () {
+        $("#editMenuModifierForm").submit(function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            let selectedGroups = [];
+            $(".modifier-group-checkbox:checked").each(function () {
+                selectedGroups.push(parseInt($(this).val())); // Ensure integer conversion
+            });
+
+            let token = $('input[name="__RequestVerificationToken"]').val(); // CSRF Token
+
+            let formData = {
+                ModifierId: parseInt($("#editMenuModifierForm input[name='ModifierId']").val()),
+                ModifierName: $("#editModifierName").val(),
+                ModifierRate: parseFloat($("#editModifierRate").val()) || 0,
+                Quantity: parseInt($("#editQuantity").val()) || 0,
+                UnitId: $("#editUnitSelect").val() ? parseInt($("#editUnitSelect").val()) : null,
+                ModifierDecription: $("#editDescription").val(),
+                ModifierGroupIds: selectedGroups
+            };
+
+            console.log(formData); // Debugging
+
+            $.ajax({
+                type: "POST",
+                url: "/Menu/EditMenuModifier",
+                contentType: "application/json", // Ensure JSON format
+                data: JSON.stringify(formData), // Convert object to JSON string
+                headers: {
+                    "RequestVerificationToken": token // Send CSRF token in headers
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $('#editmodifierModal').modal('hide');
+                        $.ajax({
+                            url: '/Menu/MenuModifier',
+                            type: 'GET',
+                            data: { groupId: 6 },
+                            success: function (data) {
+                                $("#Modifier").html(data);
+                                $('.hoverModifierDiv[data-modid="' + selectedModifierGroupId + '"]').addClass("active");
+                            },
+                            error: function (xhr, status, error) {
+                                console.error('Error fetching items:', error);
+                            }
+                        });
+                        toastr.info('Modiifer Updated Successfully.', "Success");
+                    } else {
+                        alert("Error updating modifier: " + response.message);
+                    }
+                },
+                error: function (xhr) {
+                    alert("An error occurred: " + xhr.responseText);
+                }
+            });
+        });
+    });
+
+
+</script>

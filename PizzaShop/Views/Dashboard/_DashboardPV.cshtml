@@ -1,0 +1,389 @@
+@model Entities.ViewModel.DashboardVM
+
+@{
+    ViewData["Title"] = "Dashboard Page";
+    @if (TempData["Message"] != null)
+    {
+        @TempData["Message"]
+    }
+}
+
+
+
+<div class=" mt-4 w-100">
+    <!-- First Row: Summary Cards -->
+    <!-- Summary Cards -->
+    <div class="row g-4 mt-3 w-100">
+        <div class="col-md-3">
+            <div class="card shadow  border border-white   p-2">
+                <div class="d-flex text-center justify-content-end">
+                    <div class=" rounded-circle p-2" style="border-radius: 50%; border: 2px solid #90ee90 !important;">
+                        <div class=" rounded-circle p-2 " style="background-color: #90ee90;">
+                            <img src="~/assest/icons/total-sales.svg" alt="">
+                        </div>
+                    </div>
+
+                </div>
+                <div>
+                    <span class="fs-3 fw-semibold ps-1">₹ @Model.TotalSales</span>
+                </div>
+                <div class=" mb-3">
+                    <span class="text-secondary fs-6 ps-1">Total Sales</span>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow  border border-white   p-2">
+                <div class="d-flex text-center justify-content-end">
+                    <div class=" rounded-circle p-2" style="border-radius: 50%; border: 2px solid #e1b2ee !important;">
+                        <div class=" rounded-circle p-2 " style="background-color: #e1b2ee;">
+                            <img src="~/assest/icons/total-orders.svg" alt="">
+                        </div>
+                    </div>
+
+                </div>
+                <div>
+                    <span class="fs-3 fw-semibold ps-1">@Model.TotalOrders</span>
+                </div>
+                <div class=" mb-3">
+                    <span class="text-secondary fs-6 ps-1">Total Orders</span>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow  border border-white   p-2">
+                <div class="d-flex text-center justify-content-end">
+                    <div class=" rounded-circle p-2" style="border-radius: 50%; border: 2px solid #abcfe3 !important;">
+                        <div class=" rounded-circle p-2 " style="background-color: #abcfe3;">
+                            <img src="~/assest/icons/order-value.svg" alt="">
+                        </div>
+                    </div>
+
+                </div>
+                <div>
+                    <span class="fs-3 fw-semibold ps-1">₹ @Model.AvgOrderValue</span>
+                </div>
+                <div class=" mb-3">
+                    <span class="text-secondary fs-6 ps-1">Avg. order Value</span>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow  border border-white   p-2">
+                <div class="d-flex text-center justify-content-end">
+                    <div class=" rounded-circle p-2" style="border-radius: 50%; border: 2px solid #f7aea3 !important;">
+                        <div class=" rounded-circle p-2 " style="background-color: #f7aea3;">
+                            <img src="~/assest/icons/waiting-time.svg" alt="">
+                        </div>
+                    </div>
+
+                </div>
+                <div>
+                    <span class="fs-3 fw-semibold ps-1">@Model.AvgWaitingTime mins</span>
+                </div>
+                <div class=" mb-3">
+                    <span class="text-secondary fs-6 ps-1">Avg. Waiting Time</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row mt-4 w-100">
+        <div class="col-md-6">
+            <div class="card shadow  border border-white    p-3">
+                <h5 class="text-center">Revenue</h5>
+                <canvas id="revenueChart" style="max-height: 200px;"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow  border border-white    p-3">
+                <h5 class="text-center">Customer Growth</h5>
+                <canvas id="customerGrowthChart" style="max-height: 200px;"></canvas>
+            </div>
+        </div>
+    </div>
+    <!-- Last Row: Additional Stats -->
+    <div class="row g-4 mt-3 w-100">
+        <!-- Top Selling Items -->
+        <div class="col-md-3">
+            <div class="card shadow p-3 text-start  border border-white ">
+                <h5>Top Selling Item</h5>
+                @for (int i = 0; i < Model.TopSellingItems.Count; i++)
+                {
+                    <div class="d-flex align-items-center justify-content-start text-start gap-2 border-bottom">
+                        <p class="fw-bold mt-3">#@(i + 1)</p>
+                        <img src="~/assest/dining-menu.png" alt="" style="width: 45px; height: 45px"
+                            class="rounded-circle" />
+                        <div class="text-start">
+                            <p class="fw-bold mb-0"> @Model.TopSellingItems[i].ItemName</p>
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="fa-solid fa-bell-concierge text-muted"></i>
+                                <p class="text-muted mb-0 small">@Model.TopSellingItems[i].Quantity order</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Least Selling Items -->
+        <div class="col-md-3">
+            <div class="card shadow p-3 text-start   border border-white ">
+                <h5>Least Selling Item</h5>
+                @for (int i = 0; i < Model.LeastSellingItems.Count; i++)
+                {
+                    <div class="d-flex align-items-center justify-content-start text-start gap-2 border-bottom">
+                        <p class="fw-bold mt-3">#@(i + 1)</p>
+                        <img src="~/assest/dining-menu.png" alt="" style="width: 45px; height: 45px"
+                            class="rounded-circle" />
+                        <div class="text-start">
+                            <p class="fw-bold mb-0"> @Model.LeastSellingItems[i].ItemName</p>
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="fa-solid fa-bell-concierge text-muted"></i>
+                                <p class="text-muted mb-0 small">@Model.LeastSellingItems[i].Quantity order</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Waiting List Count -->
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card shadow p-3 text-start border border-white">
+                <div class="d-flex text-center justify-content-end">
+                    <div class="d-flex rounded-circle p-2"
+                        style="width: 60px; height: 60px; min-width: 60px; border-radius: 50%; border: 2px solid #fbc96e !important;">
+                        <div class="rounded-circle p-2 w-100 h-100" style="background-color: #fbc96e;">
+                            <img src="~/assest/icons/waiting-list.svg" class="w-100 h-100 img-fluid" alt=""
+                                style="object-fit: contain;">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <span class="fs-3 fw-semibold ps-1">@Model.WaitingListCount</span>
+                </div>
+                <div class="mb-3">
+                    <span class="text-secondary fs-6 ps-1">Waiting List Count</span>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- New Customer Count -->
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card shadow p-3 text-start border border-white">
+                <div class="d-flex text-center justify-content-end">
+                    <div class="d-flex rounded-circle p-2"
+                        style="width: 60px; height: 60px; min-width: 60px; border-radius: 50%; border: 2px solid #fca765 !important;">
+                        <div class="rounded-circle p-2 w-100 h-100" style="background-color: #fca765;">
+                            <img src="~/assest/icons/customer.svg" class="w-100 h-100 img-fluid" alt=""
+                                style="object-fit: contain;">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <span class="fs-3 fw-semibold ps-1">@Model.NewCustomers</span>
+                </div>
+                <div class="mb-3">
+                    <span class="text-secondary fs-6 ps-1">New Customer Count</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            @* if (window.revenueChart) {
+                window.revenueChart.destroy();
+            } *@
+                loadChart();
+            var startDate = "";
+            var endDate = "";
+            var status = "";
+
+            $("#datefilter").click(function (e) {
+                e.stopPropagation();
+                var datefilter = $(this).val();
+                if (status == "Custome Date") {
+                    $("#CustomeDate").modal("hide");
+                    status = "";
+                }
+                else if (datefilter == "Custome Date" && status != "Custome Date") {
+                    $("#CustomeDate").modal("show");
+                    $("#startDate").val("");
+                    $("#endDate").val("");
+                }
+                else {
+                    loadChart();
+                }
+            });
+
+            $("#datefilter").mousedown(function (e) {
+                e.stopPropagation();
+                status = $(this).val();
+            });
+
+            $(".btnCancel").click(function () {
+                $("#datefilter").val("Last 7 Days");
+                loadChart();
+            });
+
+            $(".datesubmit").click(function () {
+                startDate = $("#startDate").val();
+                endDate = $("#endDate").val();
+                if (startDate == "" || endDate == "") {
+                    alert("Please select both start and end dates.");
+                    return;
+                }
+                else {
+                    loadChart();
+                    $("#CustomeDate").modal("hide");
+                }
+            });
+
+            function loadChart() {
+                var datefilter = $("#datefilter").val();
+                console.log(datefilter);
+                if (datefilter == "Custome Date") {
+                    var startDate = $("#startDate").val();
+                    var endDate = $("#endDate").val();
+                }
+                else {
+                    var startDate = null;
+                    var endDate = null;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: '/Dashboard/LoadChart',
+                    data: { datefilter: datefilter, startDate: startDate, endDate: endDate },
+                    success: function (data) {
+                        console.log(data);
+                        var value = data.value;
+                        var datasets = value.revenuedt;
+                        console.log(value);
+
+                        var ctx = document.getElementById('revenueChart').getContext('2d');
+
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: value.revenuelbl,
+                                datasets: [{
+                                    label: 'Revenue',
+                                    data: datasets[0].data,
+                                    backgroundColor: 'rgba(0, 102, 167, 0.1)',
+                                    borderColor: 'rgba(0, 102, 167, 1)',
+                                    tension: 0.3,
+                                    fill: true,
+                                    borderWidth: 2,
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+
+                        var value1 = data.value;
+                        var datasets = value1.customerdt;
+
+                        var gtx = document.getElementById('customerGrowthChart').getContext('2d');
+
+                        new Chart(gtx, {
+                            type: 'line',
+                            data: {
+                                labels: value1.customerlbl,
+                                datasets: [{
+                                    label: 'Customer',
+                                    data: datasets[0].data,
+                                    backgroundColor: 'rgba(0, 102, 167, 0.1)',
+                                    borderColor: 'rgba(0, 102, 167, 1)',
+                                    tension: 0.3,
+                                    fill: true,
+                                    borderWidth: 2,
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: { stepSize: 1 },
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+
+
+
+            @* if (document.getElementById('revenueChart')) {
+                const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+                new Chart(revenueCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31'],
+                        datasets: [{
+                            label: 'Customers',
+                            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1500, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            backgroundColor: 'rgba(0, 102, 167, 0.1)',
+                            borderColor: 'rgba(0, 102, 167, 1)',
+                            tension: 0.3,
+                            fill: true,
+                            borderWidth: 2,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1000 },
+                            }
+                        }
+                    }
+                });
+            }
+            // i want to create lineaar gradient chart here 
+
+            if (document.getElementById('customerGrowthChart')) {
+                const customerCtx = document.getElementById('customerGrowthChart').getContext('2d');
+
+                new Chart(customerCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [{
+                            label: 'Customers',
+                            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 28, 20],
+                            backgroundColor: 'rgba(0, 102, 167, 0.1)',
+                            borderColor: 'rgba(0, 102, 167, 1)',
+                            tension: 0.4,
+                            fill: true,
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 10 },
+                            }
+                        }
+                    }
+                });
+            } *@
+        });
+    </script>

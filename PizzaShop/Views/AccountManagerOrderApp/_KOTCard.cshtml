@@ -1,0 +1,258 @@
+@model List<Entities.ViewModel.OrderVM>
+<style>
+    .category-content {
+        display: none;
+    }
+
+    .card {
+        @* width: 22rem; *@
+        /* Bigger card size */
+        margin: 10px;
+        /* Maintain spacing */
+    }
+
+    .card-header {
+        font-size: 1rem;
+        /* Reduce header size */
+        padding: 10px;
+    }
+
+    .card-body {
+        height: 180px;
+        /* Fixed height */
+        overflow-y: auto;
+        /* Scrollable body */
+    }
+
+    .slick-track {
+        overflow: visible !important;
+        margin: 0 !important;
+    }
+</style>
+
+
+<div class="category-content" id="0">
+
+    <div class="card-container">
+        <div class="card-slider">
+            @if (Model.Any(order => order.OrderId != null))
+            {
+                @foreach (var order in Model)
+                {
+                    <div class="card showmodal box-border" data-id="@order.OrderId">
+                        <div class="card-header card-bg-color">
+                            <span class="d-flex flex-row justify-content-between align-items-center">
+                                <span class="webybtn">#@order.OrderId</span>
+                                <span class="d-flex flex-row align-items-center gap-1 text-secondary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-stopwatch" viewBox="0 0 16 16">
+                                        <path d="M8.5 5.6a.5.5 0 1 0-1 0v2.9h-3a.5.5 0 0 0 0 1H8a.5.5 0 0 0 .5-.5z" />
+                                        <path
+                                            d="M6.5 1A.5.5 0 0 1 7 .5h2a.5.5 0 0 1 0 1v.57c1.36.196 2.594.78 3.584 1.64l.012-.013.354-.354-.354-.353a.5.5 0 0 1 .707-.708l1.414 1.415a.5.5 0 1 1-.707.707l-.353-.354-.354.354-.013.012A7 7 0 1 1 7 2.071V1.5a.5.5 0 0 1-.5-.5M8 3a6 6 0 1 0 .001 12A6 6 0 0 0 8 3" />
+                                    </svg>
+
+                                    @if (@order.OccupiedTime.Days > 0)
+                                    {
+                                        @($"{@order.OccupiedTime.Days} days ")
+                                    }
+                                    @if (@order.OccupiedTime.Hours > 0)
+                                    {
+                                        @($"{@order.OccupiedTime.Hours} hours ")
+                                    }
+                                    @if (@order.OccupiedTime.Minutes > 0)
+                                    {
+                                        @($"{@order.OccupiedTime.Minutes} min ")
+                                    }
+                                    else
+                                    {
+                                        @("0 min")
+                                    }
+                                </span>
+                            </span>
+
+                            @if (order.CustomerTables.Any())
+                            {
+                                var groupedTables = order.CustomerTables
+                                .GroupBy(t => t.SectionName)
+                                .ToDictionary(g => g.Key, g => string.Join(", ", g.Select(t => t.TableName)));
+
+                                @foreach (var sections in groupedTables)
+                                {
+                                    <ul class="d-flex  mb-0 ps-0 justify-content-between text-secondary">
+                                        <span>@sections.Key</span>
+
+                                        <li><span>@sections.Value</span></li>
+                                    </ul>
+                                }
+                            }
+                        </div>
+
+                        <div class="card-body ">
+                            @foreach (var item in order.OrderItems)
+                            {
+                                <span class="d-flex justify-content-between text-secondary">
+                                    <span data-itemid="@item.ItemId" data-status="@item.Status">@item.ItemName</span>
+                                    <span>@item.Quantity</span>
+                                </span>
+                                <ul>
+                                    
+                                        @foreach (var modifier in item.Modifiers)
+                                        {
+                                            <li>
+
+                                            <span class="d-flex justify-content-between text-secondary">
+                                                <span>@modifier.ModifierName</span>
+                                                <span>@modifier.Quantity</span>
+                                            </span>
+
+ </li>
+                                        }
+                                   
+                                    @if (!string.IsNullOrEmpty(item.ItemInstructions))
+                                    {
+                                        <span class="instructionIcon">Instruction: </span>
+
+                                        <span class="text-secondary">@item.ItemInstructions</span>
+
+                                    }
+                                </ul>
+
+
+                            }
+                        </div>
+                        <div class="card-footer card-bg-color">
+                            @if (!string.IsNullOrEmpty(order.OrderInstruction))
+                            {
+                                <span><span class="instructionIcon">Instruction:
+                                    </span>@order.OrderInstruction</span>
+                            }
+                            else
+                            {
+                                <span><span class="instructionIcon" style="color: rgb(240, 233, 233);">Instruction:
+                                    </span>@order.OrderInstruction</span>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="mb-0">No Order found!</div>
+            }
+        </div>
+    </div>
+
+</div>
+<div id="kotmodal" class="modal fade" data-backdrop="true">
+    <div class="modal-dialog modal-dialog-centered w-xl">
+        <div class="modal-content h-100 no-radius">
+            <form class="prepareitem" data-orderid="@Model.FirstOrDefault().OrderId">
+                <div class="modal-body " id="kotdetailsprepare">
+                </div>
+
+                <div class="modal-footer">
+
+                    @if (Model.FirstOrDefault().OrderItems.FirstOrDefault().Status == "In Progress")
+                    {
+                        <button type="submit" class="btn btn-primary saveprepare"> Mark As Prepared</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-primary saveprepare"> Mark As In Progress</button>
+                    }
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $(".showmodal").click(function () {
+            $("#kotmodal").modal("show");
+        });
+        $('.card-slider').slick({
+            slidesToShow: 4,  
+            slidesToScroll: 2,
+            prevArrow: $('.prev-btn'),
+            nextArrow: $('.next-btn'),
+            responsive: [
+                {
+                    breakpoint: 1030,
+                    settings: {
+                        slidesToShow: 3
+                    }
+                },
+                {
+                    breakpoint: 800,
+                    settings: {
+                        slidesToShow: 2
+                    }
+                },
+                {
+                    breakpoint: 500,
+                    settings: {
+                        slidesToShow: 1
+                    }
+                }
+            ]
+        });
+        $(window).on('resize', function () {
+            $('.card-slider').slick('setPosition');
+        });
+    });
+
+    $(".showmodal").click(function () {
+        var orderDetailsArray = [];
+
+        var orderId = $(this).data("id");
+        console.log(orderId);
+        var items = [];
+        $(this).find(".card-body > span").each(function () {
+            var itemName = $(this).find("span:first").text().trim();
+            var itemId = $(this).find("span:first").data("itemid");
+            var status = $(this).find("span:first").data("status");
+            var quantity = $(this).find("span:last").text().trim();
+
+            var modifiers = [];
+            $(this).next("ul").find("li span").each(function () {
+                var modifierName = $(this).find("span:first").text().trim();
+
+                modifiers.push({
+                    ModifierName: modifierName,
+                });
+            });
+
+
+            items.push({
+                ItemName: itemName,
+                ItemId: itemId,
+                Status:  "@ViewBag.Status",
+                Quantity: quantity,
+                Modifiers: modifiers
+            });
+            console.log(items);
+        });
+
+        orderDetailsArray.push({
+            OrderId: orderId,
+            OrderItems: items
+        });
+        console.log(orderDetailsArray);
+        $.ajax({
+            url: '@Url.Action("GetOrderDetails", "AccountManagerOrderApp")',
+            type: 'POST',
+            data: JSON.stringify(orderDetailsArray),
+            contentType: 'application/json',
+            success: function (response) {
+                $("#kotdetailsprepare").html(response);
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching order details:", error);
+            }
+
+
+        });
+    });
+</script>

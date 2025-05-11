@@ -1,0 +1,130 @@
+@model Entities.ViewModel.SectionVM
+
+
+<form id="EditTable">
+    <input type="hidden" asp-for="TableId" />
+
+
+    <!-- Category Dropdown -->
+    <div class="row d-flex justify-space-between">
+        <div class="row">
+            <div class="col">
+                <div class="form-floating mb-3">
+                    <input type="text" asp-for="TableName" class="form-control" id="floatingInput">
+                    <label for="floatingInput" asp-for="TableName">Name*</label>
+                    <span asp-validation-for="TableName" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="form-floating">
+                    <select class="form-select" asp-for="SectionId" asp-items="ViewBag.Sections" id="floatingSelect"
+                        aria-label="Floating label select example">
+                        <option selected>Select a Section</option>
+                    </select>
+                    <label for="floatingSelect">Section*</label>
+                    <span asp-validation-for="SectionId" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col">
+                <div class="form-floating mb-3">
+                    <input type="text" asp-for="Capacity" class="form-control" id="floatingInput">
+                    <label for="floatingInput" asp-for="Capacity">Capacity*</label>
+                    <span asp-validation-for="Capacity" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="form-floating"> <select class="form-select" asp-for="StatusId" asp-items="ViewBag.Statuses"
+                        id="floatingSelect" aria-label="Floating label select example">
+                        <option selected>Select a status</option>
+                    </select>
+                    <label for="floatingSelect">Status*</label>
+                    <span asp-validation-for="StatusId" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    </div>
+    <input type="hidden" id="currentPage" name="currentPage" value="@ViewBag.Page" />
+
+</form>
+
+
+<script>
+    $(document).ready(function () {
+
+
+        $("#EditTable").submit(function (e) {
+            e.preventDefault();
+            console.log("Submitting EditTable form");
+
+            var formData = $(this).serializeArray();
+            var formDataobj = {};
+
+            $.each(formData, function (index, field) {
+                formDataobj[field.name] = field.value;
+            });
+
+            var currentPage = $("#currentPage").val();
+            console.log("Current Page In EditTable :", currentPage);
+
+            var submissionData = JSON.stringify(formDataobj);
+
+            console.log("Sending data:", submissionData);
+
+            $.ajax({
+                url: '/TableAndSection/EditTable',
+                type: 'POST',
+                contentType: "application/json",
+                data: submissionData,
+                success: function (response) {
+                    alert("Table Edited Successfully!");
+
+                    var myModal = bootstrap.Modal.getInstance(document.getElementById("editTableModal"));
+                    if (myModal) myModal.hide();
+                    document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+
+
+                    loadMenuTables(formDataobj.SectionId, currentPage);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', xhr.responseText);
+                }
+            });
+        });
+
+        function loadMenuTables(sectionId ,page = 1) {
+            var search = $("#searchInput").val();
+            @* var sortOrder = $("#sortOrder").val(); *@
+            var pageSize = $("#pageSizeDropdown").val();
+            selectedSectionId = sectionId;
+
+            console.log("Section:", selectedSectionId, "Page:", page, "PageSize:", pageSize);
+
+            $.ajax({
+                url: '/TableAndSection/MenuTable',  // Ensure this route matches your controller
+                type: 'GET',
+                data: {
+                    sectionId: selectedSectionId,
+                    search: search,
+                    page: page,
+                    pageSize: pageSize
+                },
+                success: function (data) {
+                    $("#menutablesContainer").html(data);  // Update the menu items container
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching items:', error);
+                }
+            });
+        }
+    });
+</script>

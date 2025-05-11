@@ -1,0 +1,134 @@
+@{
+    ViewData["Title"] = "Menu Page";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Page</title>
+    <link rel="stylesheet" href="~/css/style.css">
+    <link rel="stylesheet" href="~/css/media.css">
+    <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body class="allbodybgcolor ms-4 pe-4">
+    <!-- Overlay for small screens -->
+    <div class="overlay " id="overlay"></div>
+
+
+    <div class="content mb-2 pb-5 pe-4" id="content">
+        <!-- Main content goes here -->
+        <div class="row">
+            <div class="col-6">
+                <h1 class=" d-flex justify-content-start webybtn">Menu </h1>
+
+            </div>
+            <div class="col d-flex justify-content-end">
+                <a asp-action="" asp-controller="" asp-action="">
+                    <button class="btn btn-outline-primary  " type="submit"> <i
+                            class="fa-solid fa-chevron-left"></i>Back</button>
+                </a>
+            </div>
+        </div>
+        <div class="row mainbody d-flex mb-2 mt-2 pt-3 pe-0">
+            <div class="col-12  bg-white mb-3 pb-0">
+                <ul class="nav pe-4" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link navitempanel active text-primary border-bottom border-2 border-primary bg-white fs-5 fw-bold pe-4 p-3"
+                            style="border-radius: 0% !important;" id="tab1-tab" data-bs-toggle="tab"
+                            data-bs-target="#myTab1" type="button" role="tab" aria-controls="tab1"
+                            aria-selected="true"><i class="fa-solid fa-list-ul ms-1 me-2"></i> Items</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link navmodifierpanel text-nav-color fs-5 fw-bold bg-white pe-4 p-3"
+                            style="border-radius: 0% !important; id=" tab2-tab" data-bs-toggle="tab"
+                            data-bs-target="#myTab2" type="button" role="tab" aria-controls="tab2"
+                            aria-selected="false"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                fill="currentColor" class="bi bi-ui-checks-grid ms-1 me-2" viewBox="0 0 16 16">
+                                <path
+                                    d="M2 10h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1m9-9h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1m0 9a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1zm0-10a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM2 9a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2zm7 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2zM0 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5.354.854a.5.5 0 1 0-.708-.708L3 3.793l-.646-.647a.5.5 0 1 0-.708.708l1 1a.5.5 0 0 0 .708 0z" />
+                            </svg>Modifiers</a>
+                    </li>
+
+                </ul>
+
+            </div>
+
+            <div class="tab-content ps-0 pe-0" id="myTabContent">
+
+                <div class="tab-pane  show active" id="myTab1" role="tabpanel" aria-labelledby="tab1-tab">
+
+                </div>
+
+
+                <div class="tab-pane  show in-active" id="myTab2" role="tabpanel" aria-labelledby="tab2-tab">
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+
+
+</body>
+@* <script src="./js/userPage.js"></script> *@
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+
+<!-- jQuery -->
+<script src='https://code.jquery.com/jquery-3.7.0.js'></script>
+
+<script>
+    $(document).ready(function () {
+        @* navitempanel *@
+            @* navmodifierpanel *@
+            $('.navmodifierpanel').click(function () {
+                $(".navitempanel").removeClass("text-primary border-bottom border-primary border-2").addClass("text-nav-color");
+                $(".navmodifierpanel").addClass("text-primary border-bottom border-primary border-2").removeClass("text-nav-color");
+            });
+        $('.navitempanel').click(function () {
+            $(".navmodifierpanel").removeClass("text-primary border-bottom border-primary border-2").addClass("text-nav-color");
+            $(".navitempanel").addClass("text-primary border-bottom border-primary border-2").removeClass("text-nav-color");
+        });
+        $.ajax({
+            url: '@Url.Action("MenuCategory", "Menu")',
+            type: 'GET',
+            success: function (data) {
+                $('#myTab1').append(data);
+            },
+            error: function (xhr, status, error) {
+                console.error('error Feching items:', error);
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        $.ajax({
+            url: '@Url.Action("MenuModifierGroup", "Menu")',
+            type: 'GET',
+            success: function (data) {
+                $('#myTab2').append(data);
+            },
+            error: function (xhr, status, error) {
+                console.error('error Feching items:', error);
+            }
+        });
+    });
+
+</script>
+<script src="~/js/userPage.js"></script>
+
+
+</html>

@@ -1,0 +1,2035 @@
+@model Entities.ViewModel.MenuCategoryVM
+
+@{
+    Layout = "_LayoutOrder";
+    ViewData["Title"] = "Table View";
+    decimal sgst = 0;
+    decimal itemrate = 0;
+    int type = 0;
+    decimal subtotal = 0;
+    decimal TotalAmountOrder = 0;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizza Shop</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
+    <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <style>
+        .active {
+            background-color: rgba(0, 102, 167, 1) !important;
+            color: white !important;
+        }
+
+        .nav-link {
+            border-top-right-radius: 1.5rem !important;
+            border-bottom-right-radius: 1.5rem !important;
+        }
+
+        .bookmark {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent;
+
+        }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .colored {
+            color: #f8c200 !important;
+        }
+
+        .topborder {
+            border-top: 1px solid #f8c200 !important;
+        }
+    </style>
+</head>
+
+<body style="background-color: rgb(245,245,245);">
+    <div class="container-fluid ps-0" style="padding-top: 70px; ">
+        <div class="row">
+            <!-- Dropdown for small screens -->
+            <div class="col-4 ms-4 mt-2 category-dropdown">
+                <select class="form-select form-select-lg mb-3" id="categoryDropdown" onchange="handlecategory(this)">
+                    <option value="0">All</option>
+                    <option value="favorite">Favorite Items</option>
+                    @foreach (var category in Model.menuCategories)
+                    {
+                        <option value="@category.CategoryId">@category.CategoryName</option>
+                    }
+                </select>
+            </div>
+
+        </div>
+        <div class="d-flex ">
+
+            <!-- Sidebar for large screens -->
+            <div class="col-md-2 bg-white pt-3 category-sidebar ps-0 ms-0 pe-0" style="width: 250px !important;">
+                <div class="fs-4 fw-bold ps-4 mb-3">Category</div>
+
+                <a class="nav-link text-nav-color p-2 ps-4 fs-5 fw-bold" onclick="showfavorite()">Favorite Items</a>
+                <a class="nav-link all-link text-nav-color p-2 ps-4 fs-5 fw-bold" onclick="showItem(0)">All</a>
+
+                @foreach (var category in Model.menuCategories)
+                {
+                    <a class="nav-link text-nav-color p-2 ps-4 fs-5 fw-bold" onclick="showItem(@category.CategoryId)">
+                        @category.CategoryName
+                    </a>
+                }
+            </div>
+            <div class="col mt-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="col-5">
+                        <div class=" position-relative">
+                            <input class="form-control form-control-lg " type="search" name="search"
+                                placeholder="Search " id="searchInput" style="height: 60px; ">
+                            <i class="bi bi-search position-absolute"
+                                style="top: 50%; right: 30px; transform: translateY(-50%);"></i>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end align-items-center gap-3">
+                        <span class="gap-2">
+                            <i class="fa-solid fa-circle" style="color: #00a651;"></i>
+                            <span class="ps-0 ms-0">Vegetarian</span>
+                        </span>
+                        <span class="gap-2">
+                            <i class="fa-solid fa-circle " style="color: #f14338;"></i>
+                            <span>Non-Vegetarian</span>
+                        </span>
+                        <span class="gap-2">
+                            <i class="fa-solid fa-circle " style="color: #f98d1a;"></i>
+                            <span>Vegan</span>
+                        </span>
+
+                    </div>
+
+                </div>
+                <div id="item-card" style="height: 750px;  overflow-y: auto;scrollbar-width: none;">
+
+                </div>
+                <div class="ms-2 d-flex justify-content-end d-xl-none">
+                    <button class="btn webyborder" data-bs-toggle="modal" data-bs-target="#orderDetailsModal">
+                        <i class="bi bi-cart-fill fs-3 webybtn"></i> <!-- Example icon for cart -->
+                    </button>
+                </div>
+
+            </div>
+            <input type="hidden" id="customerid" value="@ViewBag.CustomerId" />
+            <input type="hidden" id="orderid" value="@ViewBag.OrderId" />
+            <div class="OrderSectionTobeHidden">
+                <div class="orderdetail  mt-3 me-3 p-3 bg-white  d-none">
+                    <form id="saveorderdetails">
+                        <div class="d-flex justify-content-between">
+                            <div class="d-flex gap-1 align-items-center">
+                                <div class=" bg-primary bg-opacity-25 p-1 ">
+                                    <img src="~/assest/icons/dinner-table.svg" alt="" style="width: 30px;">
+                                </div>
+                                <div>
+                                    @if (Model.customerTables.Any())
+                                    {
+                                        var groupedTables = Model.customerTables
+                                        .GroupBy(t => t.SectionName)
+                                        .ToDictionary(g => g.Key, g => string.Join(", ", g.Select(t => t.TableName)));
+
+                                        @foreach (var sections in groupedTables)
+                                        {
+                                            <span class="ms-2">@sections.Key</span>
+                                            <span class="d-flex gap-2 ms-2">
+                                                <span class="fw-bold">Table: </span>
+                                                <span> @sections.Value</span>
+                                            </span>
+                                        }
+                                    }
+
+
+
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2 align-items-center">
+                                <div class="webyborderdiv qrcodebtn">
+                                    <i class="bi bi-qr-code-scan webybtn fs-4 p-2" style="width: 30px;"></i>
+                                </div>
+                                <div class="webyborderdiv personaldetailbtn">
+                                    <i class="bi bi-person-lines-fill webybtn fs-4 p-2" style="width: 30px;"></i>
+                                </div>
+                                <div class="webyborderdiv orderwisecommentbtn">
+                                    <i class="bi bi-chat-left-text webybtn fs-4 p-2" style="width: 30px;"></i>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="d-flex mt-3">
+                            <div class="col-md-6 col-sm-3 ms-0 ps-0">
+                                <span class="fw-bold text-secondary">Item</span>
+                            </div>
+                            <div class="d-flex justify-content-between col-md-6 gap-5">
+
+                                <span class="fw-bold text-secondary">Quantity</span>
+
+                                <span class="fw-bold text-secondary ms-2">Amount</span>
+
+                                <span class="fw-bold text-white">adsadc</span>
+
+                            </div>
+
+                        </div>
+
+                        <div id="orderitemomdifier" class="" style="height: 350px;  overflow-y: auto;scrollbar-width: none;">
+
+                        </div>
+
+                        <div class="ms-3 border border-up border-bottom-0 border-start-0 border-end-0 ">
+                            <div class="d-flex justify-content-between mt-2">
+                                <div class="">
+                                    <div class="text-secondary fw-bold ">SubTotal</div>
+                                    @foreach (var tax in Model.OrderTaxes)
+                                    {
+                                        <div>@tax.TaxName</div>
+
+
+                                        sgst = @tax.TaxAmount;
+                                        type = (int)@tax.TaxTypeId;
+
+                                    }
+                                    <div class="d-none itemtaxdiv">
+                                        <span>Other</span>
+                                    </div>
+                                    
+                                    @foreach (var tax in Model.IsDefaultTaxes)
+                                    {
+                                        @if (ViewBag.OrderId == null)
+                                        {
+                                            subtotal = 0;
+                                        }
+                                        else
+                                        {
+                                            subtotal = @ViewBag.SubTotal;
+                                            }
+                                        @if (subtotal != 0)
+                                        {
+                                        <div class="d-flex gap-2"><input class="sgstchkboxes" type="checkbox" checked disabled data-amount="@if(tax.TaxTypeId == 2 && subtotal != 0){
+                                                                                                                                                                                                    @((tax.TaxAmount * 100) / subtotal)
+                                                                                                                                                }
+                                                                                                                                                else
+                                                                                                                                                {
+
+                                                                                                                                                                                                                    @tax.TaxAmount
+                                                                                                                                                }
+                                                                                                    " data-type="@tax.TaxTypeId"
+                                                    data-id="@tax.TaxId">@tax.TaxName</div>
+                                                }
+                                                else{
+                                                    <div class="d-flex gap-2"><input class="sgstchkboxes" type="checkbox" data-amount="@if(tax.TaxTypeId == 2 && subtotal != 0){
+                                                                                                                                                                        @((tax.TaxAmount * 100) / subtotal)
+                                                                                                                    }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    else
+                                                                                                                    {
+
+                                                                                                                                                                                        @tax.TaxAmount
+                                                                                                                    }
+                                                                        " data-type="@tax.TaxTypeId"
+                                                data-id="@tax.TaxId">@tax.TaxName</div>
+                                                }
+                                    }
+
+
+                                </div>
+                                <div class="">
+                                    <div>
+                                        <span>₹</span>
+                                        @if (ViewBag.OrderId == null)
+                                        {
+                                            subtotal = 0;
+                                            <span class="text-secondary fw-bold subtotal">0.00</span>
+                                        }
+                                        else
+                                        {
+                                            subtotal = @ViewBag.SubTotal;
+                                            TotalAmountOrder = @ViewBag.TotalAmount;
+
+                                            if(@Model.SgstAmt != null)
+                                            {
+                                                sgst = (decimal)@Model.SgstAmt * 100 / subtotal;
+                                                itemrate =(decimal) @Model.SgstAmt;
+                                            }
+                                          
+
+
+                                            <span class="text-secondary fw-bold subtotal">@ViewBag.SubTotal</span>
+                                        }
+                                    </div>
+                                    
+                                    @foreach (var tax in Model.OrderTaxes)
+                                    {
+                                        
+                                    
+                                            @if (subtotal != 0)
+
+                                            {
+                                                <div class="d-block">
+                                                    <span>₹</span>
+                                                    <span class="taxbtn" data-amount="@if(tax.TaxTypeId == 2 && subtotal != 0){
+                                                                                                                                                                                                    @((tax.TaxAmount * 100) / subtotal)
+                                                                                                                                                }
+                                                                                                                                                else
+                                                                                                                                                {
+
+                                                                                                                                                                                                                    @tax.TaxAmount
+                                                                                                                                                }
+                                                                                                    " data-type="@tax.TaxTypeId"
+                                                    data-id="@tax.TaxId">@tax.TaxAmount</span>
+
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div>
+                                                <span>₹</span>
+                                                <span class="taxbtn" data-amount="@if(tax.TaxTypeId == 2 && subtotal != 0){
+                                                                                                                                                                        @((tax.TaxAmount * 100) / subtotal)
+                                                                                                                    }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    else
+                                                                                                                    {
+
+                                                                                                                                                                                        @tax.TaxAmount
+                                                                                                                    }
+                                                                        " data-type="@tax.TaxTypeId"
+                                                data-id="@tax.TaxId">0.00</span>
+                                        </div>
+                                    }
+
+                                                                    }
+
+                                                                    
+                                    
+                                    <div class="d-none itemtaxdiv">
+                                        @if(sgst != 0 && subtotal != 0)
+                                        {
+                                            <span>₹</span>
+                                            <span class="itemtaxrate">@Model.SgstAmt</span>
+                                        }
+                                        else
+                                        {
+                                            <span>₹</span>
+                                        <span class="itemtaxrate">0.00</span>
+                                        }
+                                        
+                                    </div>
+
+
+                                    <div>
+
+
+                                        @foreach (var tax in Model.IsDefaultTaxes)
+                                        {
+                                            @if (subtotal != 0)
+
+                                            {
+                                                <div class="d-block">
+                                                    <span>₹</span>
+                                                    <span class="taxdefaultbtn sgstchkbox" data-amount="@if(tax.TaxTypeId == 2 && subtotal != 0){
+                                                                                                                                                                                                    @((tax.TaxAmount * 100) / subtotal)
+                                                                                                                                                }
+                                                                                                                                                else
+                                                                                                                                                {
+
+                                                                                                                                                                                                                    @tax.TaxAmount
+                                                                                                                                                }
+                                                                                                    " data-type="@tax.TaxTypeId"
+                                                    data-id="@tax.TaxId">@tax.TaxAmount</span>
+
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div>
+                                                <span>₹</span>
+                                                <span class="taxdefaultbtn sgstchkbox" data-amount="@if(tax.TaxTypeId == 2 && subtotal != 0){
+                                                                                                                                                                        @((tax.TaxAmount * 100) / subtotal)
+                                                                                                                    }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    else
+                                                                                                                    {
+
+                                                                                                                                                                                        @tax.TaxAmount
+                                                                                                                    }
+                                                                        " data-type="@tax.TaxTypeId"
+                                                data-id="@tax.TaxId">0.00</span>
+                                        </div>
+                                    }
+
+                                        }
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="ms-3 d-flex justify-content-between mb-3">
+                            <span class="fw-bold">Total</span>
+                            <div>
+                                <span>₹</span>
+                                @if (ViewBag.TotalAmount == null)
+                                {
+                                    <span class="finaltotalamt fw-bold">0.00</span>
+                                }
+                                else
+                                {
+                                    <span class="finaltotalamt fw-bold">@ViewBag.TotalAmount</span>
+                                }
+
+                            </div>
+                        </div>
+                        <div class="ms-3 d-flex justify-content-between mb-3">
+                            <div>
+                                <span>Payment Method</span>
+                            </div>
+                            <div class="d-flex gap-2 paymentarea disabled">
+
+                                <div class="d-flex gap-1">
+                                    <input type="radio" name="option" id="option1" value="Cash" checked>
+                                    <span>Cash</span>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <input type="radio" name="option" id="option2" value="Card">
+                                    <span>Card</span>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <input type="radio" name="option" id="option3" value="UPI">
+                                    <span>UPI</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2 mb-2">
+                            <button type="submit" class="btn finalsavebtn assigntablefinalbtn px-5 py-2 ">Save</button>
+                            <button type="button" class="btn  finalcancelbtn opencompletemodal px-4 py-2"
+                                data-bs-dismiss="modal" data-bs-target="#ordercompletemodal" disabled>Complete</button>
+                            <button type="button" class="btn finalgenerateinvoice finalcancelbtn px-3 py-2"
+                                data-bs-dismiss="modal" disabled>Gerenate
+                                Invoice</button>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn finalcancelbtn opencancelmodal px-5 py-2">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+             </div>
+
+            <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-fullscreen">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="orderdetail bg-white mt-3 me-3 p-3  d-none">
+                                <form id="saveorderdetails">
+                                    <div class="d-flex justify-content-between">
+                                        <div class="d-flex gap-1 align-items-center">
+                                            <div class=" bg-primary bg-opacity-25 p-1 ">
+                                                <img src="~/assest/icons/dinner-table.svg" alt="" style="width: 30px;">
+                                            </div>
+                                            <div>
+                                                @if (Model.customerTables.Any())
+                                                {
+                                                    var groupedTables = Model.customerTables
+                                                    .GroupBy(t => t.SectionName)
+                                                    .ToDictionary(g => g.Key, g => string.Join(", ", g.Select(t => t.TableName)));
+
+                                                    @foreach (var sections in groupedTables)
+                                                    {
+                                                        <span class="ms-2">@sections.Key</span>
+                                                        <span class="d-flex gap-2 ms-2">
+                                                            <span class="fw-bold">Table: </span>
+                                                            <span> @sections.Value</span>
+                                                        </span>
+                                                    }
+                                                }
+
+
+
+                                            </div>
+                                        </div>
+                                        <div class="d-flex gap-2 align-items-center">
+                                            <div class="webyborderdiv qrcodebtn">
+                                                <i class="bi bi-qr-code-scan webybtn fs-4 p-2" style="width: 30px;"></i>
+                                            </div>
+                                            <div class="webyborderdiv personaldetailbtn">
+                                                <i class="bi bi-person-lines-fill webybtn fs-4 p-2" style="width: 30px;"></i>
+                                            </div>
+                                            <div class="webyborderdiv orderwisecommentbtn">
+                                                <i class="bi bi-chat-left-text webybtn fs-4 p-2" style="width: 30px;"></i>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="d-flex mt-3">
+                                        <div class="col-md-6 col-sm-3 ms-0 ps-0">
+                                            <span class="fw-bold text-secondary">Item</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between col-md-6 gap-5">
+
+                                            <span class="fw-bold text-secondary">Quantity</span>
+
+                                            <span class="fw-bold text-secondary ms-2">Amount</span>
+
+                                            <span class="fw-bold text-white">adsadc</span>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div id="orderitemomdifiermodal" class="" style="height: 350px;  overflow-y: auto;scrollbar-width: none;">
+
+                                    </div>
+
+                                    <div class="ms-3 border border-up border-bottom-0 border-start-0 border-end-0 ">
+                                        <div class="d-flex justify-content-between mt-2">
+                                            <div class="">
+                                                <div class="text-secondary fw-bold ">SubTotal</div>
+                                                @foreach (var tax in Model.OrderTaxes)
+                                                {
+                                                    <div>@tax.TaxName</div>
+
+
+                                                    sgst = @tax.TaxAmount;
+                                                    type = (int)@tax.TaxTypeId;
+
+                                                }
+                                                <div class="d-none itemtaxdiv">
+                                                    <span>Other</span>
+                                                </div>
+                                                
+                                                @foreach (var tax in Model.IsDefaultTaxes)
+                                                {
+                                                    @if (ViewBag.OrderId == null)
+                                                    {
+                                                        subtotal = 0;
+                                                    }
+                                                    else
+                                                    {
+                                                        subtotal = @ViewBag.SubTotal;
+                                                        }
+                                                    @if (subtotal != 0)
+                                                    {
+                                                    <div class="d-flex gap-2"><input class="sgstchkboxes" type="checkbox" checked disabled data-amount="@if(tax.TaxTypeId == 2 && subtotal != 0){
+                                                                                                                                                                                                                @((tax.TaxAmount * 100) / subtotal)
+                                                                                                                                                            }
+                                                                                                                                                            else
+                                                                                                                                                            {
+
+                                                                                                                                                                                                                                @tax.TaxAmount
+                                                                                                                                                            }
+                                                                                                                " data-type="@tax.TaxTypeId"
+                                                                data-id="@tax.TaxId">@tax.TaxName</div>
+                                                            }
+                                                            else{
+                                                                <div class="d-flex gap-2"><input class="sgstchkboxes" type="checkbox" data-amount="@if(tax.TaxTypeId == 2 && subtotal != 0){
+                                                                                                                                                                                    @((tax.TaxAmount * 100) / subtotal)
+                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                else
+                                                                                                                                {
+
+                                                                                                                                                                                                    @tax.TaxAmount
+                                                                                                                                }
+                                                                                    " data-type="@tax.TaxTypeId"
+                                                            data-id="@tax.TaxId">@tax.TaxName</div>
+                                                            }
+                                                }
+
+
+                                            </div>
+                                            <div class="">
+                                                <div>
+                                                    <span>₹</span>
+                                                    @if (ViewBag.OrderId == null)
+                                                    {
+                                                        subtotal = 0;
+                                                        <span class="text-secondary fw-bold subtotal">0.00</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        subtotal = @ViewBag.SubTotal;
+                                                        TotalAmountOrder = @ViewBag.TotalAmount;
+
+
+                                                        sgst = (decimal)@Model.SgstAmt * 100 / subtotal;
+                                                        itemrate =(decimal) @Model.SgstAmt;
+
+
+                                                        <span class="text-secondary fw-bold subtotal">@ViewBag.SubTotal</span>
+                                                    }
+                                                </div>
+                                                
+                                                @foreach (var tax in Model.OrderTaxes)
+                                                {
+                                                    
+                                                
+                                                        @if (subtotal != 0)
+
+                                                        {
+                                                            <div class="d-block">
+                                                                <span>₹</span>
+                                                                <span class="taxbtn" data-amount="@if(tax.TaxTypeId == 2 && subtotal != 0){
+                                                                                                                                                                                                                @((tax.TaxAmount * 100) / subtotal)
+                                                                                                                                                            }
+                                                                                                                                                            else
+                                                                                                                                                            {
+
+                                                                                                                                                                                                                                @tax.TaxAmount
+                                                                                                                                                            }
+                                                                                                                " data-type="@tax.TaxTypeId"
+                                                                data-id="@tax.TaxId">@tax.TaxAmount</span>
+
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div>
+                                                            <span>₹</span>
+                                                            <span class="taxbtn" data-amount="@if(tax.TaxTypeId == 2 && subtotal != 0){
+                                                                                                                                                                                    @((tax.TaxAmount * 100) / subtotal)
+                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                else
+                                                                                                                                {
+
+                                                                                                                                                                                                    @tax.TaxAmount
+                                                                                                                                }
+                                                                                    " data-type="@tax.TaxTypeId"
+                                                            data-id="@tax.TaxId">0.00</span>
+                                                    </div>
+                                                }
+
+                                                                                }
+
+                                                                                
+                                                
+                                                <div class="d-none itemtaxdiv">
+                                                    @if(sgst != 0 && subtotal != 0)
+                                                    {
+                                                        <span>₹</span>
+                                                        <span class="itemtaxrate">@Model.SgstAmt</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>₹</span>
+                                                    <span class="itemtaxrate">0.00</span>
+                                                    }
+                                                    
+                                                </div>
+
+
+                                                <div>
+
+
+                                                    @foreach (var tax in Model.IsDefaultTaxes)
+                                                    {
+                                                        @if (subtotal != 0)
+
+                                                        {
+                                                            <div class="d-block">
+                                                                <span>₹</span>
+                                                                <span class="taxdefaultbtn sgstchkbox" data-amount="@if(tax.TaxTypeId == 2 && subtotal != 0){
+                                                                                                                                                                                                                @((tax.TaxAmount * 100) / subtotal)
+                                                                                                                                                            }
+                                                                                                                                                            else
+                                                                                                                                                            {
+
+                                                                                                                                                                                                                                @tax.TaxAmount
+                                                                                                                                                            }
+                                                                                                                " data-type="@tax.TaxTypeId"
+                                                                data-id="@tax.TaxId">@tax.TaxAmount</span>
+
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div>
+                                                            <span>₹</span>
+                                                            <span class="taxdefaultbtn sgstchkbox" data-amount="@if(tax.TaxTypeId == 2 && subtotal != 0){
+                                                                                                                                                                                    @((tax.TaxAmount * 100) / subtotal)
+                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                else
+                                                                                                                                {
+
+                                                                                                                                                                                                    @tax.TaxAmount
+                                                                                                                                }
+                                                                                    " data-type="@tax.TaxTypeId"
+                                                            data-id="@tax.TaxId">0.00</span>
+                                                    </div>
+                                                }
+
+                                                    }
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="ms-3 d-flex justify-content-between mb-3">
+                                        <span class="fw-bold">Total</span>
+                                        <div>
+                                            <span>₹</span>
+                                            @if (ViewBag.TotalAmount == null)
+                                            {
+                                                <span class="finaltotalamt fw-bold">0.00</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="finaltotalamt fw-bold">@ViewBag.TotalAmount</span>
+                                            }
+
+                                        </div>
+                                    </div>
+                                    <div class="ms-3 d-flex justify-content-between mb-3">
+                                        <div>
+                                            <span>Payment Method</span>
+                                        </div>
+                                        <div class="d-flex gap-2 paymentarea disabled">
+
+                                            <div class="d-flex gap-1">
+                                                <input type="radio" name="option" id="option1" value="Cash" checked>
+                                                <span>Cash</span>
+                                            </div>
+                                            <div class="d-flex gap-1">
+                                                <input type="radio" name="option" id="option2" value="Card">
+                                                <span>Card</span>
+                                            </div>
+                                            <div class="d-flex gap-1">
+                                                <input type="radio" name="option" id="option3" value="UPI">
+                                                <span>UPI</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-end gap-2 mb-2">
+                                        <button type="submit" class="btn finalsavebtn assigntablefinalbtn px-5 py-2 ">Save</button>
+                                        <button type="button" class="btn  finalcancelbtn opencompletemodal px-4 py-2"
+                                            data-bs-dismiss="modal" data-bs-target="#ordercompletemodal" disabled>Complete</button>
+                                        <button type="button" class="btn finalgenerateinvoice finalcancelbtn px-3 py-2"
+                                            data-bs-dismiss="modal" disabled>Gerenate
+                                            Invoice</button>
+                                    </div>
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button type="button" class="btn finalcancelbtn opencancelmodal px-5 py-2">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div id="modifierdatamodal" class="modal fade" data-backdrop="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered w-xl">
+            <div class="modal-content h-100 no-radius">
+
+                <div id="modifierdata">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="modifierdatamodal" class="modal fade" data-backdrop="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered w-xl">
+            <div class="modal-content h-100 no-radius">
+
+                <div id="modifierdata">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div id="qrcodemodal" class="modal fade" data-backdrop="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered w-xl">
+            <div class="modal-content h-100 no-radius">
+                <div class="modal-header">
+                    <h5 class="modal-title text-secondary">Menu</h5>
+                    <button class="close" data-bs-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="form-outline py-3 d-flex justify-content-center">
+                    <img src="~/assest/qr-code.png" alt="" style="width: 200px;">
+                </div>
+
+                <div class="modal-footer d-flex align-items-center justify-content-center">
+                    <button type="button" class="btn  webyborder webybtn fw-bold px-4"
+                        data-bs-dismiss="modal">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="Personaldetailmodal" class="modal fade" data-backdrop="true">
+        <div class="modal-dialog modal-dialog-centered w-xl">
+            <form id="editpersonaldetail">
+                <div class="modal-content h-100 no-radius">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-secondary">Customer Details</h5>
+                        <button class="close" data-bs-dismiss="modal">&times;</button>
+                    </div>
+                    <div id="personaldata">
+
+                    </div>
+
+                    <div class="modal-footer d-flex align-items-center justify-content-end">
+                        <button type="submit"
+                            class="btn  webybg  fs-6 fw-bold deletewaitingtokenbtn text-white px-4">Save</button>
+                        <button type="button" class="btn  webyborder webybtn fw-bold px-4"
+                            data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="orderwisecommentmodal" class="modal fade" data-backdrop="true">
+        <div class="modal-dialog modal-dialog-centered w-xl">
+            <div class="modal-content h-100 no-radius">
+                <div class="modal-header">
+                    <h5 class="modal-title text-secondary">Order Wise Comment</h5>
+                    <button class="close" data-bs-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="form-outline p-3">
+                    <textarea class="form-control" id="CategoryDescription" name="CategoryDescription"
+                        value="@Model.OrderComment" placeholder="Comment" rows="4">@Model.OrderComment</textarea>
+                    <label for="Comment*"></label>
+                </div>
+
+                <div class="modal-footer d-flex align-items-center justify-content-end">
+                    <button type="submit"
+                        class="btn  webybg  fs-6 fw-bold save-order-comment-btn text-white px-4">Save</button>
+                    <button type="button" class="btn  webyborder webybtn fw-bold px-4"
+                        data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ordercompletemodal" class="modal fade" data-backdrop="true">
+        <div class="modal-dialog modal-dialog-centered w-xl">
+            <div class="modal-content h-100 no-radius">
+                <div class="modal-header">
+                    <h5 class="modal-title text-secondary">Complete Confirmation</h5>
+                    <button class="close" data-bs-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body d-flex flex-column align-items-center justify-content-center">
+                    <img class="img-fluid" src="~/assest/toppng.com-warning-icon-2400x2400.png" alt=""
+                        style="width: 50px;">
+                    <div class="fs-5 text-secondary">Are you sure you want to Complete the Order?</div>
+                </div>
+                <div class="modal-footer d-flex align-items-center justify-content-center">
+                    <button type="submit"
+                        class="btn  webybg  fs-6 fw-bold  finalcompletebtn text-white px-4">YES</button>
+                    <button type="button" class="btn  webyborder webybtn fw-bold px-4"
+                        data-bs-dismiss="modal">NO</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ordercancelmodal" class="modal fade" data-backdrop="true">
+        <div class="modal-dialog modal-dialog-centered w-xl">
+            <div class="modal-content h-100 no-radius">
+                <div class="modal-header">
+                    <h5 class="modal-title text-secondary">Cancel Confirmation</h5>
+                    <button class="close" data-bs-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body d-flex flex-column align-items-center justify-content-center">
+                    <img class="img-fluid" src="~/assest/toppng.com-warning-icon-2400x2400.png" alt=""
+                        style="width: 50px;">
+                    <div class="fs-5 text-secondary">Are you sure you want to cancel the Order?</div>
+                </div>
+                <div class="modal-footer d-flex align-items-center justify-content-center">
+                    <button type="submit"
+                        class="btn  webybg  fs-6 fw-bold  finalordercancelbtn text-white px-4">YES</button>
+                    <button type="button" class="btn  webyborder webybtn fw-bold px-4"
+                        data-bs-dismiss="modal">NO</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="reviewmodal" class="modal fade" data-backdrop="true">
+        <div class="modal-dialog modal-dialog-centered w-xl">
+            <div class="modal-content h-100 no-radius">
+                <div class="modal-header">
+                    <h5 class="modal-title text-secondary fw-bold">Customer Review</h5>
+                    <button class="close" data-bs-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-secondary fw-bold">Food</div>
+                            <div class="star-rating" data-category="FoodRating">
+                                @for (int i = 0; i < 5; i++)
+                                {
+                                    <i class="fa-regular fa-star text-primary star" data-value="@i"></i>
+                                }
+                            </div>
+                            <input type="hidden" name="FoodRating" />
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-secondary fw-bold">Service</div>
+                            <div class="star-rating" data-category="ServiceRating">
+                                @for (int i = 0; i < 5; i++)
+                                {
+                                    @* <i class="fa fa-star text-warning"></i> *@
+                                    <i class="fa-regular fa-star text-primary star" data-value="@i"></i>
+                                    <i class=""></i>
+                                }
+                            </div>
+                            <input type="hidden" name="ServiceRating" />
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="text-secondary fw-bold">Ambiance</div>
+                            <div class="star-rating" data-category="AmbienceRating">
+                                @for (int i = 0; i < 5; i++)
+                                {
+                                    @* <i class="fa fa-star text-warning"></i> *@
+                                    <i class="fa-regular fa-star text-primary star" data-value="@i"></i>
+
+                                }
+                            </div>
+                            <input type="hidden" name="AmbienceRating" />
+                        </div>
+                        <div class="form-outline topborder pt-3">
+                            <textarea class="form-control" name="reviewcomment" placeholder="Comment"
+                                rows="4"></textarea>
+                            <label for="Comment*"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 d-flex align-items-center justify-content-center">
+                    <button type="submit"
+                        class="btn  webybg  fs-6 fw-bold   submitReviewBtn text-white px-4">Save</button>
+                    <button type="button" class="btn  webyborder webybtn fw-bold px-4"
+                        data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+</body>
+
+<script>
+    var selecteditem = [];
+    var selectedmodifier = [];
+    var ItemDetailsArray = [];
+    let AppendedItemsArray = [];
+    let FinalTexArray = [];
+    let FinalArrayToBeSubmit = [];
+    let FinalOrderSum = @TotalAmountOrder;
+    let FinalSubtotalSum = @subtotal;
+    let FinalTaxSum = 0;
+    let selectedcategoryId = 0;
+    let customerid = 0;
+    let orderid = 0;
+    let tempOrderComment = "";
+    let sgstamt = 0;
+    let itemratetax = @itemrate;
+    let paymentoption = "";
+
+    $(document).ready(function () {
+
+        var CustomerId = $('#customerid').val();
+        var OrderId = $('#orderid').val();
+        orderid = OrderId;
+        console.log(OrderId + "ID");
+        console.log(CustomerId + "ID");
+        customerid = CustomerId;
+        if (CustomerId != 0) {
+            console.log(CustomerId + "ID");
+            $('.orderdetail').removeClass('d-none').addClass('d-block');
+            $('.OrderSectionTobeHidden').addClass('col-5');
+            if (orderid != 0) {
+                $('.opencompletemodal').removeAttr('disabled');
+                $('.paymentarea').removeClass('disabled');
+                $('.finalgenerateinvoice').removeAttr('disabled');
+            }
+            else {
+                $('.opencompletemodal').attr('disabled', 'disabled');
+                $('.paymentarea').addClass('disabled');
+                $('.finalgenerateinvoice').attr('disabled', 'disabled');
+            }
+
+            $.ajax({
+                url: '@Url.Action("GetItemInOrder", "AccountManagerOrderApp")',
+                type: "GET",
+                data: { CustomerId: CustomerId },
+                success: function (response) {
+                    $('#orderitemomdifier').append(response);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching order details:", error);
+                }
+            });
+             $('#orderDetailsModal').on('shown.bs.modal', function () {
+                // Perform AJAX request to fetch order details
+                $.ajax({
+                    url: '@Url.Action("GetItemInOrder", "AccountManagerOrderApp")',
+                    type: "GET",
+                    data: { CustomerId: CustomerId },
+                    success: function (response) {
+                        $('#orderitemomdifiermodal').html(response);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error fetching order details:", error);
+                    }
+                });
+                $.ajax({
+                    url: '@Url.Action("GetMenuItemDetails", "AccountManagerOrderApp")',
+                    type: "POST",
+                    data: JSON.stringify(FinalArrayToBeSubmit),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        $("#modifierdatamodal").modal('hide');
+                        $("#orderitemomdifiermodal").html(response);
+                    }
+                });
+            });
+
+
+
+            if(@sgst != 0)
+            {
+                  $('.itemtaxdiv').removeClass('d-none');
+            }
+            @* $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetItemByCategory", "AccountManagerOrderApp")',
+                data: { CategoryId: CategoryId },
+                success: function (data) {
+                    $('#item-card').html(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr);
+                }
+            });  *@
+                @* $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetItems", "AccountManagerOrderApp")',
+                    data: { CategoryId: CategoryId },
+                    success: function (data) {
+                        $('#item-card').html(data);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr);
+                    }
+                }); *@
+
+        }
+
+        // Initial load of items
+        showItem(0); // Load all items by default
+        $(".all-link").addClass("active");
+        $(".nav-link").click(function () {
+            $(".nav-link").removeClass("active");
+            $(this).addClass("active");
+        });
+
+        $(".personaldetailbtn").click(function () {
+            $("#Personaldetailmodal").modal('show');
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetCustomerDetails", "AccountManagerOrderApp")',
+                data: { CustomerId: CustomerId },
+                success: function (data) {
+                    $('#personaldata').html(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr);
+                }
+            });
+        });
+        $("#searchInput").keyup(function () {
+            var search = $("#searchInput").val();
+            console.log(selectedcategoryId);
+            $.ajax({
+                url: '/AccountManagerOrderApp/GetItemByCategory',
+                type: 'GET',
+                data: {
+                    CategoryId: selectedcategoryId,
+                    search: search,
+                },
+                success: function (data) {
+                    $("#item-card").html(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching items:', error);
+                }
+            });
+        });
+
+
+        $("#editpersonaldetail").submit(function (e) {
+            e.preventDefault();
+            console.log("Submitting EditTable form");
+
+            var formData = new FormData($(this)[0]);
+            console.log("Sending data:", formData);
+
+            $.ajax({
+                url: '/AccountManagerOrderApp/EditCustomer',
+                type: 'POST',
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (response) {
+                    $("#Personaldetailmodal").modal('hide');
+                    toastr.success("Customer Edited Successfully!");
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', xhr.responseText);
+                }
+            });
+        });
+
+        $(document).on("click", '.toggleiconside', function (event) {
+            event.stopPropagation();
+            var parent = $(this).closest('.ItemDataCard').find('.modHide').slideToggle(300);
+            if ($(this).hasClass('bi-chevron-down')) {
+                $(this).removeClass('bi-chevron-down').addClass('bi-chevron-right');
+                $(this).closest('.ItemDataCard').find('.modVis').removeClass('d-none');
+            } else {
+                $(this).removeClass('bi-chevron-right').addClass('bi-chevron-down');
+                $(this).closest('.ItemDataCard').find('.modVis').addClass('d-none');
+
+            }
+        });
+
+        $(".orderwisecommentbtn").click(function () {
+            $("#orderwisecommentmodal").modal('show');
+        });
+        $(".qrcodebtn").click(function () {
+            $("#qrcodemodal").modal('show');
+        });
+
+        $('.save-order-comment-btn').click(function () {
+            tempOrderComment = $('#CategoryDescription').val();
+            console.log("Temp Comment Saved:", tempOrderComment);
+            $('#orderwisecommentmodal').modal('hide');
+        });
+
+        // When modal is shown, load the saved comment back into textarea
+        $('#orderwisecommentmodal').on('shown.bs.modal', function () {
+            if (tempOrderComment == "") {
+                $('#CategoryDescription').val("@Model.OrderComment");
+            }
+            else {
+                $('#CategoryDescription').val(tempOrderComment);
+            }
+        });
+
+        $('.opencancelmodal').click(function () {
+            $("#ordercancelmodal").modal('show');
+        });
+
+        $('.opencompletemodal').click(function () {
+            $("#ordercompletemodal").modal('show');
+        });
+
+
+        // Star click event
+        $('.star-rating .star').on('click', function () {
+            var value = $(this).data('value');
+            var parentDiv = $(this).parent();
+            var category = parentDiv.data('category');
+
+
+            // Set hidden input value
+            parentDiv.next('input[name="' + category + '"]').val(value + 1);
+
+            // Highlight selected stars
+            parentDiv.children('.star').each(function () {
+                if ($(this).data('value') <= value) {
+                    $(this).addClass("bi bi-star-fill colored");
+                } else {
+                    $(this).removeClass("bi bi-star-fill colored");;
+                }
+            });
+        });
+
+        // Submit button click
+        $('.submitReviewBtn').on('click', function () {
+            var formData = {
+                Food: $('input[name="FoodRating"]').val(),
+                Service: $('input[name="ServiceRating"]').val(),
+                Ambience: $('input[name="AmbienceRating"]').val(),
+                Comment: $('textarea[name="reviewcomment"]').val(),
+                CustomerId: customerid,
+                OrderId: orderid
+            };
+            console.log(formData);
+            console.log("Helfjoeuksdnkjln ");
+
+            $.ajax({
+                type: "POST",
+                url: "/AccountManagerOrderApp/SubmitReview",   // your controller action URL
+                data: formData,
+                success: function (response) {
+                    if (response.success) {
+                        console.log("Review submitted successfully!");
+                        toastr.success('Review submitted successfully!');
+                    } else {
+                        console.error("Error submitting review:", response.message);
+                    }
+
+                    $("#reviewmodal").modal('hide');
+                    $('#reviewForm')[0].reset();
+                    $('.star').removeClass('selected');
+                },
+                error: function () {
+                    alert('Something went wrong. Please try again.');
+                }
+            });
+        });
+
+
+
+        let itemcomment = "";
+        let temuid = "";
+        $(document).on("click", ".ItemDataCard", function () {
+            var uid = $(this).data('uid');
+            console.log(uid + "UID");
+            tempuid = uid;
+            $("#itemwisecommentmodal").modal('show');
+            const itemIndex = FinalArrayToBeSubmit.findIndex(item => item.uId == uid);
+            console.log(itemIndex + "Item Index");
+            // id\f comment is "null" then set it to empty
+            // Check if the comment is exist in that
+            console.log(FinalArrayToBeSubmit[itemIndex].itemInstruction + "ITEM COMMENT");
+            if (FinalArrayToBeSubmit[itemIndex].itemInstruction == null) {
+                @* $(this).closest('.modal').find('#itemDescription').val(""); *@
+                    $(this).siblings('#itemwisecommentmodal').find('#itemDescription').val("");
+                console.log("IS EMPTY");
+            }
+            else {
+                $(this).siblings('#itemwisecommentmodal').find('#itemDescription').val(FinalArrayToBeSubmit[itemIndex].itemInstruction);
+            }
+
+        });
+
+        $(document).on("click", ".save-item-comment-btn", function () {
+            itemcomment = $(this).closest('.modal').find('#itemDescription').val();
+            console.log(itemcomment + "ITEM COMMENT");
+            var uid = $(this).data('uid');
+            console.log(tempuid + "UID");
+            $('#itemwisecommentmodal').modal('hide');
+            const itemIndex = FinalArrayToBeSubmit.findIndex(item => item.uId == tempuid);
+            console.log(itemIndex + "Item Index");
+            if (itemIndex !== -1) {
+                FinalArrayToBeSubmit[itemIndex].itemInstruction = itemcomment;
+            } else {
+                console.error("Item not found in AppendedItemsArray");
+            }
+            console.log(FinalArrayToBeSubmit);
+        });
+
+
+    });
+    function handlecategory(select) {
+        const val = select.value;
+        console.log(val);
+        if (val == "favorite") {
+            showfavorite();
+        }
+        else {
+            showItem(val);
+        }
+    }
+    console.log("Page loaded");
+    function showItem(CategoryId) {
+        selectedcategoryId = CategoryId;
+        console.log(CategoryId);
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetItemByCategory", "AccountManagerOrderApp")',
+            data: { CategoryId: CategoryId },
+            success: function (data) {
+                $('#item-card').html(data);
+            },
+            error: function (xhr, status, error) {
+                console.error(xhr);
+            }
+        });
+    }
+    function showfavorite() {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetFavouriteItem", "AccountManagerOrderApp")',
+            data: {},
+            success: function (data) {
+                $('#item-card').html(data);
+            },
+            error: function (xhr, status, error) {
+                console.error(xhr);
+            }
+        });
+    }
+    $(document).on("click", ".favoritebtn", function (event) {
+        event.stopPropagation();
+        var itemId = $(this).data("itemid");
+
+        console.log(itemId + "Item ID");
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AddToFavouriteItem", "AccountManagerOrderApp")',
+            data: { ItemId: itemId },
+            success: function (response) {
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetItemByCategory", "AccountManagerOrderApp")',
+                    data: { CategoryId: selectedcategoryId },
+                    success: function (data) {
+                        $('#item-card').html(data);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr);
+                    }
+                });
+                if (response.success) {
+                    @* alert("Item added to favorites!"); *@
+                } else {
+                    alert("Failed to add item to favorites.");
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error(xhr);
+            }
+        });
+    });
+
+
+    let ItemIdTemp = 0;
+    let ItemRateTemp = 0;
+    $(document).on("click", ".MenuItemCard", function () {
+        var itemId = $(this).data("itemid");
+        var itemrate = $(this).data('itemrate');
+        ItemIdTemp = itemId;
+        ItemRateTemp = itemrate;
+        console.log(itemId + "ITEMIDDDDDD");
+        $.ajax({
+            type: "GET",
+            url: '/AccountManagerOrderApp/GetModifierFromItem',
+            data: { ItemId: itemId },
+            success: function (data) {
+                $('#modifierdatamodal').modal('show');
+                console.log("SUccess");
+                $('#modifierdata').html(data);
+            },
+            error: function (xhr, status, error) {
+                console.error(xhr);
+            }
+        });
+    });
+    $(document).on("click", ".ModifierCard", function () {
+        var modId = $(this).data("modid");
+        var groupId = $(this).data("groupid"); // Get Modifier Group Id
+        var min = $(this).data('min');
+        var max = $(this).data('max');
+        let Highlight = true;
+
+        const existingItemIndex = ItemDetailsArray.findIndex(item => item.ItemId === ItemIdTemp);
+
+        if (existingItemIndex !== -1) {
+            let existingModifiers = ItemDetailsArray[existingItemIndex].MenuItemModifier || [];
+
+            // Group-wise selected count
+            let groupModifiers = existingModifiers.filter(mod => mod.ModifierGroupId === groupId);
+
+            if ($(this).hasClass("selected")) {
+                // Remove from the array
+                existingModifiers = existingModifiers.filter(mod => mod.ModifierId !== modId);
+            } else {
+                if (groupModifiers.length < max) {
+                    // Add only if group limit not reached
+                    existingModifiers.push({ ModifierId: modId, ModifierGroupId: groupId });
+
+                } else {
+                    Highlight = false;
+                    toastr.warning("You can't select more than " + max + " options in this group.");
+                }
+            }
+
+            // Remove duplicates
+            const mergedModifiers = [];
+            const ids = new Set();
+            existingModifiers.forEach(mod => {
+                if (!ids.has(mod.ModifierId)) {
+                    ids.add(mod.ModifierId);
+                    mergedModifiers.push(mod);
+                }
+            });
+
+            ItemDetailsArray[existingItemIndex].MenuItemModifier = mergedModifiers;
+        } else {
+            // New item push
+            ItemDetailsArray.push({
+                ItemId: ItemIdTemp,
+                UId: getUniqueItemKey(ItemIdTemp, [{ ModifierId: modId, ModifierGroupId: groupId }]), // Generate unique ID
+                MenuItemModifier: [{ ModifierId: modId, ModifierGroupId: groupId }],
+                Comment: ""
+            });
+        }
+
+        console.log(ItemDetailsArray);
+
+        // Toggle styles only if allowed
+        if (Highlight == true) {
+            $(this).toggleClass("selected border-primary bg-primary-subtle");
+            console.log("Highlight: " + Highlight);
+        }
+    });
+    $(document).on("click", ".modifieraddbtn", function () {
+        console.log(ItemIdTemp + "TempID");
+        console.log("ItemDetailsArray length: " + ItemDetailsArray.length);
+
+        @* if (ItemDetailsArray.length === 0) {
+            ItemDetailsArray.push({
+                ItemId: ItemIdTemp,
+                MenuItemModifier: []
+            });
+            console.log(ItemDetailsArray);
+        } *@
+
+        const currentItem = ItemDetailsArray.find(item => item.ItemId === ItemIdTemp);
+        const currentModifiers = currentItem?.MenuItemModifier || [];
+
+        // Check if this exact item + modifiers already exists
+        const isDuplicate = AppendedItemsArray.some(appended => {
+            if (appended.ItemId !== ItemIdTemp) return false;
+
+            const appendedMods = appended.MenuItemModifier.map(m => m.ModifierId).sort();
+            const currentMods = currentModifiers.map(m => m.ModifierId).sort();
+
+            return JSON.stringify(appendedMods) === JSON.stringify(currentMods);
+        });
+
+        @* if (isDuplicate) {
+
+            toastr.warning("This item with the same modifiers already exists.");
+            return;
+        } *@
+            console.log(currentModifiers);
+        const uid = getUniqueItemKey(ItemIdTemp, currentModifiers);
+        console.log(uid + "UID");
+
+        // Not a duplicate, proceed and track it
+        // If there are no modifier then i t is not added so i want that modifier should be added which has no moidfier
+        if (currentModifiers.length == 0) {
+            ItemDetailsArray.push({
+                ItemId: ItemIdTemp,
+                UId: uid,
+                MenuItemModifier: [],
+                Comment: "",
+            });
+        }
+        // if then there is modifier then i just want to update their uid
+        else {
+            const existingItemIndex = ItemDetailsArray.findIndex(item => item.ItemId === ItemIdTemp);
+            if (existingItemIndex !== -1) {
+                ItemDetailsArray[existingItemIndex].UId = uid;
+            }
+        }
+        @* 
+        ItemDetailsArray.push({
+            ItemId: ItemIdTemp,
+            UId: uid,
+            MenuItemModifier: currentModifiers.map(m => ({ ModifierId: m.ModifierId })),
+            Comment: "",
+        }); *@
+
+            AppendedItemsArray.push({
+                ItemId: ItemIdTemp,
+                UId: uid,
+                MenuItemModifier: currentModifiers.map(m => ({ ModifierId: m.ModifierId })),
+                Quantity: 1,
+                Price: ItemRateTemp,
+            });
+
+        var Duplicate = FinalArrayToBeSubmit.some(item => {
+            return item.itemId === ItemIdTemp && item.uId === uid;
+        });
+        console.log(Duplicate + "Duplicate");
+        console.log(uid + "UID");
+        console.log(ItemIdTemp + "Item ID");
+        console.log(FinalArrayToBeSubmit);
+        // then plus 1 quantity
+        if (Duplicate) {
+            const itemIndex = FinalArrayToBeSubmit.findIndex(item => item.uId == uid);
+            console.log(itemIndex + "Item Index");
+            if (itemIndex !== -1) {
+                var container = $('.ItemDataCard[data-uid="' + uid + '"]');
+                var itemrate = container.find('.itemrate').attr('value');
+                var quantity = container.find('.inputquantity').text();
+                container.find('.inputquantity').text(parseInt(quantity) + 1);
+                container.find('.itemrate').text((parseFloat(itemrate) * (parseInt(FinalArrayToBeSubmit[itemIndex].quantity) + 1)).toFixed(2));
+                FinalArrayToBeSubmit[itemIndex].quantity += 1;
+                $("#modifierdatamodal").modal('hide');
+            }
+        }
+        else {
+            $.ajax({
+                url: '@Url.Action("GetMenuItemDetails", "AccountManagerOrderApp")',
+                type: "POST",
+                data: JSON.stringify(ItemDetailsArray),
+                contentType: 'application/json',
+                success: function (response) {
+                    $("#modifierdatamodal").modal('hide');
+                    $("#orderitemomdifier").append(response);
+                    let total = 0;
+
+                    $(".ItemDataCard").each(function () {
+                        let rate = parseFloat($(this).find('.itemrate').text()) || 0;
+                        let modifierrate = parseFloat($(this).find('.modifierrate').text()) || 0;
+                        total += (rate + modifierrate);
+                    });
+
+
+                    FinalSubtotalSum = total;
+                    $(".subtotal").text(total.toFixed(2));
+                    FinalTaxSum = 0;
+
+                    FinalTaxSum = 0;
+             if(itemratetax != 0.00)
+             {
+               FinalTaxSum = itemratetax;
+             }
+             else{
+                 $(".ItemDataCard").each(function () {
+                var itemtax = $(this).data('taxpercentage');
+                console.log(itemtax + "Item Tax");
+                if (itemtax != 0.00) {
+                    $('.itemtaxdiv').removeClass('d-none');
+                    $('.itemtaxrate').text(itemtax * FinalSubtotalSum / 100);
+                     itemratetax = parseFloat(itemtax * FinalSubtotalSum / 100);
+                }
+                FinalTaxSum += parseFloat(itemtax * FinalSubtotalSum / 100);
+               
+            });
+             }
+                    console.log(itemratetax + "Item Rate Tax");
+
+
+                    calculateTax();
+                    @* console.log(finalTaxTotal + "Final Tax Total"); *@
+                    console.log(FinalTaxSum + "Final Tax Sum");
+
+                   
+                   
+                     let finaltotal = parseFloat((FinalSubtotalSum + FinalTaxSum)).toFixed(2);
+                    $(".finaltotalamt").text(finaltotal);
+                    FinalOrderSum = finaltotal;
+
+                    selecteditem = [];
+                    selectedmodifier = [];
+                    ItemDetailsArray = [];
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching order details:", error);
+                }
+            });
+        }
+        let total = 0;
+
+        $(".ItemDataCard").each(function () {
+            let rate = parseFloat($(this).find('.itemrate').text()) || 0;
+            let modifierrate = parseFloat($(this).find('.modifierrate').text()) || 0;
+            total += (rate + modifierrate);
+        });
+
+        FinalSubtotalSum = total;
+        $(".subtotal").text(total.toFixed(2));
+
+        calculateTax();
+  $(".ItemDataCard").each(function () {
+                        var itemtax = $(this).data('taxpercentage');
+                        console.log(itemtax + "Item Tax");
+                        if (itemtax != 0.00) {
+                            $('.itemtaxdiv').removeClass('d-none');
+                            $('.itemtaxrate').text(itemtax * FinalSubtotalSum / 100);
+                           itemratetax = parseFloat(itemtax * FinalSubtotalSum / 100);
+                        }
+                        FinalTaxSum += parseFloat(itemtax * FinalSubtotalSum / 100);
+                        
+                    });
+                     console.log(itemratetax + "Item Rate Tax");
+                     let finaltotal = parseFloat((FinalSubtotalSum + FinalTaxSum)).toFixed(2);
+                    $(".finaltotalamt").text(finaltotal);
+                    FinalOrderSum = finaltotal;
+
+
+
+        selecteditem = [];
+        selectedmodifier = [];
+        ItemDetailsArray = [];
+
+        console.log("AppendedItemsArray: " + ItemDetailsArray);
+
+    });
+
+    $(document).on("click", ".inc", function (event) {
+        event.stopPropagation();
+        var Quantity = $(this).closest('.d-flex').find($('.inputquantity')).text();
+        var Uid = $(this).data('uid');
+        $(this).closest('.d-flex').find($('.inputquantity'))[0].innerHTML = parseInt(Quantity) + 1;
+        let container = $(this).closest('.justify-content-between');
+        let rate = container.find('.itemrate').attr('value');
+        container.find('.itemrate').text((parseFloat(rate) * (parseFloat(Quantity) + 1)).toFixed(2));
+        FinalSubtotalSum += parseFloat(rate);
+        $(".subtotal").text(FinalSubtotalSum.toFixed(2));
+         FinalTaxSum = 0;
+             if(itemratetax != 0.00)
+             {
+               FinalTaxSum = itemratetax;
+             }
+             else{
+                 $(".ItemDataCard").each(function () {
+                var itemtax = $(this).data('taxpercentage');
+                console.log(itemtax + "Item Tax");
+                if (itemtax != 0.00) {
+                    $('.itemtaxdiv').removeClass('d-none');
+                    $('.itemtaxrate').text(itemtax * FinalSubtotalSum / 100);
+                     itemratetax = parseFloat(itemtax * FinalSubtotalSum / 100);
+                }
+                FinalTaxSum += parseFloat(itemtax * FinalSubtotalSum / 100);
+               
+            });
+             }
+         console.log(FinalTaxSum + "Final Tax Sum");
+        calculateTax();
+         console.log(FinalTaxSum + "Final Tax Sum");
+
+        finaltotal = parseFloat((FinalSubtotalSum + FinalTaxSum)).toFixed(2);
+        $(".finaltotalamt")[0].innerHTML = parseFloat(finaltotal).toFixed(2);
+        FinalOrderSum = finaltotal;
+
+
+        const itemIndex = FinalArrayToBeSubmit.findIndex(item => item.uId == Uid);
+        if (itemIndex !== -1) {
+            FinalArrayToBeSubmit[itemIndex].quantity += 1;
+            FinalArrayToBeSubmit[itemIndex].subTotal = FinalSubtotalSum;
+            FinalArrayToBeSubmit[itemIndex].totalAmount = finaltotal;
+        } else {
+            console.error("Item not found in AppendedItemsArray");
+        }
+
+    });
+
+    $(document).on("click", ".dec", function (event) {
+        event.stopPropagation();
+        var Quantity = $(this).closest('.d-flex').find($('.inputquantity')).text();
+        if (parseInt(Quantity) != 1) {
+            $(this).closest('.d-flex').find($('.inputquantity'))[0].innerHTML = parseInt(Quantity) - 1;
+            var Uid = $(this).data('uid');
+            console.log(Uid + "UID");
+            let container = $(this).closest('.justify-content-between');
+            let rate = container.find('.itemrate').attr('value');
+            container.find('.itemrate').text((parseFloat(rate) * (parseFloat(Quantity) - 1)).toFixed(2));
+            console.log(rate);
+            FinalSubtotalSum -= parseFloat(rate);
+            console.log(FinalSubtotalSum);
+            $(".subtotal").text(FinalSubtotalSum.toFixed(2));
+             FinalTaxSum = 0;
+             if(itemratetax != 0.00)
+             {
+               FinalTaxSum = itemratetax;
+             }
+             else{
+                 $(".ItemDataCard").each(function () {
+                var itemtax = $(this).data('taxpercentage');
+                console.log(itemtax + "Item Tax");
+                if (itemtax != 0.00) {
+                    $('.itemtaxdiv').removeClass('d-none');
+                    $('.itemtaxrate').text(itemtax * FinalSubtotalSum / 100);
+                     itemratetax = parseFloat(itemtax * FinalSubtotalSum / 100);
+                }
+                FinalTaxSum += parseFloat(itemtax * FinalSubtotalSum / 100);
+               
+            });
+             }
+           
+             console.log(itemratetax + "Item Rate Tax");
+            calculateTax();
+            finaltotal = parseFloat((FinalSubtotalSum + FinalTaxSum)).toFixed(2);
+            $(".finaltotalamt")[0].innerHTML = parseFloat(finaltotal).toFixed(2);
+            FinalOrderSum = finaltotal;
+            const itemIndex = FinalArrayToBeSubmit.findIndex(item => item.uId == Uid);
+            console.log(itemIndex + "Item Index");
+            if (itemIndex !== -1) {
+                FinalArrayToBeSubmit[itemIndex].quantity -= 1;
+                FinalArrayToBeSubmit[itemIndex].subTotal = FinalSubtotalSum;
+                FinalArrayToBeSubmit[itemIndex].totalAmount = finaltotal;
+            } else {
+                console.error("Item not found in AppendedItemsArray");
+            }
+
+            console.log(FinalSubtotalSum + "Final Subtotal Sum");
+            console.log(FinalOrderSum + "Final Order Sum");
+
+            console.log(FinalArrayToBeSubmit);
+
+        }
+
+
+    });
+    
+
+    $(document).on('click', '.sgstchkboxes', function () {
+        $(this).each(function () {
+            if ($(this).prop('checked')) {
+                var taxamount = $(this).data('amount');
+                var taxtype = $(this).data('type');
+                var taxId = $(this).data('id');
+                if(taxtype == 2){
+                    $(this)[0].innerHTML = ((parseFloat(taxamount) / 100) * FinalSubtotalSum).toFixed(2);
+                    taxamount = ((parseFloat(taxamount) / 100) * FinalSubtotalSum).toFixed(2);
+                }
+                else{
+                    $(this)[0].innerHTML = parseFloat(taxamount).toFixed(2);
+                    taxamount = parseFloat(taxamount).toFixed(2);
+                }
+                FinalTaxSum += parseFloat(taxamount);
+                 var existingTaxIndex = FinalTexArray.findIndex(item => item.TaxId == taxId);
+            if (existingTaxIndex !== -1) {
+                FinalTexArray[existingTaxIndex].TaxAmount = taxamount;
+            }
+            else {
+                FinalTexArray.push({
+                    TaxId: taxId,
+                    TaxAmount: taxamount,
+                    TaxTypeId: taxtype
+                });
+            }
+            }
+            else
+            {
+                var taxamount = $(this).data('amount');
+                var taxtype = $(this).data('type');
+                var taxId = $(this).data('id');
+                if(taxtype == 2){
+                    $(this)[0].innerHTML = ((parseFloat(taxamount) / 100) * FinalSubtotalSum).toFixed(2);
+                    taxamount = ((parseFloat(taxamount) / 100) * FinalSubtotalSum).toFixed(2);
+                }
+                else{
+                    $(this)[0].innerHTML = parseFloat(taxamount).toFixed(2);
+                    taxamount = parseFloat(taxamount).toFixed(2);
+                }
+                FinalTaxSum -= parseFloat(taxamount);
+                    var existingTaxIndex = FinalTexArray.findIndex(item => item.TaxId == taxId);
+                    // just delete that element onlt from that array with taxId
+                    if (existingTaxIndex !== -1) {
+                        FinalTexArray.splice(existingTaxIndex, 1);
+                    }
+            }
+           
+        });
+        finaltotal = parseFloat((FinalSubtotalSum + FinalTaxSum)).toFixed(2);
+        FinalOrderSum = finaltotal;
+        $(".finaltotalamt")[0].innerHTML = parseFloat(finaltotal).toFixed(2);
+      
+    });
+
+
+    $(document).on("click", ".deleteitembtn", function (event) {
+        event.stopPropagation();
+        console.log(FinalArrayToBeSubmit.length + "Length");
+        console.log(FinalArrayToBeSubmit[0] + "yg7u");
+
+        if (FinalArrayToBeSubmit.length <= 1) {
+            $(this).closest(".ItemDataCard").remove();
+            FinalSubtotalSum = 0;
+            FinalOrderSum = 0;
+            calculateTax();
+            $(".subtotal").text(FinalSubtotalSum.toFixed(2));
+            $(".finaltotalamt")[0].innerHTML = parseFloat(FinalOrderSum).toFixed(2);
+            console.log("IS EMPOTY EARRY");
+            FinalArrayToBeSubmit = [];
+            console.log("IS EMPOTY EARRY");
+        }
+        else {
+            const subitemindex = FinalArrayToBeSubmit.findIndex(item => item.uId == $(this).data('uid'));
+            if (subitemindex !== -1) {
+                FinalArrayToBeSubmit.splice(subitemindex, 1);
+
+            } else {
+                console.error("Item not found in AppendedItemsArray");
+            }
+            var container = $(this).closest(".ItemDataCard").closest(".justify-content-between");
+            var itemratedss = container.find('.itemrate').text();
+            var modifierrate = container.find('.modifierrate').text() || 0;
+            console.log(itemratedss);
+            FinalSubtotalSum -= parseFloat(itemratedss) + parseFloat(modifierrate);
+            $(".subtotal").text(FinalSubtotalSum.toFixed(2));
+           
+            calculateTax();
+            finaltotal = parseFloat((FinalSubtotalSum + FinalTaxSum)).toFixed(2);
+            $(".finaltotalamt")[0].innerHTML = parseFloat(finaltotal).toFixed(2);
+            $(this).closest(".ItemDataCard").remove();
+            FinalArrayToBeSubmit[0].subTotal = FinalSubtotalSum;
+            FinalArrayToBeSubmit[0].totalAmount = finaltotal;
+            console.log(FinalArrayToBeSubmit);
+
+        }
+
+
+
+    });
+    function calculateTax() {
+        let finalTaxTotal = 0;
+        $('.taxbtn').each(function () {
+            var tax = $(this).data('amount');
+            var taxtype = $(this).data('type');
+            var taxId = $(this).data('id');
+            let taxValue = 0;
+
+            if (parseInt(taxtype) == 2) {
+                $(this)[0].innerHTML = ((parseFloat(tax) / 100) * FinalSubtotalSum).toFixed(2);
+                taxValue = ((parseFloat(tax) / 100) * FinalSubtotalSum).toFixed(2);
+            }
+            else {
+                @* console.log(FinalOrderSum+ "delete"); *@
+                if (FinalSubtotalSum == 0) {
+                    $(this)[0].innerHTML = parseFloat(0).toFixed(2);
+                }
+                else {
+
+                    $(this)[0].innerHTML = parseFloat(tax).toFixed(2);
+                }
+                taxValue = parseFloat(tax).toFixed(2);
+            }
+            finalTaxTotal += parseFloat(taxValue);
+            
+            var existingTaxIndex = FinalTexArray.findIndex(item => item.TaxId == taxId);
+            if (existingTaxIndex !== -1) {
+                FinalTexArray[existingTaxIndex].TaxAmount = taxValue;
+            }
+            else {
+                FinalTexArray.push({
+                    TaxId: taxId,
+                    TaxAmount: taxValue,
+                    TaxTypeId: taxtype
+                });
+            }
+        });
+        console.log(finalTaxTotal + "Final Tax Total");
+        $('.taxdefaultbtn').each(function () {
+            var tax = $(this).data('amount');
+            var taxtype = $(this).data('type');
+            var taxId = $(this).data('id');
+            let taxValue = 0;
+
+
+            if (parseInt(taxtype) == 2) {
+                $(this)[0].innerHTML = ((parseFloat(tax) / 100) * FinalSubtotalSum).toFixed(2);
+                taxValue = ((parseFloat(tax) / 100) * FinalSubtotalSum).toFixed(2);
+            }
+            else {
+                if (FinalSubtotalSum == 0) {
+                    $(this)[0].innerHTML = parseFloat(0).toFixed(2);
+                }
+                else {
+
+                    $(this)[0].innerHTML = parseFloat(tax).toFixed(2);
+                }
+                taxValue = parseFloat(tax).toFixed(2);
+            }
+            finalTaxTotal += parseFloat(taxValue);
+            
+        });
+        console.log(finalTaxTotal + "Final Tax Total");
+        if(@subtotal == 0)
+        {
+            $('.sgstchkboxes').each(function () {
+                if ($(this).prop('checked')) {
+                    var taxamount = $(this).data('amount');
+                    var taxtype = $(this).data('type');
+                    var taxId = $(this).data('id'); 
+                    if(taxtype == 2){
+                        $(this)[0].innerHTML = ((parseFloat(taxamount) / 100) * FinalSubtotalSum).toFixed(2);
+                        taxamount = ((parseFloat(taxamount) / 100) * FinalSubtotalSum).toFixed(2);
+                    }
+                    else{
+                        $(this)[0].innerHTML = parseFloat(taxamount).toFixed(2);
+                        taxamount = parseFloat(taxamount).toFixed(2);
+                    }
+                    console.log(taxamount + "Tax Amount");
+                    finalTaxTotal += parseFloat(taxamount);
+                    var existingTaxIndex = FinalTexArray.findIndex(item => item.TaxId == taxId);
+                    if (existingTaxIndex !== -1) {
+                        FinalTexArray[existingTaxIndex].TaxAmount = taxamount;
+                    }
+                    else {
+                        FinalTexArray.push({
+                            TaxId: taxId,
+                            TaxAmount: taxamount,
+                            TaxTypeId: taxtype
+                        });
+                    }
+                    FinalArrayToBeSubmit[0].IsSgstIncluded = true;
+                }
+                else
+                {
+                    var taxamount = $(this).data('amount');
+                    var taxtype = $(this).data('type');
+                    var taxId = $(this).data('id');
+                    if(taxtype == 2){
+                        $(this)[0].innerHTML = ((parseFloat(taxamount) / 100) * FinalSubtotalSum).toFixed(2);
+                        taxamount = ((parseFloat(taxamount) / 100) * FinalSubtotalSum).toFixed(2);
+                    }
+                    else{
+                        $(this)[0].innerHTML = parseFloat(taxamount).toFixed(2);
+                        taxamount = parseFloat(taxamount).toFixed(2);
+                    }
+                    finalTaxTotal -= parseFloat(taxamount);
+                    FinalArrayToBeSubmit[0].IsSgstIncluded = false;
+                }
+            
+                
+            });
+        }
+       
+        FinalTaxSum += finalTaxTotal;
+    }
+
+    $("#saveorderdetails").submit(function (e) {
+        e.preventDefault();
+        console.log("Submitting EditTable form");
+        if (orderid != 0) {
+            FinalArrayToBeSubmit[0].orderId = orderid;
+        }
+
+        FinalArrayToBeSubmit[0].customerId = customerid;
+        FinalArrayToBeSubmit[0].subTotal = FinalSubtotalSum;
+        FinalArrayToBeSubmit[0].totalAmount = FinalOrderSum;
+        FinalArrayToBeSubmit[0].orderComment = tempOrderComment;
+        FinalArrayToBeSubmit[0].OrderTax = FinalTexArray;
+        console.log(itemratetax + "Item Rate Tax");
+        if (itemratetax != 0) {
+            FinalArrayToBeSubmit[0].sgstamt = itemratetax;
+            FinalArrayToBeSubmit[0].IsSgstIncluded = true;
+        }
+
+        console.log("Sending data:", FinalArrayToBeSubmit);
+
+        $.ajax({
+            url: '/AccountManagerOrderApp/SaveOrderDetails',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(FinalArrayToBeSubmit),
+            success: function (response) {
+                $("#Personaldetailmodal").modal('hide');
+                toastr.success("Order Saved Successfully!");
+                $('.opencompletemodal').removeAttr('disabled');
+                $('.finalgenerateinvoice').removeAttr('disabled');
+                $('.paymentarea').removeClass('disabled');
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', xhr.responseText);
+            }
+        });
+    });
+
+    $('.finalcompletebtn').click(function () {
+        @* paymentoption = $('.paymentarea').find('name="option":checked').val(); *@
+            paymentoption = $('input[name="option"]:checked').val();
+        console.log(paymentoption + "Payment Option");
+        $.ajax({
+            url: '/AccountManagerOrderApp/CompleteOrder',
+            type: 'POST',
+            data: { orderId: orderid, customerId: customerid, paymentOption: paymentoption },
+            success: function (response) {
+                if (response.success == false) {
+                    toastr.error("Order cannot be completed Because Order Item is not Ready Yet.");
+                }
+                else {
+                    toastr.success("Order Completed Successfully!");
+                    $("#reviewmodal").modal('show');
+                }
+                $("#ordercompletemodal").modal('hide');
+
+            },
+            error: function () {
+                alert("Failed to complete the order.");
+            }
+        });
+    });
+
+    $('.finalgenerateinvoice').click(function () {
+        console.log("Final Order Sum: " + FinalOrderSum);
+        $.ajax({
+            url: `/Order/GeneratePDF?orderId=${orderid}`,
+            type: 'POST',
+            xhrFields: { responseType: 'blob' }, // Ensures binary data handling    
+            success: function (data, status, xhr) {
+                var blob = new Blob([data], { type: 'application/pdf' });
+                var link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = `Order_${orderid}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            },
+            error: function () {
+                alert("Failed to download PDF.");
+            }
+        });
+    });
+
+    $('.finalordercancelbtn').click(function () {
+        $.ajax({
+            url: '/AccountManagerOrderApp/CancelOrder',
+            type: 'POST',
+            data: { orderId: orderid, customerId: customerid },
+            success: function (response) {
+
+                if (response.success == false) {
+                    toastr.error("Order cannot be cancelled.");
+                }
+                else {
+                    toastr.success("Order Cancelled Successfully!");
+                }
+                $("#ordercancelmodal").modal('hide');
+            },
+            error: function () {
+                alert("Failed to cancel the order.");
+            }
+        });
+    });
+
+    function getUniqueItemKey(itemId, modifiers = []) {
+        const sortedModifierIds = (modifiers || [])
+            .map(m => m.ModifierId)
+            .sort((a, b) => a - b);
+        return `${itemId}${sortedModifierIds.join('')}`;
+    }
+</script>
+
+</html>

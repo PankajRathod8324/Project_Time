@@ -1,0 +1,732 @@
+@model List< Entities.ViewModel.OrderSectionVM>
+
+@{
+    Layout = "_LayoutOrder";
+    ViewData["Title"] = "Table View";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizza Shop</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+
+
+    <style>
+        .selected {
+            border-color: green !important;
+        }
+
+        .unselected {
+            border-color: grey !important;
+        }
+
+        .card {
+            min-height: 150px;
+            /* Ensures all cards have the same height */
+        }
+
+        .modal.fade .modal-right {
+            left: auto !important;
+            transform: translate3d(100%, 0, 0);
+            transition: transform .3s cubic-bezier(.25, .8, .25, 1)
+        }
+
+        body {
+            background-color: #f9f9fa
+        }
+
+        .container {
+
+            margin-top: 100px;
+        }
+
+        .modal.fade .modal-bottom,
+        .modal.fade .modal-left,
+        .modal.fade .modal-right,
+        .modal.fade .modal-top {
+            position: fixed;
+            z-index: 1055;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: 0;
+            max-width: 100%
+        }
+
+        .modal.fade .modal-right {
+            left: auto !important;
+            transform: translate3d(100%, 0, 0);
+            transition: transform .3s cubic-bezier(.25, .8, .25, 1)
+        }
+
+        .modal.fade.show .modal-bottom,
+        .modal.fade.show .modal-left,
+        .modal.fade.show .modal-right,
+        .modal.fade.show .modal-top {
+            transform: translate3d(0, 0, 0)
+        }
+
+        .w-xl {
+            width: 520px
+        }
+
+        .modal-content,
+        .modal-footer,
+        .modal-header {
+            border: none
+        }
+
+        .h-100 {
+            height: 100% !important
+        }
+
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 1rem;
+            border-top: 1px solid rgba(160, 175, 185, .15);
+            border-bottom-right-radius: .3rem;
+            border-bottom-left-radius: .3rem
+        }
+    </style>
+</head>
+
+<body class="bg-body-tertiary">
+    <div class="container-fluid" style="padding-top: 100px; padding-left: 50px;">
+        <div class="row">
+            <div class="col">
+                <div class="fs-2 fw-bold webybtn mb-3">Table View</div>
+            </div>
+            <div class="col-md-6 col-sm-8 text-end">
+                <i class="fa-solid fa-circle me-2" style="color: #d2cec6;"></i> Available
+                <i class="fa-regular fa-circle ms-4 me-2" style="color: #7fc83c;"></i> Selected
+                <i class="fa-solid fa-circle ms-4 me-2" style="color: #7fc83c;"></i> Assigned
+                <i class="fa-solid fa-circle ms-4 me-2" style="color: #77b4e0;"></i> Running
+            </div>
+        </div>
+
+        <!-- Sections -->
+        @foreach (var sectionlist in Model)
+        {
+            <div class="accordion bg-white p-4 mb-3">
+                <div class="d-flex align-items-center toggle-header" data-sectionid="@sectionlist.SectionId" data-sectionname="@sectionlist.SectionName">
+                    <i class="bi bi-arrow-right-circle me-2 fs-5 toggle-icon"></i>
+                    <div class="d-flex w-100 justify-content-between">
+                        <div>
+                            <h5 class="mb-0">@sectionlist.SectionName</h5>
+                        </div>
+                        <div class="d-flex">
+                            <div class="d-flex">
+                                <i class="fa-solid fa-circle me-2 mt-1" style="color: #d2cec6;"></i>
+                                <span>@sectionlist.Available</span>
+                            </div>
+                            <i class="fa-solid fa-circle ms-4 me-2 mt-1" style="color: #7fc83c;"></i>
+                            <span>@sectionlist.Assigned</span>
+                            <i class="fa-solid fa-circle ms-4 me-2 mt-1" style="color: #77b4e0;"></i>
+                            <span>@sectionlist.Running</span>
+                            <button type="button" class="btn ms-4 waitingtokenmodal" 
+                                style="background-color: white; border-color: rgba(0, 102, 167, 1); color: rgba(0, 102, 167, 1);">
+                                + Waiting Token
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapse section-content ">
+                    <div class="mt-3 d-flex flex-wrap ">
+
+                        @foreach (var table in sectionlist.Table)
+                        {
+                            <div class="card col-md-2 selectable m-2" data-status="@table.Status" data-tableid="@table.TableId"
+                                data-capacity="@table.Capacity" data-sectionid="@table.SectionId"
+                                data-customerId="@table.CustomerTables?.FirstOrDefault()?.CustomerId">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between flex-col">
+                                        <div class="">
+                                            <span class="fs-3 fw-bold tableName">@table.TableName</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            @if(table.OrderTable?.FirstOrDefault()?.Order?.FirstOrDefault()?.OrderAmount != null)
+                                            {
+                                                <span class="fs-5 ">₹
+                                                    @table.OrderTable?.FirstOrDefault()?.Order?.FirstOrDefault()?.OrderAmount
+                                                </span>
+                                            }
+                                            
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-col justify-content-between">
+                                        <span class="">
+                                            <i class="bi bi-people"></i>
+                                        </span>
+                                        <span class=" text-end">
+                                            <i class="bi bi-stopwatch"></i>
+                                        </span>
+                                    </div>
+
+
+                                    <div class="d-flex flex-col justify-content-between">
+                                        <div class="">
+                                            <span class="">@table.Capacity</span>
+                                        </div>
+                                        <div class="">
+                                            <span class="">
+                                                @if (table.OccuipiedTime.Days > 0)
+                                                {
+                                                    @($"{table.OccuipiedTime.Days} days ")
+                                                }
+                                                @if (table.OccuipiedTime.Hours > 0)
+                                                {
+                                                    @($"{table.OccuipiedTime.Hours} hours ")
+                                                }
+                                                @if (table.OccuipiedTime.Minutes > 0)
+                                                {
+                                                    @($"{table.OccuipiedTime.Minutes} min ")
+                                                }
+                                                else
+                                                {
+                                                    @("0 min")
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="col d-flex justify-content-end">
+                        <button type="submit" class="btn text-white mt-2  ms-4 assignbtn" data-toggle="modal"
+                            data-id="@sectionlist.SectionId" data-toggle-class="modal-open-aside"
+                            style="background-color: rgba(0, 102, 167, 1) !important;">Assign
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+        <div id="waitingtokendetails" class="modal fade" data-backdrop="true">
+            <div class="modal-dialog modal-dialog-centered w-xl">
+                <div class="modal-content h-100 no-radius">
+                    <div class="modal-header">
+                        <div class="modal-title fw-bold webybtn text-md">Waiting Token Details</div>
+                        <button class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <form class="savewaitingTokenDeatails">
+                        <div class="row d-flex justify-space-between m-3" id="waitingtokenDeatils">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="emailCust" name="email">
+                                        <label for="floatingInput">Email*</label>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="floatingInput">
+                                        <label for="floatingInput">Name*</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="floatingInput">
+                                        <label for="floatingInput">Mobile Number*</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="noOfPerson" name="noOfPerson">
+                                        <label for="floatingInput">No. Of Persons*</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating"> <select class="form-select" asp-items="ViewBag.Sections"
+                                            id="sectionNameinput" aria-label="Floating label select example" disabled aria-readonly="true">
+                                            <option selected>Select a Sections</option>
+                                        </select>
+                                        <label for="floatingSelect">Section*</label>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary savewaitingtoken" disabled>Save</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="waitinglistmodal" class="modal fade" data-backdrop="true">
+            <div class="modal-dialog modal-right w-xl">
+                <div class="modal-content h-100 no-radius">
+                    <div class="modal-header">
+                        <div class="modal-title fw-bold webybtn text-md">Waiting List</div>
+                        <button class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <form id="savecustomerdetails">
+                        <div class="modal-body" id="waitinglist">
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary assignBtn" disabled>Assign</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        $(document).ready(function () {
+            @* $.validator.unobtrusive.parse("#savecustomerdetails");
+
+            $("#savecustomerdetails input").on("keyup change", function (){
+                let isValids = $("#savecustomerdetails").valid();
+                $(".assignBtn").prop("disabled", !isValids);
+            }) *@
+            var allcapacity = [];
+            
+            let selectedTables = [];
+            let capacity = 0;
+            let sectionId = 0;
+            let sectionName = "";
+
+            console.log("Script loaded successfully!"); // Debugging log
+
+            function checkFields() {
+                console.log("Checking fields...");
+
+                let isValid = true;
+
+                // Check all input and select fields inside the modal
+                $("#waitinglistmodal input, #waitinglistmodal select").each(function () {
+                    console.log($(this).attr("name"), ":", $(this).val()); // Log field values
+
+                    if (!$(this).val().trim()) {
+                        isValid = false;
+                    }
+                });
+
+                // Enable/Disable the Assign button
+                $(".assignBtn").prop("disabled", !isValid);
+                console.log("Assign button enabled:", isValid);
+            }
+
+            $('.waitingtokenmodal').click(function (event) {
+                event.stopPropagation();
+                sectionId = $(this).closest('.toggle-header').data("sectionid");
+                console.log(sectionId);
+                // match sectionID and eneter the section name accrding to the sectionId
+
+                sectionName = $(this).closest('.toggle-header').data("sectionname");
+                console.log(sectionName);
+                // it is dropdown so dynamically append the section name
+                $("#sectionNameinput").empty();
+                $("#sectionNameinput").append('<option value="' + sectionName + '">' + sectionName + '</option>');
+                console.log("Waiting token modal clicked");
+                $("#waitingtokendetails").modal("show");
+            });
+
+            // Using `document` to delegate events for dynamically loaded elements
+            $(document).on("input change", "#waitinglistmodal input, #waitinglistmodal select", function () {
+                console.log("Field changed:", $(this).attr("name")); // Debugging log
+                checkFields();
+            });
+
+            // Trigger validation when the modal opens
+            $(document).on("shown.bs.modal", "#waitinglistmodal", function () {
+                console.log("Modal opened, checking fields...");
+                checkFields();
+            });
+
+            // Initial check if fields are pre-filled when the page loads
+            checkFields();
+
+
+            @* let inputs = document.getElementsByClassName('required'); 
+            console.log(inputs);
+            for (var i = 0; i < inputs.length; i++) {
+                let changedInput = inputs[i];
+                if (changedInput.value.trim() === "" || changedInput.value === null) {
+                    $(".assignBtn").prop("disabled", true);
+                    break;
+                }
+            } *@
+                $(".assignBtn").prop("disabled", true);
+
+            $(document).on("blur", "#noOfPerson", function (e) {
+                e.preventDefault();
+                var noOfPerson = $(this).val();
+                console.log(noOfPerson);
+                console.log("noOfperson");
+                var totalcapacity = selectedTables.reduce((sum, table) => sum + table.Capacity, 0);
+
+                if (noOfPerson > totalcapacity) {
+                    toastr.warning("Table Capacity is not enough.");
+                    $(".assignBtn").prop("disabled", true);
+                }
+                else {
+                    $(".assignBtn").prop("disabled", false);
+                }
+
+            });
+
+            $(document).on("click", '#dataradio', function () {
+                var waitingId = $(this).data("id");
+                var noOfPerson = $(this).data("no");
+                console.log(noOfPerson + "waitingdata");
+                var totalcapacity = selectedTables.reduce((sum, table) => sum + table.Capacity, 0);
+                if (noOfPerson > totalcapacity) {
+                    toastr.warning("Table Capacity is not enough.");
+                    $(".assignBtn").prop("disabled", true);
+                    @* break; *@
+                        }
+                else {
+                    $(".assignBtn").prop("disabled", false);
+                }
+
+                $.ajax({
+                    url: '@Url.Action("GetWaitingData", "AccountManagerOrderApp")',
+                    type: 'GET',
+                    data: { waitingId: waitingId },
+                    success: function (response) {
+                        $("#customerDetail").html(response); // Append fetched HTML
+                        console.log("Heloo!");
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching modifier groups:', error);
+                    }
+                });
+            });
+
+            $(document).on("blur", '#email', function () {
+                @* var noOfPerson = document.getElementById('noOfPerson').val(); *@
+                    console.log(noOfPerson + "waitingdata");
+                var totalcapacity = selectedTables.reduce((sum, table) => sum + table.Capacity, 0);
+                console.log(totalcapacity + "Total Capacirytyvnfj");
+                if (noOfPerson > totalcapacity) {
+                    toastr.warning("Table Capacity is not enough.");
+                    $(".assignBtn").prop("disabled", true);
+                    @* break; *@
+                        }
+                else {
+                    $(".assignBtn").prop("disabled", false);
+                }
+
+                var email = $(this).val();
+                console.log(email);
+                $.ajax({
+                    url: '@Url.Action("GetWaitingDataByEmail", "AccountManagerOrderApp")',
+                    type: 'GET',
+                    data: { email: email },
+                    success: function (response) {
+                        $("#customerDetail").html(response); // Append fetched HTML
+                        $("#waitingtokenDeatils").html(response);
+                        console.log("Heloo!");
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching modifier groups:', error);
+                    }
+                });
+            });
+            $(document).on("blur", '#emailCust', function () {
+                @* var noOfPerson = document.getElementById('noOfPerson').val(); *@
+                    console.log(noOfPerson + "waitingdata");
+                var totalcapacity = selectedTables.reduce((sum, table) => sum + table.Capacity, 0);
+
+                if (noOfPerson > totalcapacity) {
+                    toastr.warning("Table Capacity is not enough.");
+                    $(".assignBtn").prop("disabled", true);
+                    @* break; *@
+                        }
+                else {
+                    $(".assignBtn").prop("disabled", false);
+                }
+
+                var email = $(this).val();
+                console.log(email);
+                $.ajax({
+                    url: '@Url.Action("GetWaitingToken", "AccountManagerOrderApp")',
+                    type: 'GET',
+                    data: { email: email , sectionId: sectionId},
+                    success: function (response) {
+                        $("#waitingtokenDeatils").html(response);
+                        $(".savewaitingtoken").prop("disabled", false);
+                        $('#sectionselectdrpdown').append('<option value="' + sectionName + '">' + sectionName + '</option>');
+                        console.log("Heloo!");
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching modifier groups:', error);
+                    }
+                });
+            });
+
+            $("#savecustomerdetails").submit(function (e) {
+                e.preventDefault();
+                @* var sectionId = $(this).data("sectionId"); *@
+                    console.log(sectionId);
+                console.log("Submitting Customer Details form");
+                @* var capacity = $(this).data("capacity"); *@
+                    console.log(capacity);
+                // Serialize form fields
+                var formData = $(this).serializeArray();
+                var formDataobj = {};
+
+                // Convert serialized array into an object
+                $.each(formData, function (index, field) {
+                    formDataobj[field.name] = field.value;
+                });
+                formDataobj["SectionId"] = sectionId;
+                formDataobj["SelectedTable"] = selectedTables;
+
+                var submissionData = JSON.stringify(formDataobj); // Final JSON string
+
+                console.log("Sending data:", submissionData);
+
+                console.log(formDataobj["NoOfPerson"]);
+                let form = $(this);
+                if (form.valid()) {
+                    $.ajax({
+                        url: '/AccountManagerOrderApp/AddCustomerDetail',
+                        type: 'POST',
+                        contentType: "application/json",
+                        data: submissionData,
+                        success: function (response) {
+                            if (response.success == true) {
+                                console.log("Customer added successfully");
+                                toastr.success('Customer Added Successfully!', "Success");
+                                window.location.href = '/AccountManagerOrderApp/MenuOrderApp?customerId=' + response.customerId;
+                            }
+                            else {
+                                console.log("Customer has already Running Order");
+                                toastr.warning("Customer has already Running Order", "Warning");
+                            }
+                            
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error:', xhr.responseText); // Log detailed error
+                        }
+                    });
+                }
+                else {
+                    console.log("Form is not valid");
+                    alert("Hiii");
+                    $("#waitinglistmodal").modal("show");
+                }
+
+
+
+            });
+            $(".savewaitingTokenDeatails").submit(function (e) {
+                e.preventDefault();
+                @* var sectionId = $(this).data("sectionId"); *@
+                    console.log(sectionId);
+                console.log("Submitting Customer Details form");
+                @* var capacity = $(this).data("capacity"); *@
+                    console.log(capacity);
+                // Serialize form fields
+                var formData = $(this).serializeArray();
+                var formDataobj = {};
+
+                // Convert serialized array into an object
+                $.each(formData, function (index, field) {
+                    formDataobj[field.name] = field.value;
+                });
+                formDataobj["SectionId"] = sectionId;
+
+                var submissionData = JSON.stringify(formDataobj); // Final JSON string
+
+                console.log("Sending data:", submissionData);
+
+                console.log(formDataobj["NoOfPerson"]);
+
+                $.ajax({
+                    url: '/AccountManagerOrderApp/AddInWaitingList',
+                    type: 'POST',
+                    contentType: "application/json",
+                    data: submissionData,
+                    success: function (response) {
+                        toastr.success('Customer Added Successfully!', "Success");
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error:', xhr.responseText); // Log detailed error
+                    }
+                });
+
+            });
+            // AJAX Call (optional)
+            $.ajax({
+                url: '/AccountManagerOrderApp/Table', // Ensure correct route
+                type: 'GET',
+                success: function (data) {
+                    console.log("Data fetched successfully");
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching data:', error);
+                }
+            });
+
+            // Toggle icons and sections when clicking the header
+            $(".toggle-header").click(function () {
+                var previd = 0;
+                if (sectionId == 0) {
+                    sectionId = $(this).data("sectionid");
+                    previd = sectionId;
+                }
+                let icon = $(this).find(".toggle-icon");
+                let section = $(this).next(".section-content");
+
+                // Toggle only clicked section
+                section.toggleClass("show");
+
+                // Toggle icon
+                if (section.hasClass("show")) {
+                    icon.removeClass("bi-arrow-right-circle").addClass("bi-arrow-down-circle");
+                } else {
+                    icon.removeClass("bi-arrow-down-circle").addClass("bi-arrow-right-circle");
+                }
+            });
+
+            // Apply dynamic Bootstrap classes based on table status
+            $(".selectable").each(function () {
+                let status = $(this).data("status");
+                capacity = $(this).data("capacity");
+
+                if (status === "Assigned") {
+                    $(this).css({ "border-color": " #7fc83c", "background-color": " #e3ebdb" })
+                    console.log($(this));
+                    $(this).find('.tableName').css({ "color": "#7fc83c" });
+                } else if (status === "Running") {
+                    $(this).addClass("border-primary bg-primary-subtle");
+                    $(this).find('.tableName').addClass(" text-primary");
+
+                } else {
+                    $(this).addClass("border-secondary bg-light"); // Default Available
+                }
+            });
+
+            // Select only grey border cards
+            @* $(".selectable").click(function () {
+                $(".selectable").removeClass("selected"); // Remove green from all
+                $(this).addClass("selected"); // Add green border to selected one
+            }); *@
+                // Handle table selection
+                $(".selectable").click(function () {
+                    let status = $(this).data("status");
+                    let customerId = $(this).attr("data-customerId");
+                    @* sectionId = $(".select") *@
+                    let selectedsectionId = $(this).data("sectionid");
+
+                    console.log(selectedsectionId + " " + "selectedsectionId" + sectionId);
+                    console.log(customerId);
+                    if (status === "Assigned" || status === "Running") {
+                        window.location.href = '/AccountManagerOrderApp/MenuOrderApp?customerId=' + customerId;
+                        return;
+                    }
+
+                    $(this).toggleClass("selected");
+                    $(".assignbtn").prop("disabled", false);
+
+                    let tableId = $(this).data("tableid");
+                    let capacity = $(this).data("capacity");
+                    console.log(tableId);
+                    if ($(this).hasClass("selected") && sectionId == selectedsectionId) {
+                        selectedTables.push({ TableId: tableId, Capacity: capacity });
+                    }
+                    else if (sectionId != selectedsectionId) {
+                        toastr.warning("You can only select table within Section");
+                        $(this).addClass("unselected");
+                    } else {
+                        selectedTables = selectedTables.filter(id => id.TableId !== tableId);
+                        if (selectedTables.length <= 0) {
+                            $(".assignbtn").prop("disabled", true);
+                            console.log("is empty");
+                        }
+                    }
+
+                    console.log(selectedTables);
+                });
+
+            // Initially disable Assign button
+            $(".assignbtn").prop("disabled", true);
+
+            $(".assignbtn").click(function () {
+                let modal = $("#waitinglistmodal");
+                sectionId = $(this).data("id");
+
+
+                console.log(sectionId);
+                // Ensure Bootstrap initializes it properly
+                modal.modal({
+                    backdrop: 'static', // Ensure the backdrop works
+                    keyboard: true      // Enable keyboard close (ESC key)
+                });
+
+                modal.modal("show");
+
+                $.ajax({
+                    url: '/AccountManagerOrderApp/GetWaitingList', // Ensure correct route
+                    type: 'GET',
+                    data: { sectionId: sectionId },
+                    success: function (data) {
+                        console.log("Data fetched successfully");
+                        $("#waitinglist").html(data);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching data:', error);
+                    }
+                });
+
+
+
+                // Ensure close buttons work
+                modal.find("[data-dismiss='modal']").off("click").on("click", function () {
+                    modal.modal("hide");
+                });
+            });
+        });
+    </script>
+
+</body>
+
+</html>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

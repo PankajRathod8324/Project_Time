@@ -1,0 +1,32 @@
+  @model Entities.ViewModel.MenuModifierGroupVM
+
+<div class="modal fade" id="addModifierModal" tabindex="-1" aria-labelledby="addModifierModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModifierModalLabel">Select Modifiers</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-check">
+                    @foreach (var modifier in Model.menuModifiers)
+                    {
+                        bool isChecked = Model.ModifierIds != null && Model.ModifierIds.Contains(modifier.ModifierId);
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input modifier-checkbox" id="modifier_@modifier.ModifierId" 
+                                   value="@modifier.ModifierId" @(isChecked ? "checked" : "") >
+                            <label class="form-check-label" for="modifier_@modifier.ModifierId">
+                                @modifier.ModifierName (@modifier.ModifierRate)
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn webybg  fs-6 fw-bold text-white px-4 " id="saveModifiers">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

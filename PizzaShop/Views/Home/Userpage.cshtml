@@ -1,0 +1,205 @@
+@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList< Entities.ViewModel.UserViewModel>
+
+@{
+    ViewData["Title"] = "User Page";
+
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Page</title>
+    <link rel="stylesheet" href="~/css/style.css">
+    <link rel="stylesheet" href="~/css/media.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        #table thead {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+
+        }
+
+        .table td,
+        .table th {
+            vertical-align: middle;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .table-responsive {
+            overflow-x: auto !important;
+        }
+    </style>
+
+</head>
+
+<body class="allbodybgcolor ms-4 pe-4">
+
+    <!-- Overlay for small screens -->
+    <div class="overlay" id="overlay"></div>
+
+    <div class="content pe-0" id="content">
+        <!-- Main content goes here -->
+        <form method="get">
+            <div class="row d-flex mb-2 align-item-center justify-content-center ps-0 me-0 rounded">
+                <div class="col ">
+                    <h1 class="" style="color: #0066b2 !important;">Users </h1>
+                </div>
+                <div class="col d-flex align-items-center gap-3 justify-content-end pe-0">
+                    <div class="position-relative">
+                        <input class="form-control" type="search" name="search" placeholder="Search by First Name"
+                            value="@Context.Request.Query["search"]" style="height: 60px; padding-right: 40px;">
+                        <i class="fa fa-search position-absolute"
+                            style="top: 50%; right: 10px; transform: translateY(-50%);"></i>
+                    </div>
+
+
+                    @* <select name="filterBy" class="form-select d-inline w-auto">
+                        <option value="">All Users</option>
+                        <option value="Active"
+                            selected="@(Context.Request.Query["filterBy"] == "Active" ? "selected" : null)">Active
+                        </option>
+                        <option value="Inactive"
+                            selected="@(Context.Request.Query["filterBy"] == "Inactive" ? "selected" : null)">
+                            Inactive
+                        </option>
+                    </select> *@
+
+                    <a asp-area="" asp-controller="User" asp-action="Adduser" class="text-black">
+                        <button type="button" class="btn btn-lg btn-primary px-4"
+                            style="height: 60px; border-radius: 0; white-space: nowrap; background-color: #0066b2 !important; font-size: 17px;">
+                            <i class="fa fa-plus me-2"></i> Add User
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </form>
+        <div class="table-responsive p-3 bg-white shadow rounded">
+            <table id="table" class="table align-middle table-hover bg-white p-3" style="border-top-color: aqua;">
+                <thead class="bg-light ">
+                    <tr>
+                        <th style="border-top: 0; border-bottom-color: grey;">
+                            <a asp-action="Userpage" asp-route-sortBy="Name"
+                                asp-route-isAsc="@(ViewBag.SortBy == "Name" ? !ViewBag.IsAsc : true)"
+                                class="sorting-link text-secondary">
+                                Name
+                                <span class="icon-box">
+                                    <i
+                                        class="fa-solid fa-arrow-up @(ViewBag.SortBy == "Name" && ViewBag.IsAsc ? "active-icon" : "inactive-icon")"></i>
+                                    <i
+                                        class="fa-solid fa-arrow-down @(ViewBag.SortBy == "Name" && !ViewBag.IsAsc ? "active-icon" : "inactive-icon")"></i>
+                                </span>
+                            </a>
+                        </th>
+                        <th style="border-top: 0;" class="text-secondary">Email</th>
+                        <th style="border-top: 0;" class="text-secondary">Phone</th>
+                        <th style="border-top: 0; border-bottom-color: grey;"">
+                            <a asp-action=" Userpage" asp-route-sortBy="Role"
+                            asp-route-isAsc="@(ViewBag.SortBy == "Role" ? !ViewBag.IsAsc : true)"
+                            class="sorting-link text-secondary">
+                            Role
+                            <span class="icon-box">
+                                <i
+                                    class="fa-solid fa-arrow-up @(ViewBag.SortBy == "Role" && ViewBag.IsAsc ? "active-icon" : "inactive-icon")"></i>
+                                <i
+                                    class="fa-solid fa-arrow-down @(ViewBag.SortBy == "Role" && !ViewBag.IsAsc ? "active-icon" : "inactive-icon")"></i>
+                            </span>
+                            </a>
+                        </th>
+                        <th style="border-top: 0;" class="text-secondary">Status</th>
+                        <th style="border-top: 0;" class="text-secondary">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable" class="table-body-container">
+                    @Html.Partial("_UserList", Model)
+                </tbody>
+
+            </table>
+
+            <div class="d-flex justify-content-end align-items-center my-3 gap-2">
+                <form method="get" class="d-flex align-items-center me-3">
+                    <span class="me-2">Items per page:</span>
+                    <select name="pageSize" class="form-select form-select-sm w-auto me-3"
+                        onchange="this.form.submit()">
+                        <option value="5" selected="@(Context.Request.Query["pageSize"] == "5")">5</option>
+                        <option value="10" selected="@(Context.Request.Query["pageSize"] == "10")">10</option>
+                        <option value="15" selected="@(Context.Request.Query["pageSize"] == "15")">15</option>
+                        <option value="20" selected="@(Context.Request.Query["pageSize"] == "20")">20</option>
+                    </select>
+
+                    <!-- Preserve other query params -->
+                    @foreach (var key in Context.Request.Query.Keys)
+                    {
+                        if (key != "pageSize") // Don't duplicate pageSize
+                        {
+                            <input type="hidden" name="@key" value="@Context.Request.Query[key]" />
+                        }
+                    }
+
+                    <!-- Pagination Summary -->
+                    <span id="pagination-summary" class="text-muted">
+                        Showing @(Model.PageSize * (Model.PageNumber - 1) + 1)
+                        - @((Model.PageSize * Model.PageNumber) > Model.TotalItemCount ? Model.TotalItemCount :
+                                                (Model.PageSize * Model.PageNumber))
+                        of @Model.TotalItemCount results
+                    </span>
+                </form>
+
+
+                <!-- Previous Button -->
+                <a href="@Url.Action("Userpage", new { page = Model.PageNumber - 1, search = Context.Request.Query["search"], filterBy = Context.Request.Query["filterBy"], sortBy = Context.Request.Query["sortBy"], pageSize = Context.Request.Query["pageSize"] })"
+                    class="btn btn-outline-dark @(Model.HasPreviousPage ? "" : "disabled")">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </a>
+
+                <!-- Next Button -->
+                <a href="@Url.Action("Userpage", new { page = Model.PageNumber + 1, search = Context.Request.Query["search"], filterBy = Context.Request.Query["filterBy"], sortBy = Context.Request.Query["sortBy"], pageSize = Context.Request.Query["pageSize"] })"
+                    class="btn btn-outline-dark @(Model.HasNextPage ? "" : "disabled")">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+            </div>
+
+            <!-- Pagination Controls -->
+
+        </div>
+
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script src='https://code.jquery.com/jquery-3.7.0.js'></script>
+    <script src="~/js/userPage.js"></script>
+
+    <script>
+        document.getElementById("searchBox").addEventListener("input", function () {
+            var searchValue = this.value;
+
+            fetch(`/User/Userpage?search=${searchValue}`)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("userTable").innerHTML =
+                        new DOMParser().parseFromString(data, "text/html")
+                            .getElementById("userTable").innerHTML;
+                })
+                .catch(error => console.error("Error fetching search results:", error));
+        });
+    </script>
+
+
+
+
+</body>
+
+</html>

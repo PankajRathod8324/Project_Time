@@ -1,0 +1,50 @@
+d:\Training\Assignment\Pizza_Shop\DAL\bin\Debug\net7.0\DAL.deps.json
+d:\Training\Assignment\Pizza_Shop\DAL\bin\Debug\net7.0\DAL.runtimeconfig.json
+d:\Training\Assignment\Pizza_Shop\DAL\bin\Debug\net7.0\DAL.dll
+d:\Training\Assignment\Pizza_Shop\DAL\bin\Debug\net7.0\DAL.pdb
+d:\Training\Assignment\Pizza_Shop\DAL\obj\Debug\net7.0\DAL.csproj.AssemblyReference.cache
+d:\Training\Assignment\Pizza_Shop\DAL\obj\Debug\net7.0\DAL.GeneratedMSBuildEditorConfig.editorconfig
+d:\Training\Assignment\Pizza_Shop\DAL\obj\Debug\net7.0\DAL.AssemblyInfoInputs.cache
+d:\Training\Assignment\Pizza_Shop\DAL\obj\Debug\net7.0\DAL.AssemblyInfo.cs
+d:\Training\Assignment\Pizza_Shop\DAL\obj\Debug\net7.0\DAL.csproj.CoreCompileInputs.cache
+d:\Training\Assignment\Pizza_Shop\DAL\obj\Debug\net7.0\DAL.sourcelink.json
+d:\Training\Assignment\Pizza_Shop\DAL\obj\Debug\net7.0\DAL.dll
+d:\Training\Assignment\Pizza_Shop\DAL\obj\Debug\net7.0\refint\DAL.dll
+d:\Training\Assignment\Pizza_Shop\DAL\obj\Debug\net7.0\DAL.pdb
+d:\Training\Assignment\Pizza_Shop\DAL\obj\Debug\net7.0\DAL.genruntimeconfig.cache
+d:\Training\Assignment\Pizza_Shop\DAL\obj\Debug\net7.0\ref\DAL.dll
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\bin\Debug\net7.0\DAL.deps.json
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\bin\Debug\net7.0\DAL.runtimeconfig.json
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\bin\Debug\net7.0\DAL.dll
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\bin\Debug\net7.0\DAL.pdb
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\bin\Debug\net7.0\Entities.dll
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\bin\Debug\net7.0\Entities.pdb
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\obj\Debug\net7.0\DAL.csproj.AssemblyReference.cache
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\obj\Debug\net7.0\DAL.GeneratedMSBuildEditorConfig.editorconfig
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\obj\Debug\net7.0\DAL.AssemblyInfoInputs.cache
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\obj\Debug\net7.0\DAL.AssemblyInfo.cs
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\obj\Debug\net7.0\DAL.csproj.CoreCompileInputs.cache
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\obj\Debug\net7.0\DAL.sourcelink.json
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\obj\Debug\net7.0\DAL.csproj.Up2Date
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\obj\Debug\net7.0\DAL.dll
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\obj\Debug\net7.0\refint\DAL.dll
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\obj\Debug\net7.0\DAL.pdb
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\obj\Debug\net7.0\DAL.genruntimeconfig.cache
+d:\Training\Assignment\Intership Project\PizzaShop_N_Tier\DAL\obj\Debug\net7.0\ref\DAL.dll
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\bin\Debug\net7.0\DAL.deps.json
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\bin\Debug\net7.0\DAL.runtimeconfig.json
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\bin\Debug\net7.0\DAL.dll
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\bin\Debug\net7.0\DAL.pdb
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\bin\Debug\net7.0\Entities.dll
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\bin\Debug\net7.0\Entities.pdb
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\DAL.csproj.AssemblyReference.cache
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\DAL.GeneratedMSBuildEditorConfig.editorconfig
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\DAL.AssemblyInfoInputs.cache
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\DAL.AssemblyInfo.cs
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\DAL.csproj.CoreCompileInputs.cache
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\DAL.csproj.Up2Date
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\DAL.dll
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\refint\DAL.dll
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\DAL.pdb
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\DAL.genruntimeconfig.cache
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\ref\DAL.dll

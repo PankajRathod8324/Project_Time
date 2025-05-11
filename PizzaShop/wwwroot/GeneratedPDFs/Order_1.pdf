@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Invoice</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { width: 100%; padding: 20px; border: 1px solid #ddd; }
+        h2 { text-align: center; color: #305059; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table, th, td { border: 1px solid black; padding: 10px; text-align: left; }
+        th { background-color: #88c3d3; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Order Details - Invoice ##DOM2025000220</h2>
+        <p><strong>Status:</strong> Completed</p>
+        <p><strong>Paid on:</strong> 25-03-2025 03:45:17 | <strong>Placed on:</strong> 21-03-2025 10:25:30</p>
+        <p><strong>Modified on:</strong> 25-03-2025 03:45:17 | <strong>Order Duration:</strong> 0 hrs 46 mins</p>
+
+        <h3>Customer Details</h3>
+        <p><strong>Name:</strong> Priyanshi</p>
+        <p><strong>Phone:</strong> 1256347895</p>
+        <p><strong>Email:</strong> pri@gmail.com</p>
+        <p><strong>No of Persons:</strong> 4</p>
+
+        <h3>Table Information</h3>
+            <p>Table No: GT2 | Section: Ground Floor!!</p>
+            <p>Table No: GT3 | Section: Ground Floor!!</p>
+
+        <h3>Order Items</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>
+                            Special Momos
+                                <p class="ms-4">- Onion</p>
+                        </td>
+                        <td>
+                            1
+                                <p>2</p>
+                        </td>
+                        <td>
+                            70.00
+                                <p>50.00</p>
+                        </td>
+                        <td>
+                            70.00
+                                <p>100.00</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>
+                            Mexican Momos
+                                <p class="ms-4">- Gluten-Free</p>
+                        </td>
+                        <td>
+                            2
+                                <p>1</p>
+                        </td>
+                        <td>
+                            120.00
+                                <p>120.00</p>
+                        </td>
+                        <td>
+                            240.00
+                                <p>120.00</p>
+                        </td>
+                    </tr>
+            </tbody>
+        </table>
+
+        <h3 class="text-right">Summary</h3>
+        <p class="text-right"><strong>SubTotal:</strong> 530.00</p>
+            <p class="text-right"><strong>SGST:</strong> 42.40</p>
+            <p class="text-right"><strong>CGST:</strong> 10.6000</p>
+            <p class="text-right"><strong>AGST:</strong> 100.00</p>
+            <p class="text-right"><strong>VGST:</strong> 10.6000</p>
+        <p class="text-right"><strong>Total Amount:</strong> 693.60</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,46 @@
+@model Entities.ViewModel.MenuModifierGroupVM
+
+@if (Model != null)
+{
+    <div class="modifier-group mt-3 p-2 border rounded">
+        <!-- Hidden Fields for Group Data -->
+        <input type="hidden" asp-for="@Model.ModifierGroupId">
+        <input type="hidden" asp-for="@Model.ModifierGroupName">
+
+        <!-- Group Header with Delete Button -->
+        <div class="d-flex justify-content-between align-items-center">
+            <h5>@Model.ModifierGroupName</h5>
+            <button type="button" class="btn btn-sm delete-group" data-groupid="@Model.ModifierGroupId">
+                <i class="fa fa-trash"></i>
+            </button>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center" id="modifierminmax">
+            <select class="form-select min-input" value="MinSelection" name="MinSelection">
+                @for (int i = 0; i <= 5; i++)
+                {
+                    <option value="@i">@i</option>
+                }
+            </select>
+            <select class="form-select max-input" value="MaxSelection" name="MaxSelection">
+                @for (int i = 0; i <= 10; i++)
+                {
+                    <option value="@i">@i</option>
+                }
+            </select>
+            <input type="hidden" class="capacity-input" value="@Model.menuModifiers.Count">
+
+        </div>
+
+        <ul class="list-unstyled mt-2">
+            @for (int i = 0; i < Model.menuModifiers.Count; i++)
+            {
+                var modifier = Model.menuModifiers[i];
+                <li class="d-flex justify-content-between">
+                    <span>• @modifier.ModifierName</span>
+                    <span>₹ @modifier.ModifierRate</span>
+                </li>
+            }
+        </ul>
+    </div>
+}

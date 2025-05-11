@@ -1,0 +1,46 @@
+@model Entities.ViewModel.CustomerVM
+
+
+<div class="row d-flex justify-space-between p-3">
+   <input type="hidden" asp-for="CustomerId" />
+    <div class="row">
+        <div class="col">
+            <div class="form-floating mb-3">
+                <input type="text" asp-for="Name" class="form-control" id="Name" name="Name">
+                <label for="floatingInput" asp-for="Name">Name*</label>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="form-floating mb-3">
+                <input type="text" asp-for="Phone" class="form-control" id="Phone" name="Phone">
+                <label for="floatingInput" asp-for="Phone">Mobile Number*</label>
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-floating mb-3">
+                <input type="text" asp-for="NoOfPerson" class="form-control" id="noOfPerson" name="NoOfPerson"
+                    value="@Model.NoOfPerson">
+                <label for="floatingInput" asp-for="NoOfPerson">No. Of Persons*</label>
+                <span asp-validation-for="NoOfPerson" class="text-danger"></span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="form-floating mb-3">
+                <input type="email" asp-for="Email" class="form-control" id="email" name="Email">
+                <label for="floatingInput" asp-for="Email">Email*</label>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+
+</div>

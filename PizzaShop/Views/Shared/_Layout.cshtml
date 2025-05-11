@@ -1,0 +1,387 @@
+﻿﻿@using DAL.Interfaces
+@using BLL.Interfaces
+@using Newtonsoft.Json
+@using System.Security.Claims
+
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IUserService _userService
+
+@{
+
+    @* var userDataJson = HttpContextAccessor.HttpContext.Session.GetString("UserData");
+    var userEmail = HttpContextAccessor.HttpContext.Session.GetString("UserEmail");
+    User user = !string.IsNullOrEmpty(userDataJson) ? JsonConvert.DeserializeObject<User>(userDataJson) : null;
+    if (!string.IsNullOrEmpty(userDataJson))
+    {
+        user = JsonConvert.DeserializeObject<User>(userDataJson);
+    } *@
+
+    var userEmail = HttpContextAccessor.HttpContext.Request.Cookies["email"];
+    var userPhoto = HttpContextAccessor.HttpContext.Request.Cookies["ProfilePhoto"];
+    var userName = HttpContextAccessor.HttpContext.Request.Cookies["Name"];
+
+    @* User user = null; *@
+
+    // Fetch user details from the database based on email
+    var user = _userService.GetUserByEmail(userEmail); // Call your service method
+
+}
+
+@{
+    @if (TempData["Message"] != null)
+    {
+        @TempData["Message"]
+    }
+}
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PizzaShop</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- jQuery (must be before Bootstrap 4) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap 4 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/style.css">
+    <link rel="stylesheet" href="~/css/media.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/PizzaShop.styles.css" asp-append-version="true" />
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+    @* <!-- jQuery (required for Toastr) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> *@
+
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <!-- Bootstrap JS (with Popper.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+    <style>
+        /* Ensure the dropdown is properly positioned */
+        .dropdown-menu {
+            position: absolute !important;
+            right: 0 !important;
+            left: auto !important;
+            min-width: 150px;
+            z-index: 1050;
+        }
+
+
+        .toast-success {
+            background-color: #28a745 !important;
+            color: white !important;
+        }
+
+        .toast-error {
+            background-color: #dc3545 !important;
+            color: white !important;
+        }
+
+        .toast-warning {
+            background-color: #ffc107 !important;
+            color: white !important;
+        }
+
+        .toast-info {
+            background-color: #17a2b8 !important;
+            color: white !important;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg position-fixed w-100 z-5" style="background-color:  #0066b2 !important;">
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between w-100 align-items-center">
+                    <button class="navbar-toggler" type="button" aria-label="Toggle navigation" id="sidebarToggle">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <!-- PIZZASHOP Logo and Name in the navbar -->
+                    <div class="d-flex align-items-center justify-content-center">
+                        <img class="me-2" src="~/assest/logos/pizzashop_logo.png" alt="Pizzashop Logo"
+                            style="width: 60px;">
+                        <div class="fs-3 fw-bold">PIZZASHOP</div>
+                    </div>
+
+                    <!-- User Profile Dropdown -->
+                    <div class="d-flex align-items-center">
+                        <!-- Mobile Screen Icon -->
+                        @if (@user.RoleId == 3)
+                        {
+
+                            <a class="dropdown-item d-flex align-items-center py-2" asp-area=""
+                                asp-controller="AccountManagerOrderApp" asp-action="Table">
+                                <svg xmlns="http://www.w3.org/2000/svg" id="mobileicon" width="22" height="22" asp-area=""
+                                    asp-controller="User" asp-action="Changepassword" fill="currentColor"
+                                    class="bi bi-phone text-white me-3" viewBox="0 0 16 16">
+                                    <path
+                                        d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
+                                    <path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2" />
+                                </svg>
+                            </a>
+                        }
+                        @if (@user.RoleId == 1)
+                        {
+                            <a class="dropdown-item d-flex align-items-center py-2" asp-area=""
+                                asp-controller="AccountManagerOrderApp" asp-action="KOT">
+                                <svg xmlns="http://www.w3.org/2000/svg" id="mobileicon" width="22" height="22" asp-area=""
+                                    asp-controller="User" asp-action="Changepassword" fill="currentColor"
+                                    class="bi bi-phone text-white me-3" viewBox="0 0 16 16">
+                                    <path
+                                        d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
+                                    <path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2" />
+                                </svg>
+                            </a>
+                        }
+
+
+                        <!-- Profile Dropdown -->
+                        <div class="dropdown">
+                            <a class="nav-link d-flex align-items-center dropdown-toggle" href="#" id="userDropdown"
+                                role="button">
+                                <img src="@userPhoto" alt="User Image" class="rounded-circle me-2"
+                                    style="width: 45px; height: 45px;">
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow p-3" aria-labelledby="userDropdown"
+                                data-bs-auto-close="outside">
+                                <!-- Profile Section -->
+                                <li class="d-flex align-items-center p-2 border-bottom">
+                                    <img src="@userPhoto" alt="User Image" class="rounded-circle me-2"
+                                        style="width: 40px; height: 40px;">
+                                    <div>
+                                        <p class="mb-0 fw-bold">@userName</p>
+                                        <small class="text-muted">@userEmail</small>
+                                    </div>
+                                </li>
+
+                                <!-- My Profile -->
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center py-2" asp-area=""
+                                        asp-controller="User" asp-action="Profile">
+                                        <i class="fa-solid fa-user me-2"></i> My Profile
+                                    </a>
+                                </li>
+
+                                <!-- Change Password -->
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center py-2" asp-area=""
+                                        asp-controller="User" asp-action="Changepassword">
+                                        <i class="fa-solid fa-lock me-2"></i> Change Password
+                                    </a>
+                                </li>
+
+                                <!-- Logout -->
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="#"
+                                        data-bs-toggle="modal" data-bs-target="#LogoutModel">
+                                        <i class="fa-solid fa-sign-out-alt me-2"></i> Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+        </nav>
+    </header>
+    @if (@user.RoleId == 3 || @user.RoleId == 2)
+    {
+        <!-- Sidebar Navigation -->
+        <div class="sidebar mt-0 pt-4" id="sidebar">
+            <div class="d-flex align-items-center justify-content-center">
+                <img class="me-2" src="~/assest/logos/pizzashop_logo.png" alt="Pizzashop Logo" style="width: 80px;">
+                <div class="fs-5 fw-bold" style="color: #0066b2 !important;">PIZZASHOP</div>
+            </div>
+            <ul class="list-unstyled ps-3 mt-4">
+                <li class="dashboardicon d-flex justify-content-start align-items-center " permission="UserView">
+                    <div class="w-100 p-3">
+                        <img src="~/assest/dashboard-default.svg" alt="">
+                        <a class="ms-2" asp-area="" asp-controller="" asp-action="Dashboard">Dashboard</a>
+                    </div>
+
+                </li>
+                <li class="dashboardicon d-flex justify-content-start align-items-center" permission="UserView">
+                    <div class="w-100 p-3 ">
+                        <img src="~/assest/graph-default.svg" alt="">
+                        <a class="ms-2" asp-area="" asp-controller="" asp-action="Userpage">User</a>
+                    </div>
+
+                </li>
+                <li class="dashboardicon d-flex justify-content-start align-items-center "
+                    permission="RoleandpermissionView">
+                    <div class="w-100 p-3">
+                        <img src="~/assest/inbox-default.svg" alt="">
+                        <a class="ms-2" asp-area="" asp-controller="" asp-action="Roleandpermission">Role and Permission</a>
+                    </div>
+
+                </li>
+                <li class="dashboardicon d-flex justify-content-start align-items-center " permission="MenuView">
+                    <div class="w-100 p-3">
+                        <img src="~/assest/clock-default.svg" alt="">
+                        <a class="ms-2 menupermit" asp-controller="" asp-action="Menu">Menu</a>
+                    </div>
+
+                </li>
+                <li class="dashboardicon d-flex justify-content-start align-items-center "
+                    permission="TableAndSectionView">
+                    <div class="w-100 p-3">
+                        <img src="~/assest/user-default.svg" alt="">
+                        <a class="ms-2" asp-area="" asp-controller="" asp-action="TableAndSection">Table And Section</a>
+                    </div>
+
+                </li>
+                <li class="dashboardicon d-flex justify-content-start align-items-center " permission="TaxAndFeeView">
+                    <div class="w-100 p-3">
+                        <img src="~/assest/maintenance-default.svg" alt="">
+                        <a class="ms-2" asp-area="" asp-controller="" asp-action="TaxAndFee">Taxes And Fees</a>
+                    </div>
+
+                </li>
+                <li class="dashboardicon d-flex justify-content-start align-items-center " permission="OrderView">
+                    <div class="w-100 p-3">
+                        <img src="~/assest/setting-default.svg" alt="">
+                        <a class="ms-2" asp-area="" asp-controller="" asp-action="Order">Orders</a>
+                    </div>
+                </li>
+                <li class="dashboardicon d-flex justify-content-start align-items-center ">
+                    <div class="w-100 p-3">
+                        <img src="~/assest/user-default.svg" alt="">
+                        <a class="ms-2" asp-area="" asp-controller="" asp-action="Customer">Customer</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    }
+
+    <div class="modal fade" id="LogoutModel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Logout Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-flex flex-column align-items-center justify-content-center">
+                    <img class="img-fluid" src="~/assest/toppng.com-warning-icon-2400x2400.png" alt=""
+                        style="width: 50px;">
+                    <div class="fs-4">Are you sure you want to log out?</div>
+                </div>
+                <div class="modal-footer d-flex align-items-center justify-content-center">
+                    <form asp-controller="Authentication" asp-action="Logout" method="post">
+                        <button type="submit" class="btn  webybg  fs-6 fw-bold  text-white px-4">YES</button>
+                    </form>
+                    <button type="button" class="btn  webyborder webybtn fw-bold px-4"
+                        data-bs-dismiss="modal">NO</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Main Content -->
+    <div>
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+
+
+    <!-- jQuery -->
+    @* <script src="~/lib/jquery/dist/jquery.min.js"></script> *@
+
+    <!-- Bootstrap JavaScript -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @* <script src="~/js/userPage.js"></script> *@
+
+    <!-- Dropdown Initialization Script -->
+    <script>
+        toastr.option = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "5000",
+        };
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var dropdownTrigger = document.getElementById("userDropdown");
+            var dropdownMenu = new bootstrap.Dropdown(dropdownTrigger, {
+                autoClose: "outside" // Keeps the dropdown open when clicking inside
+            });
+
+            dropdownTrigger.addEventListener("click", function (event) {
+                event.preventDefault();
+                dropdownMenu.toggle(); // Ensures dropdown toggles properly
+            });
+        });
+
+
+        @* $(".menupermit").click(function () {
+
+            console.log("Save button is Pressed");
+            $.ajax({
+                url: '/Home/Menu',
+                type: 'GET',
+                success: function (data) {
+                    window.location.href = '/Home/Menu';
+                },
+                error: function (xhr, status, error) {
+                    toastr.error('You do not have Permission', "UnAuthorise");
+                }
+            });
+        }); *@
+
+
+
+
+            $(document).ready(function () {
+
+                var message = "@TempData["Message"]";
+                var messageType = "@TempData["MessageType"]";
+
+                if (message) {
+                    switch (messageType) {
+                        case "success":
+                            toastr.success(message);
+                            break;
+                        case "error":
+                            toastr.error(message);
+                            break;
+                        case "warning":
+                            toastr.warning(message);
+                            break;
+                        case "info":
+                            toastr.info(message);
+                            break;
+                    }
+                }
+            });
+
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+
+</html>

@@ -1,0 +1,150 @@
+@model Entities.ViewModel.TaxVM
+
+
+<form id="EditTax">
+    <input type="hidden" asp-for="TaxId" />
+
+
+    <!-- Category Dropdown -->
+
+
+    <!-- Category Dropdown -->
+    <div class="row d-flex justify-space-between">
+        <div class="row">
+            <div class="col">
+                <div class="form-floating mb-3">
+                    <input type="text" asp-for="TaxName" class="form-control" id="floatingInput">
+                    <label for="floatingInput" asp-for="TaxName">Name*</label>
+                    <span asp-validation-for="TaxName" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col">
+                <div class="form-floating"> <select class="form-select" asp-for="TaxTypeId" asp-items="ViewBag.Taxtypes"
+                        id="floatingSelect" aria-label="Floating label select example">
+                        <option selected>Tax Type</option>
+                    </select>
+                    <label for="floatingSelect">Type*</label>
+                    <span asp-validation-for="TaxTypeId" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-floating mb-3">
+                    <input type="text" asp-for="TaxAmount" class="form-control" id="floatingInput">
+                    <label for="floatingInput" asp-for="TaxName">Tax Amount*</label>
+                    <span asp-validation-for="TaxAmount" class="text-danger"></span>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <!-- Switch Toggles -->
+            <div class="col-4">
+                <div class="form-check form-switch d-flex align-item-center justify-space-between gap-2 ">
+                    <input class="form-check-input" type="checkbox" id="toggleSwitch" name="IsEnabled"
+                        asp-for="IsEnabled" style="border-radius: 1rem !important;">
+                    <label for="floatingInput" asp-for="IsEnabled" class="form-label mt-1 ms-3">IsEnabled</label>
+                </div>
+            </div>
+
+            <div class="col-4">
+                <div class="form-check form-switch d-flex align-item-center justify-space-between gap-2 ">
+                    <input class="form-check-input" type="checkbox" id="toggleSwitch" name="IsDefault"
+                        asp-for="IsDefault" style="border-radius: 1rem !important;">
+                    <label for="floatingInput" asp-for="IsDefault" class="form-label mt-1 ms-3">Default</label>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    </div>
+
+
+    <input type="hidden" id="currentPage" name="currentPage" value="@ViewBag.Page" />
+
+</form>
+
+
+<script>
+    $(document).ready(function () {
+       
+
+
+        $("#EditTax").submit(function (e) {
+            e.preventDefault();
+            console.log("Submitting EditTable form");
+
+            var formData = $(this).serializeArray();
+            var formDataobj = {};
+
+            $.each(formData, function (index, field) {
+                formDataobj[field.name] = field.value;
+            });
+
+            formDataobj["IsEnabled"] = $("#toggleSwitch[name='IsEnabled']").prop("checked");
+            formDataobj["IsDefault"] = $("#toggleSwitch[name='IsDefault']").prop("checked");
+
+
+
+            var currentPage = $("#currentPage").val();
+            console.log("Current Page In EditTable :", currentPage);
+
+            var submissionData = JSON.stringify(formDataobj);
+
+            console.log("Sending data:", submissionData);
+
+            $.ajax({
+                url: '/TaxAndFee/EditTax',
+                type: 'POST',
+                contentType: "application/json",
+                data: submissionData,
+                success: function (response) {
+                    toastr.success("Tax Edited Successfully!");
+
+                    var myModal = bootstrap.Modal.getInstance(document.getElementById("editTaxModal"));
+                    if (myModal) myModal.hide();
+                    document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+
+
+                    loadTaxes(currentPage);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', xhr.responseText);
+                }
+            });
+        });
+
+
+
+        function loadTaxes(page = 1) {
+            var search = $("#searchInput").val();
+            @* var sortOrder = $("#sortOrder").val(); *@
+            var pageSize = $("#pageSizeDropdown").val();
+
+            console.log("Page:", page, "PageSize:", pageSize);
+
+            $.ajax({
+                url: '/TaxAndFee/Tax',  // Ensure this route matches your controller
+                type: 'GET',
+                data: {
+                    search: search,
+                    page: page,
+                    pageSize: pageSize
+                },
+                success: function (data) {
+                    $("#taxTable").html(data);  // Update the menu items container
+
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching items:', error);
+                }
+            });
+        }
+    });
+</script>

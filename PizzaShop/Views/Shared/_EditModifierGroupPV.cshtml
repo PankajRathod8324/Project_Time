@@ -1,0 +1,256 @@
+@model Entities.ViewModel.MenuModifierGroupVM
+
+<form id="editModifierGroupForm">
+    <div class="modal-body">
+        <input type="hidden" asp-for="ModifierGroupId">
+
+        <div class="form-floating mb-3">
+            <input type="text" asp-for="ModifierGroupName" class="form-control">
+            <label asp-for="ModifierGroupName">Name*</label>
+        </div>
+
+        <div class="form-outline mb-4">
+            <textarea class="form-control" asp-for="ModifierGroupDecription" rows="4"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <h6>Selected Modifiers:</h6>
+            <div id="selectedModifiersList" class="d-flex flex-wrap gap-2">
+                @foreach (var modifier in Model.Modifiers)
+                {
+                    <div class="border border-dark rounded px-3 py-1 d-flex align-items-center bg-light me-2"
+                        data-id="@modifier.ModifierId">
+                        <span class="me-2">@modifier.ModifierName</span>
+                        <span class="text-danger remove-modifier" style="cursor: pointer;">
+                            <i class="fas fa-times"></i>
+                        </span>
+                    </div>
+                }
+            </div>
+            <div id="selectedModifierInputs">
+                @foreach (var modifier in Model.Modifiers)
+                {
+                    <input type="hidden" name="ModifierIds" value="@modifier.ModifierId">
+                }
+            </div>
+        </div>
+
+        <!-- Button to Add Modifier -->
+        <button type="button" class="btn webyborder webybtn fw-bold px-4 mt-2" data-id="@Model.ModifierGroupId" id="addModifierBtn">
+            <i class="fas fa-plus"></i> Add Modifier
+        </button>
+
+        <div class="modal-footer">
+            <button type="submit" class="btn webybg  fs-6 fw-bold text-white px-4" id="editModifiers">Save</button>
+            <button type="button" class="btn webyborder webybtn fw-bold px-4" data-bs-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</form>
+
+<!-- Modifier Selection Modal -->
+<div class="modal fade" id="allModifiersModal" tabindex="-1" aria-labelledby="allModifiersLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="allModifiersLabel">Select Modifiers</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="text" id="searchQuery" class="form-control mb-3" placeholder="Search Modifier">
+                <div id="modifierTableContainer">
+                    <table id="modifierTable" class="table align-middle table-hover bg-white">
+                        <!-- Partial view will be loaded here -->
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn webybg  fs-6 fw-bold text-white px-4 " id="addSelectedModifiers">Add Selected</button>
+                <button type="button" class="btn webyborder webybtn fw-bold px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    if (!window.editSelectedModifiers) {
+        window.editSelectedModifiers = [];
+    }
+
+    $(document).ready(function () {
+        // Store Modifier IDs & Names in Global Array
+        window.editSelectedModifiers = @Html.Raw(Json.Serialize(Model.Modifiers.Select(m => new { id = m.ModifierId, name = m.ModifierName })));
+
+        console.log("Loaded Page - Selected Modifiers:", window.editSelectedModifiers);
+
+        $(".pagination-btn-edit").click(function (e) {
+            e.preventDefault();
+            let page = $(this).data("page");
+            console.log("Page number:", page);
+            loadModifiers(page);
+        });
+
+        // Open Modifier Selection Modal
+        $(document).on('click', '#addModifierBtn', function () {
+            let modifierGroupId = $(this).data('id');
+            console.log("Modifier Group ID:", modifierGroupId);
+            $.ajax({
+                url: '/Menu/GetEditAllModifier',
+                type: 'GET',
+                data: { modifierGroupId: modifierGroupId },
+                beforeSend: function () {
+                    $('#modifierTableContainer').html('<p class="text-center">Loading...</p>');
+                },
+                success: function (data) {
+                    $('#modifierTableContainer').html(data);
+                    window.editSelectedModifiers.forEach(modifier => {
+                        $(`input[name="chkItem"][value="${modifier.id}"]`).prop('checked', true);
+                    });
+                    var myModal = new bootstrap.Modal(document.getElementById('allModifiersModal'));
+                    myModal.show();
+                },
+                error: function (xhr) {
+                    console.error('Error fetching modifier list:', xhr.responseText);
+                }
+            });
+        });
+
+        // Handle modifier selection
+        $(document).on('change', 'input[name="chkItem"]', function () {
+            let modifierId = parseInt($(this).val());
+            let modifierName = $(this).data("name") || "Unknown Modifier";
+
+            if (this.checked) {
+                // Prevent duplicate entries in the array
+                if (!window.editSelectedModifiers.some(m => m.id === modifierId)) {
+                    window.editSelectedModifiers.push({ id: modifierId, name: modifierName });
+                }
+            } else {
+                window.editSelectedModifiers = window.editSelectedModifiers.filter(m => m.id !== modifierId);
+            }
+
+            localStorage.setItem("selectedModifiers", JSON.stringify(window.editSelectedModifiers));
+
+            console.log("Updated selected modifiers:", window.editSelectedModifiers);
+        });
+
+        // Remove selected modifier from the list
+        $('.remove-modifier').off('click').on('click', function () {
+            let parentDiv = $(this).parent();
+            let modifierId = parseInt(parentDiv.attr('data-id'));
+            console.log("Modifier ID to remove:", modifierId);
+
+            // Remove from selectedModifiers array
+            window.editSelectedModifiers = window.editSelectedModifiers.filter(m => m.id !== modifierId);
+
+            // Remove from UI and hidden input fields
+            parentDiv.remove();
+
+            console.log("After removal: ", window.editSelectedModifiers);
+        });
+        $("#addSelectedModifiers").click(function () {
+            AddModifiersToModal();
+        });
+
+        // Handle Add Selected Modifiers to the modal
+        function AddModifiersToModal() {
+            let selectedCheckboxes = $(".modifier-checkbox:checked");
+
+            selectedCheckboxes.each(function () {
+                let modifierId = parseInt($(this).val());
+                let modifierName = $(this).data("name") || "Unknown Modifier";
+
+                // Prevent duplicate modifiers from being added
+                if (!window.editSelectedModifiers.some(m => m.id === modifierId)) {
+                    window.editSelectedModifiers.push({ id: modifierId, name: modifierName });
+                }
+            });
+
+            console.log("Updated Global Modifier List: ", window.editSelectedModifiers);
+
+            // Update the previous modal with selected modifiers
+            updatePreviousModal();
+
+            // Close the current modal and show the previous one
+            $("#allModifiersModal").modal("hide");
+            $("#editModifierGroupModal").modal("show");
+        }
+
+        // Update the selected modifiers list in the previous modal
+        function updatePreviousModal() {
+            let hiddenInputsContainer = $('#selectedModifierInputs');
+
+            $('#selectedModifiersList').empty();
+            hiddenInputsContainer.empty();
+
+            window.editSelectedModifiers.forEach(modifier => {
+                let modifierId = modifier.id;
+                let modifierName = modifier.name;
+
+                let modifierElement = `
+            <div class="border border-dark rounded px-3 py-1 d-flex align-items-center bg-light me-2" data-id="${modifierId}">
+                <span class="me-2">${modifierName}</span>
+                <span class="text-danger remove-modifier" style="cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </span>
+            </div>
+            `;
+                $('#selectedModifiersList').append(modifierElement);
+                hiddenInputsContainer.append(`<input type="hidden" name="ModifierIds" value="${modifierId}">`);
+            });
+
+            console.log("Updated Modifier List:", window.editSelectedModifiers);
+
+            // Update the 'remove-modifier' click event to use event delegation
+            $('#selectedModifiersList').on('click', '.remove-modifier', function () {
+                let parentDiv = $(this).closest("div");
+                let modifierId = Number(parentDiv.attr('data-id')); // Ensure numeric ID
+
+                // Remove from global array
+                window.editSelectedModifiers = window.editSelectedModifiers.filter(m => m.id !== modifierId);
+
+                // Remove from DOM
+                parentDiv.remove();
+                $('#selectedModifierInputs').find(`input[value="${modifierId}"]`).remove();
+
+                console.log("After removal: ", window.editSelectedModifiers);
+            });
+        }
+        $(document).on("submit", "#editModifierGroupForm", function (e) {
+            e.preventDefault(); // Prevent default submission
+
+            let formDataObj = {}; // Create an object to hold form data
+            let formDataArray = $(this).serializeArray(); // Convert form to array
+
+            // Convert array into object
+            formDataArray.forEach(item => {
+                formDataObj[item.name] = item.value;
+            });
+
+            // Convert Modifier IDs into an array
+            formDataObj["ModifierIds"] = window.editSelectedModifiers.map(modifier => modifier.id);
+
+            console.log("Final Form Data JSON:", JSON.stringify(formDataObj));
+
+            $.ajax({
+                url: "/Menu/EditModifierGroup",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(formDataObj), // Send JSON object
+                success: function (response) {
+                    $("#Modifier").html(response);
+                    $("#editModifierGroupModal").modal("hide");
+                    $('.modal-backdrop').remove();
+                    console.log("Modifier list updated successfully.");
+                    toastr.info('Modiifer Updated Successfully.', "Success");
+
+                },
+                error: function (xhr) {
+                    console.error("Error updating modifiers:", xhr.responseText);
+                }
+            });
+
+
+        });
+    });
+</script>

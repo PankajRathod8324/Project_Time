@@ -1,0 +1,293 @@
+@model Entities.ViewModel.ItemModifierVM
+
+
+@if (Model != null)
+{
+    <div class="mt-3 p-2 border rounded modifier-group-edit" id="modifier-group-edit-@Model.ModifierGroupId"
+        data-groupid="@Model.ModifierGroupId" data-itemid="@Model.ItemId">
+        <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].ModifierGroupId"
+            value="@Model.ModifierGroupId">
+
+        <div class="d-flex justify-content-between align-items-center">
+            <h5>@Model.ModifierGroupName</h5>
+            <button type="button" class="btn btn-sm delete-group-edit" data-groupid="@Model.ModifierGroupId">
+                <i class="fa fa-trash"></i>
+            </button>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+            <select class="form-select min-input-edit" name="MenuModifierGroups[@Model.ModifierGroupId].MinSelection">
+                @for (int i = 0; i <= 5; i++)
+                {
+                    <option value="@i" selected="@(i == Model.MinSelection ? "selected" : null)">@i</option>
+                }
+            </select>
+            <select class="form-select max-input-edit" name="MenuModifierGroups[@Model.ModifierGroupId].MaxSelection">
+                @for (int i = 0; i <= 10; i++)
+                {
+                    <option value="@i" selected="@(i == Model.MaxSelection ? "selected" : null)">@i</option>
+                }
+            </select>
+        </div>
+
+        <ul class="list-unstyled mt-2">
+            @if (Model.MenuModifierGroupItem != null && Model.MenuModifierGroupItem.Any())
+            {
+                @for (int i = 0; i < Model.MenuModifierGroupItem.Count; i++)
+                {
+                    var modifier = Model.MenuModifierGroupItem[i];
+                    <li class="d-flex justify-content-between">
+                        <span>• @modifier.ModifierName</span>
+                        <span>₹ @modifier.ModifierRate</span>
+
+                        <input type="hidden"
+                            name="MenuModifierGroups[@Model.ModifierGroupId].MenuModifierGroupItem[@i].ModifierName"
+                            value="@modifier.ModifierName">
+                        <input type="hidden"
+                            name="MenuModifierGroups[@Model.ModifierGroupId].MenuModifierGroupItem[@i].ModifierRate"
+                            value="@modifier.ModifierRate">
+                    </li>
+                }
+            }
+            else
+            {
+                <li>No modifiers available.</li>
+            }
+        </ul>
+    </div>
+}
+else
+{
+    <p>No modifier groups available.</p>
+}
+
+<script>
+    var selectedModifierGroupsEdit = []; // Store selected modifier groups
+    var currentPage = 1; // Default page
+
+    console.log("Initializing Modifier Group Edit List");
+
+    $(document).ready(function () {
+        var storedPage = sessionStorage.getItem("currentPage");
+        if (storedPage) {
+            currentPage = parseInt(storedPage);
+        }
+        $(".modifier-group-edit").each(function () {
+            var groupId = $(this).data("groupid");
+            var itemId = $(this).data("itemid");
+
+            $.ajax({
+                url: '@Url.Action("GetModifiersGroupByItem", "Menu")',
+                type: 'GET',
+                dataType: 'json',
+                data: { groupId: groupId, itemId: itemId },
+                success: function (modifiers) {
+                    console.log("Fetched Modifiers for Group:", groupId, modifiers);
+
+                    modifiers.itemModifierGroups.forEach(modifier => {
+                        // Check if already exists
+                        let exists = selectedModifierGroupsEdit.some(existing =>
+                            existing.itemId === modifier.itemId &&
+                            existing.modifierGroupId === modifier.modifierGroupId
+                        );
+
+                        if (!exists) {
+                            selectedModifierGroupsEdit.push({
+                                itemId: modifier.itemId,
+                                modifierGroupId: modifier.modifierGroupId,
+                                minSelection: modifier.minSelection,
+                                maxSelection: modifier.maxSelection,
+                                modifiers: modifier.modifiers // Store modifier items
+                            });
+                        }
+                        console.log("Initial Modifier Groups:", selectedModifierGroupsEdit);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error loading modifiers:', xhr.responseText);
+                }
+            });
+        });
+    });
+
+
+    $(document).on("click", ".pagination a", function (e) {
+        e.preventDefault();
+        currentPage = $(this).data("page");
+        sessionStorage.setItem("currentPage", currentPage);
+        loadMenuItems($("#selectedCategory").val(), currentPage);
+    });
+
+
+    $("#modifierGroupDropdown").change(function () {
+        var groupId = $(this).val();
+        if (!groupId) return;
+
+
+        let exists = selectedModifierGroupsEdit.some(modifier => modifier.modifierGroupId == groupId);
+        if (exists) {
+            console.warn("Modifier group already exists, skipping addition.");
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("GetModifiersByGroupEdit", "Menu")',
+            type: 'GET',
+            data: { groupId: groupId },
+            success: function (response) {
+                $("#modifierList").append(response);
+
+
+                var newGroup = $("#modifierList").find(".modifier-group-edit").last();
+                var minSelection = newGroup.find(".min-input-edit").val();
+                var maxSelection = newGroup.find(".max-input-edit").val();
+
+
+                selectedModifierGroupsEdit.push({
+                    modifierGroupId: groupId,
+                    minSelection: minSelection,
+                    maxSelection: maxSelection,
+                    modifiers: []
+                });
+
+                console.log("Updated Modifier Groups After Add:", selectedModifierGroupsEdit);
+            }
+        });
+    });
+
+    $(document).on("change", ".min-input-edit, .max-input-edit", function () {
+        var groupId = $(this).closest(".modifier-group-edit").data("groupid");
+        var minSelection = $(this).closest(".modifier-group-edit").find(".min-input-edit").val();
+        var maxSelection = $(this).closest(".modifier-group-edit").find(".max-input-edit").val();
+
+
+        selectedModifierGroupsEdit.forEach(modifier => {
+            if (modifier.modifierGroupId == groupId) {
+                modifier.minSelection = minSelection;
+                modifier.maxSelection = maxSelection;
+            }
+        });
+
+        console.log("Updated Modifier Groups After Change:", selectedModifierGroupsEdit);
+    });
+
+
+    $(document).on("click", ".delete-group-edit", function () {
+        var deleteid = $(this).data('groupid');
+        console.log("Deleting Modifier Group ID:", deleteid);
+
+        $(this).closest(".modifier-group-edit").remove();
+
+        selectedModifierGroupsEdit = selectedModifierGroupsEdit.filter(modifier => modifier.modifierGroupId !== deleteid);
+        console.log("Updated Modifier Groups After Delete:", selectedModifierGroupsEdit);
+    });
+
+    $(document).ready(function () {
+        $("#EditItem").submit(function (e) {
+            e.preventDefault();
+            console.log("Submitting EditItem form");
+
+            var formData = $(this).serializeArray();
+            var formDataobj = {};
+
+            $.each(formData, function (index, field) {
+                formDataobj[field.name] = field.value;
+            });
+
+            var fileInput = $("#uploadImage")[0].files[0]; // Get the selected file
+            if (fileInput) {
+                var reader = new FileReader();
+                console.log("enter");
+                reader.onloadend = function () {
+                    // Convert the file to base64 and append it to formDataobj
+                    formDataobj["ItemPhoto"] = reader.result;
+
+                    // Ensure ModifierGroupIdForAdd is an array
+                    formDataobj.ModifierGroupIds = JSON.stringify(selectedModifierGroupsEdit); // Convert array to JSON string
+
+                    var submissionData = JSON.stringify(formDataobj); // Final JSON string
+
+                    console.log("Sending data:", submissionData);
+
+                    // Now that the image is added, send the AJAX request
+
+                    $.ajax({
+                        url: '/Menu/EditMenuItem',
+                        type: 'POST',
+                        contentType: "application/json",
+                        data: submissionData,
+                        success: function (response) {
+                            alert("Item Edited Successfully!");
+
+
+                            var myModal = bootstrap.Modal.getInstance(document.getElementById("editMenuItemModal"));
+                            if (myModal) myModal.hide();
+                            document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+
+
+                            loadMenuItems(formDataobj.CategoryId, currentPage);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error:', xhr.responseText);
+                        }
+                    });
+                };
+
+                // Read the image file as base64
+                reader.readAsDataURL(fileInput);
+            } else {
+
+                var currentPage = $("#currentPage").val();
+                console.log("Current Page In EditItem :", currentPage);
+
+                formDataobj.ModifierGroupIds = JSON.stringify(selectedModifierGroupsEdit);
+                var submissionData = JSON.stringify(formDataobj);
+
+                console.log("Sending data:", submissionData);
+
+                $.ajax({
+                    url: '/Menu/EditMenuItem',
+                    type: 'POST',
+                    contentType: "application/json",
+                    data: submissionData,
+                    success: function (response) {
+                        alert("Item Edited Successfully!");
+
+
+                        var myModal = bootstrap.Modal.getInstance(document.getElementById("editMenuItemModal"));
+                        if (myModal) myModal.hide();
+                        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+
+
+                        loadMenuItems(formDataobj.CategoryId, currentPage);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error:', xhr.responseText);
+                    }
+                });
+            }
+        });
+
+
+        function loadMenuItems(categoryId, page = 1) {
+            console.log("Loading Menu Items for Category:", categoryId, "Page:", page);
+
+            $.ajax({
+                url: '/Menu/MenuItem',
+                type: 'GET',
+                data: { categoryId: categoryId, page: page },
+                success: function (data) {
+                    $("#menuItemsContainer").html(data);
+                    sessionStorage.setItem("currentPage", page);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error loading menu items:', xhr.responseText);
+                }
+            });
+        }
+    });
+
+
+
+
+</script>

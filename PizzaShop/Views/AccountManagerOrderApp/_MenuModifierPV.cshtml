@@ -1,0 +1,39 @@
+@model Entities.ViewModel.MenuCategoryVM
+
+<div class="d-flex justify-content-between align-items-center p-3">
+    <div class="modal-title fw-bold fs-4 text-md">@Model.ItemName</div>
+    <button class="close fs-2" data-bs-dismiss="modal">&times;</button>
+</div>
+
+
+@foreach (var modifiergrp in Model.ModifierGroupIds)
+{
+    <div class="d-flex flex-col justify-space-between ms-3">
+        <div class="d-flex align-items-center text-secondary gap-2">
+            <span class="fw-bold fs-5 ">@modifiergrp.ModifierGroupName </span>
+            <span>(You can choose Minimum - @modifiergrp.MinSelection & Maximum - @modifiergrp.MaxSelection options)</span>
+        </div>
+    </div>
+    <div class="d-flex flex-row mt-3 ms-2">
+        @foreach (var modifier in modifiergrp.MenuModifiers)
+        {
+
+            <div class="card ModifierCard mx-2 mb-3" style="width: 10rem; border-radius: 0.5rem; overflow: hidden;" data-groupid="@modifiergrp.ModifierGroupId" data-modid="@modifier.ModifierId" data-id="@Model.ItemId" data-min="@modifiergrp.MinSelection" data-max="@modifiergrp.MaxSelection">
+
+                <div class="p-2 position-relative flex-grow-1 text-wrap">
+                    <div class="bookmark" style=" border-top: 15px solid #ff9800 !important;border-left: 15px solid transparent !important;"></div>
+
+
+                    <h6 class="fw-normal fs-6" asp-for="ModifierName">@modifier.ModifierName</h6>
+                    <p class="text-muted mb-1">₹@modifier.ModifierRate</p>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+
+<div class="modal-footer">
+    <button type="submit" class="btn finalsavebtn modifieraddbtn px-4">Add</button>
+    <button type="button" class="btn finalcancelbtn px-4" data-bs-dismiss="modal">Close</button>
+</div>

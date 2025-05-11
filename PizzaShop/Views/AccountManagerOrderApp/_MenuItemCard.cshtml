@@ -1,0 +1,44 @@
+@model List<Entities.ViewModel.MenuCategoryVM>
+
+<div class="d-flex flex-wrap ms-2">
+    @foreach (var item in Model)
+    {
+        <div class="">
+            <div class="card MenuItemCard mx-2 shadow mb-3" style="width: 18rem; border-radius: 0.5rem; overflow: hidden;" data-itemid="@item.ItemId" data-itemrate="@item.Rate">
+                <div class="d-flex flex-row flex-wrap ">
+                    <div class="bg-light" style="width: 5rem;">
+                        <img src="@(string.IsNullOrEmpty(item.ItemPhoto) ? Url.Content("~/assest/dining-menu.png") : @item.ItemPhoto)"
+                            class="img-fluid p-2" style="width: 80px; height: 80px;" />
+                    </div>
+                    <div class="p-2 position-relative flex-grow-1 text-wrap">
+                        @if (@item.ItemtypeId == 1)
+                        {
+                            <div class="bookmark" style=" border-top: 30px solid #00a651 !important;"></div>
+                        }
+                        else if (@item.ItemtypeId == 2)
+                        {
+                            <div class="bookmark" style=" border-top: 30px solid #f14338 !important;"></div>
+                        }
+                        else
+                        {
+                            <div class="bookmark" style=" border-top: 30px solid #ff9800 !important;"></div>
+                        }
+
+                        <h6 class="fw-bold fs-6 mb-3">@item.ItemName</h6>
+                        <div class="d-flex justify-content-between align-items-center flex-wrap"  >
+                            <p class="text-muted mb-1">₹@item.Rate</p>
+                            @if (item.IsFavourite == true)
+                            {
+                                <i class="bi bi-heart-fill favoritebtn" style="color: rgba(0, 102, 167, 1);" data-itemid="@item.ItemId"></i>
+                            }
+                            else
+                            {
+                                <i class="bi bi-heart favoritebtn" data-itemid="@item.ItemId"></i>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

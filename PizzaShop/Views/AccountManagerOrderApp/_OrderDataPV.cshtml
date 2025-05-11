@@ -1,0 +1,108 @@
+@model List<Entities.ViewModel.MenuCategoryVM>
+
+@{
+    decimal sum = 0;
+}
+
+
+@foreach (var item in Model)
+{
+    sum = 0;
+    <div class="ItemDataCard d-flex justify-content-between align-items-center mt-3 webyborderitemdiv p-2 mb-3"
+        data-uid="@item.UId" data-taxpercentage="@item.TaxPercentage">
+        <div class="col-md-6 col-sm-3 ps-1">
+
+            <div class="d-flex mb-2">
+                <i class="bi bi-chevron-down toggleiconside"></i>
+                <span class="fw-bold ms-1 fs-6  text-black" data-itemid="@item.ItemId">@item.ItemName</span>
+            </div>
+            @if (Model.Any())
+            {
+                @foreach (var mod in item.MenuItemModifier)
+                {
+                    sum += (decimal)mod.ModifierRate;
+                    <div class="modHide">
+                        <ul class="mb-0">
+                            <li>
+                                <div class="d-flex gap-5 ">
+                                    <span class="fs-6 text-black">@mod.ModifierName</span>
+                                    <span class="fs-6 text-black ">@mod.ModifierRate</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                }
+            }
+
+        </div>
+        <div class="d-flex justify-content-between col-md-6  gap-5">
+            <div>
+                <div class="d-flex flex-row webyborderitemdiv">
+                    <div class="btn dec" data-uid="@item.UId">-</div>
+                    <div class="d-flex align-items-center justify-content-center px-2 inputquantity" value="@item.Quantity">
+                        @item.Quantity</div>
+                    <div class="btn inc" data-uid="@item.UId">+</div>
+                </div>
+            </div>
+            <div>
+                <div>
+                    <span class="modHide">₹</span>
+                    <span class="fs-5 itemrate modHide me-3" value="@item.Rate">@(item.Rate* item.Quantity)</span>
+                    <span class="modVis d-none">₹</span>
+                    <span class="fs-5 modVis d-none allsum">@(sum + (item.Rate * item.Quantity))</span>
+                </div>
+                <div>
+
+                    @if (sum != 0)
+                    {
+                        <span class="modHide">₹</span>
+                        <span class="fs-5 modifierrate modHide" value="@(sum)" data-amt="@sum">@(sum)</span>
+                    }
+                </div>
+            </div>
+            <div>
+                <a class="btn deleteitembtn" data-uid="@item.UId">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="itemwisecommentmodal" class="modal fade" data-backdrop="true">
+        <div class="modal-dialog modal-dialog-centered w-xl">
+            <div class="modal-content h-100 no-radius">
+                <div class="modal-header">
+                    <h5 class="modal-title text-secondary">Item Wise Comment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="form-outline p-3">
+                    <textarea class="form-control" id="itemDescription" name="itemDescription" placeholder="Comment"
+                    rows="4"></textarea>
+                    <label for="Comment*"></label>
+                </div>
+
+                <div class="modal-footer d-flex align-items-center justify-content-end">
+                    <button type="button" class="btn  webybg  fs-6 fw-bold save-item-comment-btn text-white px-4"
+                        data-uid="@item.UId">Save</button>
+                    <button type="button" class="btn  webyborder webybtn fw-bold px-4"
+                        data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    var finaldata = @Html.Raw(Json.Serialize(Model));
+    @* finaldata.foreach(function(item) {
+        FinalArrayToBeSubmit.push(item);
+    }); *@
+    for (var i = 0; i < finaldata.length; i++) {
+        var item = finaldata[i];
+        console.log(item);
+        FinalArrayToBeSubmit.push(item);
+    }
+
+    console.log(FinalArrayToBeSubmit);
+</script>

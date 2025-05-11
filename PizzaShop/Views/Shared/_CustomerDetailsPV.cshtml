@@ -1,0 +1,157 @@
+@model Entities.ViewModel.CustomerVM
+
+<div class="container pt-4" style="background-color: beige;">
+    <div class="row  ms-2 me-2">
+        <div class="col  mt-2 pt-2  bg-white">
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div class="d-flex justify-space-between">
+                        <div class="col-md">
+                            <span class="fw-bold fs-5 text-secondary">Name</span>
+                        </div>
+                        <div class="">
+                            <span class="fw-bold fs-5">@Model.Name</span>
+                        </div>
+                    </div>
+                    <div class="col">
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="card mb-2 mt-2">
+                <div class="card-body">
+                    <div class="d-flex justify-space-between">
+                        <div class="col-md">
+                            <span class="fw-bold fs-5 text-secondary">MobileNumber</span>
+                        </div>
+                        <div class="">
+                            <span class="fw-bold fs-5">@Model.Phone</span>
+                        </div>
+                    </div>
+                    <div class="col">
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="card mb-2 mt-2">
+                <div class="card-body">
+                    <div class="d-flex justify-space-between">
+                        <div class="col-md">
+                            <span class="fw-bold fs-5 text-secondary">Max Order</span>
+                        </div>
+                        <div class="">
+                            <span class="fw-bold fs-5">@Model.MaxOrder</span>
+                        </div>
+                    </div>
+                    <div class="col">
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col  mt-2">
+            <div class="bg-white shadow mb-4 p-2">
+                <div class="">
+                    <div class="d-flex justify-space-between">
+                        <div class="col-md">
+                            <span class="fw-bold fs-5 text-secondary">Average Bill</span>
+                        </div>
+                        <div class="">
+                            <span class="fw-bold pt-2">@Model.AverageOrder</span>
+                        </div>
+                    </div>
+                    <div class="col">
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="bg-white shadow mb-4 p-2">
+                <div class="">
+                    <div class="d-flex justify-space-between">
+                        <div class="col-md">
+                            <span class="fw-bold fs-5 text-secondary">Coming Since</span>
+                        </div>
+                        <div class="">
+                            <span class="fw-bold pt-2">@Model.LastVisit</span>
+                        </div>
+                    </div>
+                    <div class="col">
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="bg-white shadow mb-2 p-2 ">
+                <div class="">
+                    <div class="d-flex justify-space-between">
+                        <div class="col-md">
+                            <span class="fw-bold fs-5 text-secondary">Visits</span>
+                        </div>
+                        <div class="">
+                            <span class="fw-bold pt-2">@Model.Visits</span>
+                        </div>
+                    </div>
+                    <div class="col">
+
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+    <table class="table  align-middle text-center  ms-2 me-4 mt-2">
+        <thead class="bg-light">
+            <tr>
+                <th class="text-secondary fs-6">OrderDate Date</th>
+                <th class="text-secondary fs-6">Order Type</th>
+                <th class="text-secondary fs-6">Payment</th>
+                <th class="text-secondary fs-6">Items</th>
+                <th class="text-secondary fs-6">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var order in Model.Orders)
+            {
+                if (order.OrderId != null)
+                {
+                    <tr class="tblclass" data-id="@order.OrderId">
+                        <td>
+                            <p class=" text-secondary  mb-0 ">#@order.OrderDate</p>
+                        </td>
+                        <td>
+                            <p class="text-secondary  mb-0">@order.OrderType</p>
+                        </td>
+                        <td>
+                            <p class=" text-secondary  mb-0">@order.PaymentStatus</p>
+                        </td>
+                        <td>
+                            <p class=" text-secondary  mb-0">@order.ItemCount</p>
+                        </td>
+                        <td>
+                            <p class=" text-secondary  mb-0">@order.OrderAmount</p>
+                        </td>
+                    </tr>
+                }
+            }
+
+
+        </tbody>
+
+    </table>
+
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
