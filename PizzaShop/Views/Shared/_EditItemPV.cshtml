@@ -1,206 +1,430 @@
 @model Entities.ViewModel.MenuCategoryVM
 
 
-                    <form id="EditItem">
-                           <input type="hidden" asp-for="ItemId"/>
+<form id="EditItem">
+    <input type="hidden" asp-for="ItemId" />
 
 
-                        <!-- Category Dropdown -->
-                        <div class="row d-flex justify-space-between">
-                            <div class="col-8 mt-1 pe-0">
-                                <div class="row">
-                                    <div class="col">
-                                        <div class="form-floating">
-                                            <select class="form-select" asp-for="CategoryId"
-                                                asp-items="ViewBag.Categories" id="floatingSelect"
-                                                aria-label="Floating label select example">
-                                                <option selected>Select a Category</option>
-                                            </select>
-                                            <label for="floatingSelect">Categories*</label>
-                                            <span asp-validation-for="CategoryId" class="text-danger"></span>
-                                        </div>
-                                    </div>
+    <!-- Category Dropdown -->
+    <div class="row d-flex justify-space-between">
+        <div class="col-8 mt-1 pe-0">
+            <div class="row">
+                <div class="col">
+                    <div class="form-floating">
+                        <select class="form-select modal-field" asp-for="CategoryId" asp-items="ViewBag.Categories"
+                            id="floatingSelect" aria-label="Floating label select example">
+                            <option selected>Select a Category</option>
+                        </select>
+                        <label for="floatingSelect">Categories*</label>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                    </div>
+                </div>
 
 
-                                    <!-- Name Input -->
-                                    <div class="col">
-                                        <div class="form-floating mb-3">
-                                            <input type="text" asp-for="ItemName" class="form-control"
-                                                id="floatingInput">
-                                            <label for="floatingInput" asp-for="ItemName">Name*</label>
-                                            <span asp-validation-for="ItemName" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                </div>
+                <!-- Name Input -->
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="text" asp-for="ItemName" class="form-control modal-field" id="floatingInput">
+                        <label for="floatingInput" asp-for="ItemName">Name*</label>
+                        <span asp-validation-for="ItemName" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
 
 
-                                <div class="row"> <!-- Item Type -->
-                                    <div class="col">
-                                        <div class="form-floating"> <select class="form-select" asp-for="ItemtypeId"
-                                                asp-items="ViewBag.Itemtypes" id="floatingSelect"
-                                                aria-label="Floating label select example">
-                                                <option selected>Select a type</option>
-                                            </select>
-                                            <label for="floatingSelect">Item Type*</label>
-                                            <span asp-validation-for="ItemtypeId" class="text-danger"></span>
-                                        </div>
-                                    </div>
+            <div class="row"> <!-- Item Type -->
+                <div class="col">
+                    <div class="form-floating"> <select class="form-select modal-field" asp-for="ItemtypeId"
+                            asp-items="ViewBag.Itemtypes" id="floatingSelect"
+                            aria-label="Floating label select example">
+                            <option selected>Select a type</option>
+                        </select>
+                        <label for="floatingSelect">Item Type*</label>
+                        <span asp-validation-for="ItemtypeId" class="text-danger"></span>
+                    </div>
+                </div>
 
-                                    <!-- Rate -->
-                                    <div class="col">
-                                        <div class="form-floating mb-3">
-                                            <input type="text" asp-for="Rate" class="form-control" id="floatingInput">
-                                            <label for="floatingInput" asp-for="Rate">Rate*</label>
-                                            <span asp-validation-for="Rate" class="text-danger"></span>
-                                        </div>
-                                    </div>
+                <!-- Rate -->
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="text" asp-for="Rate" class="form-control modal-field" id="floatingInput">
+                        <label for="floatingInput" asp-for="Rate">Rate*</label>
+                        <span asp-validation-for="Rate" class="text-danger"></span>
+                    </div>
+                </div>
 
-                                    <!-- Quantity -->
-                                    <div class="col">
-                                        <div class="form-floating mb-3">
-                                            <input type="text" asp-for="Quantity" class="form-control"
-                                                id="floatingInput">
-                                            <label for="floatingInput" asp-for="Quantity">Quantity*</label>
-                                            <span asp-validation-for="Quantity" class="text-danger"></span>
-                                        </div>
-                                    </div>
+                <!-- Quantity -->
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="text" asp-for="Quantity" class="form-control modal-field" id="floatingInput">
+                        <label for="floatingInput" asp-for="Quantity">Quantity*</label>
+                        <span asp-validation-for="Quantity" class="text-danger"></span>
+                    </div>
+                </div>
 
-                                    <!-- Unit -->
-                                    <div class="col">
-                                        <div class="form-floating"> <select class="form-select" asp-for="UnitId"
-                                                asp-items="ViewBag.Units" id="floatingSelect"
-                                                aria-label="Floating label select example">
-                                                <option selected>Select a unit</option>
-                                            </select>
-                                            <label for="floatingSelect">Unit*</label>
-                                            <span asp-validation-for="UnitId" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                </div>
+                <!-- Unit -->
+                <div class="col">
+                    <div class="form-floating"> <select class="form-select modal-field" asp-for="UnitId"
+                            asp-items="ViewBag.Units" id="floatingSelect" aria-label="Floating label select example">
+                            <option selected>Select a unit</option>
+                        </select>
+                        <label for="floatingSelect">Unit*</label>
+                        <span asp-validation-for="UnitId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
 
 
-                                <!-- Modifier Groups -->
-                                <div class="row">
-                                    <!-- Switch Toggles -->
-                                    <div class="col">
-                                        <div
-                                            class="form-check form-switch d-flex align-item-center justify-space-between gap-2 ">
-                                            <input class="form-check-input  type="checkbox" id="toggleSwitch"
-                                                asp-for="IsAvailable" style="border-radius: 1rem !important;">
-                                            <label for="modifierGroups" class="form-label mt-1 ms-3">Available</label>
-                                            <span asp-validation-for="IsAvailable" class="text-danger"></span>
-                                        </div>
-                                    </div>
+            <!-- Modifier Groups -->
+            <div class="row">
+                <!-- Switch Toggles -->
+                <div class="col">
+                    <div class="form-check form-switch d-flex align-item-center justify-space-between gap-2 ">
+                        <input class="form-check-input modal-field" type="checkbox" id="toggleSwitch"
+                            asp-for="IsAvailable" style="border-radius: 1rem !important;">
+                        <label for="modifierGroups" class="form-label mt-1 ms-3">Available</label>
+                        <span asp-validation-for="IsAvailable" class="text-danger"></span>
+                    </div>
+                </div>
 
-                                    <div class="col">
-                                        <div
-                                            class="form-check form-switch d-flex align-item-center justify-space-between gap-2 ">
-                                            <input class="form-check-input  type="checkbox" id="toggleSwitch"
-                                                asp-for="TaxDefault" style="border-radius: 1rem !important;">
-                                            <label for="modifierGroups" class="form-label mt-1 ms-3">DefaultTax</label>
-                                            <span asp-validation-for="TaxDefault" class="text-danger"></span>
-                                        </div>
-                                    </div>
+                <div class="col">
+                    <div class="form-check form-switch d-flex align-item-center justify-space-between gap-2 ">
+                        <input class="form-check-input modal-field" type="checkbox" id="toggleSwitch"
+                            asp-for="TaxDefault" style="border-radius: 1rem !important;">
+                        <label for="modifierGroups" class="form-label mt-1 ms-3">DefaultTax</label>
+                        <span asp-validation-for="TaxDefault" class="text-danger"></span>
+                    </div>
+                </div>
 
-                                    <!-- Tax and Short Code -->
-                                    <div class="col">
-                                        <div class="form-floating mb-3">
-                                            <input type="text" asp-for="TaxPercentage" class="form-control"
-                                                id="floatingInput">
-                                            <label for="floatingInput" asp-for="TaxPercentage">Tax Percentage</label>
-                                            <span asp-validation-for="TaxPercentage" class="text-danger"></span>
-                                        </div>
-                                    </div>
+                <!-- Tax and Short Code -->
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="text" asp-for="TaxPercentage" class="form-control modal-field" id="floatingInput">
+                        <label for="floatingInput" asp-for="TaxPercentage">Tax Percentage</label>
+                        <span asp-validation-for="TaxPercentage" class="text-danger"></span>
+                    </div>
+                </div>
 
-                                    <!-- Description -->
-                                    <div class="col">
-                                        <div class="form-floating mb-3">
-                                            <input type="text" asp-for="ShortCode" class="form-control"
-                                                id="floatingInput">
-                                            <label for="floatingInput" asp-for="ShortCode">Short Code</label>
-                                            <span asp-validation-for="ShortCode" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                </div>
+                <!-- Description -->
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="text" asp-for="ShortCode" class="form-control modal-field" id="floatingInput">
+                        <label for="floatingInput" asp-for="ShortCode">Short Code</label>
+                        <span asp-validation-for="ShortCode" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
 
-                                <div class="row">
-                                    <div data-mdb-input-init class="form-outline mb-4">
-                                        <textarea class="form-control" id="form7Example7" placeholder="Description"
-                                            asp-for="Description" required rows="4"></textarea>
-                                    </div>
-                                </div>
+            <div class="row">
+                <div data-mdb-input-init class="form-outline mb-4">
+                    <textarea class="form-control modal-field" id="form7Example7" placeholder="Description"
+                        asp-for="Description" required rows="4"></textarea>
+                </div>
+            </div>
 
-                                <!-- Upload Image -->
-                                <div class="col-12">
-                                    <label for="uploadImage" class="form-label">Upload Image</label>
-                                    <div class="border p-3 text-center" id="dropArea" style="border-style: dotted; cursor: pointer;">
-                                        <input type="file" id="uploadImage" class="d-none">
-                                        <label for="uploadImage" class="text-muted" style="cursor: pointer;">
-                                            📁 Drag and Drop or Browse files
-                                        </label>
-                                         <div id="previewContainer" class="mt-2" style="display: none;">
-                                            <img id="imagePreview" src="@Model.ItemPhoto" alt="Uploaded Image"
-                                                style="max-width: 100px;">
-                                            <span class="remove-image" id="removeImage"
-                                                style="cursor: pointer;">❌</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="card  text-center p-3 h-100" style="background-color: #fff4e6;">
+            <!-- Upload Image -->
+            <div class="col-12">
+                <label for="uploadImage" class="form-label">Upload Image</label>
+                <div class="border p-3 text-center" id="dropArea" style="border-style: dotted; cursor: pointer;">
+                    <input type="file" id="uploadImage" class="d-none modal-image">
+                    <label for="uploadImage" class="text-muted" style="cursor: pointer;">
+                        📁 Drag and Drop or Browse files
+                    </label>
+                    <div id="previewContainer" class="mt-2" style="display: none;">
+                        <img id="imagePreview" class="modal-image" src="@Model.ItemPhoto" alt="Uploaded Image"
+                            style="max-width: 100px;">
+                        <span class="remove-image" id="removeImage" style="cursor: pointer;">❌</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card  text-center p-3 h-100" style="background-color: #fff4e6;">
 
-                                    <select id="modifierGroupDropdown" class="form-select" asp-for="ModifierGroupId"
-                                        asp-items=" ViewBag.ModifierGroups">
-                                        <option selected>Select Modifier Groups(s)</option>
-                                    </select>
-                                    <span asp-validation-for="ModifierGroupId" class="text-danger"></span>
-                                   <div id="modifierList">
-                                        @if (Model.ModifierGroupIds != null)
-                                        {
-                                            @foreach (var group in Model.ModifierGroupIds)
-                                            {
-                                                @await Html.PartialAsync("_EditModifierList", group)
-                                            }
-                                        }
-                                    </div>
-                                </div>
-                            </div>
+                <select id="modifierGroupDropdown" class="form-select" asp-for="ModifierGroupId"
+                    asp-items=" ViewBag.ModifierGroups">
+                    <option selected>Select Modifier Groups(s)</option>
+                </select>
+                <span asp-validation-for="ModifierGroupId" class="text-danger"></span>
+                <div id="modifierList" class="modal-partial">
+                    @if (Model.ModifierGroupIds != null)
+                    {
+                        @foreach (var group in Model.ModifierGroupIds)
+                        {
+                            @await Html.PartialAsync("_EditModifierList", group)
+                        }
+                    }
+                </div>
+            </div>
+        </div>
 
 
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn  webybg  fs-6 fw-bold text-white px-4">Save</button>
-                            <button type="button" class="btn  webyborder webybtn fw-bold px-4"
-                                data-bs-dismiss="modal">Cancel</button>
-                        </div>
-                        <input type="hidden" id="currentPage" name="currentPage" value="@ViewBag.Page" />
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn  webybg saveedititembtn fs-6 fw-bold text-white px-4">Save</button>
+        <button type="button" class="btn cancel-btn  webyborder webybtn fw-bold px-4" data-target="editMenuItemModal">Cancel</button>
+    </div>
+    <input type="hidden" id="currentPage" name="currentPage" value="@ViewBag.Page" />
 
-                    </form>
-                
+</form>
 
-                <script>
+<script>
     $(document).ready(function () {
-      
 
 
-        $('#ModifierGroupId').change(function () {
+
+        var selectedModifierGroupsEdit = []; // Store selected modifier groups
+        var currentPage = 1; // Default page
+
+        console.log("Initializing Modifier Group Edit List");
+
+        var storedPage = sessionStorage.getItem("currentPage");
+        if (storedPage) {
+            currentPage = parseInt(storedPage);
+        }
+        $(".modifier-group-edit").each(function () {
+            var groupId = $(this).data("groupid");
+            var itemId = $(this).data("itemid");
+
+            $.ajax({
+                url: '@Url.Action("GetModifiersGroupByItem", "Menu")',
+                type: 'GET',
+                dataType: 'json',
+                data: { groupId: groupId, itemId: itemId },
+                success: function (modifiers) {
+                    console.log("Fetched Modifiers for Group:", groupId, modifiers);
+
+                    modifiers.itemModifierGroups.forEach(modifier => {
+                        // Check if already exists
+                        let exists = selectedModifierGroupsEdit.some(existing =>
+                            existing.itemId === modifier.itemId &&
+                            existing.modifierGroupId === modifier.modifierGroupId
+                        );
+
+                        if (!exists) {
+                            selectedModifierGroupsEdit.push({
+                                itemId: modifier.itemId,
+                                modifierGroupId: modifier.modifierGroupId,
+                                minSelection: modifier.minSelection,
+                                maxSelection: modifier.maxSelection,
+                                modifiers: modifier.modifiers // Store modifier items
+                            });
+                        }
+                        console.log("Initial Modifier Groups:", selectedModifierGroupsEdit);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error loading modifiers:', xhr.responseText);
+                }
+            });
+        });
+
+
+
+        $(document).on("click", ".pagination a", function (e) {
+            e.preventDefault();
+            currentPage = $(this).data("page");
+            sessionStorage.setItem("currentPage", currentPage);
+            loadMenuItems($("#selectedCategory").val(), currentPage);
+        });
+
+
+        $("#modifierGroupDropdown").change(function () {
             var groupId = $(this).val();
-            if (groupId) {
+            if (!groupId) return;
+
+
+            let exists = selectedModifierGroupsEdit.some(modifier => modifier.modifierGroupId == groupId);
+            if (exists) {
+                console.warn("Modifier group already exists, skipping addition.");
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("GetModifiersByGroupEdit", "Menu")',
+                type: 'GET',
+                data: { groupId: groupId },
+                success: function (response) {
+                    $("#modifierList").append(response);
+
+
+                    var newGroup = $("#modifierList").find(".modifier-group-edit").last();
+                    var minSelection = newGroup.find(".min-input-edit").val();
+                    var maxSelection = newGroup.find(".max-input-edit").val();
+
+
+                    selectedModifierGroupsEdit.push({
+                        modifierGroupId: groupId,
+                        minSelection: minSelection,
+                        maxSelection: maxSelection,
+                        modifiers: []
+                    });
+
+                    console.log("Updated Modifier Groups After Add:", selectedModifierGroupsEdit);
+                }
+            });
+        });
+
+        $(document).on("change", ".min-input-edit, .max-input-edit", function () {
+            var $group = $(this).closest(".modifier-group-edit");
+            var groupId = $group.data("groupid");
+
+            var minSelection = parseInt($group.find(".min-input-edit").val()) || 0;
+            var maxSelection = parseInt($group.find(".max-input-edit").val()) || 0;
+            var capacity = $group.find("ul li").length;
+
+            if (minSelection < 1) {
+                toastr.error("Minimum selection must be at least 1.");
+                $(".saveedititembtn").prop("disabled", true);
+                return;
+            }
+
+            if (maxSelection > capacity) {
+                toastr.error("Maximum selection cannot exceed the group's capacity (" + capacity + ").");
+                $(".saveedititembtn").prop("disabled", true);
+                return;
+            }
+
+            if (minSelection > maxSelection) {
+                toastr.error("Minimum selection cannot be greater than maximum selection.");
+                $(".saveedititembtn").prop("disabled", true);
+                return;
+            }
+
+            // If all validations pass
+            $(".saveedititembtn").prop("disabled", false);
+
+            // Update the model object
+            selectedModifierGroupsEdit.forEach(modifier => {
+                if (modifier.modifierGroupId == groupId) {
+                    modifier.minSelection = minSelection;
+                    modifier.maxSelection = maxSelection;
+                }
+            });
+
+            console.log("Updated Modifier Groups After Change:", selectedModifierGroupsEdit);
+        });
+
+
+
+        $(document).on("click", ".delete-group-edit", function () {
+            var deleteid = $(this).data('groupid');
+            console.log("Deleting Modifier Group ID:", deleteid);
+
+            $(this).closest(".modifier-group-edit").remove();
+
+            selectedModifierGroupsEdit = selectedModifierGroupsEdit.filter(modifier => modifier.modifierGroupId !== deleteid);
+            console.log("Updated Modifier Groups After Delete:", selectedModifierGroupsEdit);
+        });
+
+
+        $("#EditItem").submit(function (e) {
+            e.preventDefault();
+            console.log("Submitting EditItem form");
+
+            var formData = $(this).serializeArray();
+            var formDataobj = {};
+
+            $.each(formData, function (index, field) {
+                formDataobj[field.name] = field.value;
+            });
+
+            var fileInput = $("#uploadImage")[0].files[0]; // Get the selected file
+            if (fileInput) {
+                var reader = new FileReader();
+                console.log("enter");
+                reader.onloadend = function () {
+                    // Convert the file to base64 and append it to formDataobj
+                    formDataobj["ItemPhoto"] = reader.result;
+
+                    // Ensure ModifierGroupIdForAdd is an array
+                    formDataobj.ModifierGroupIds = JSON.stringify(selectedModifierGroupsEdit); // Convert array to JSON string
+
+                    var submissionData = JSON.stringify(formDataobj); // Final JSON string
+
+                    console.log("Sending data:", submissionData);
+
+                    // Now that the image is added, send the AJAX request
+
+                    $.ajax({
+                        url: '/Menu/EditMenuItem',
+                        type: 'POST',
+                        contentType: "application/json",
+                        data: submissionData,
+                        success: function (response) {
+                            alert("Item Edited Successfully!");
+
+
+                            var myModal = bootstrap.Modal.getInstance(document.getElementById("editMenuItemModal"));
+                            if (myModal) myModal.hide();
+                            document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+
+
+                            loadMenuItems(formDataobj.CategoryId, currentPage);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error:', xhr.responseText);
+                        }
+                    });
+                };
+
+                // Read the image file as base64
+                reader.readAsDataURL(fileInput);
+            } else {
+
+                var currentPage = $("#currentPage").val();
+                console.log("Current Page In EditItem :", currentPage);
+
+                formDataobj.ModifierGroupIds = JSON.stringify(selectedModifierGroupsEdit);
+                var submissionData = JSON.stringify(formDataobj);
+
+                console.log("Sending data:", submissionData);
+
                 $.ajax({
-                    url: '@Url.Action("GetModifiersByGroup", "Menu")',
-                    type: 'GET',
-                    data: { groupId: groupId },
+                    url: '/Menu/EditMenuItem',
+                    type: 'POST',
+                    contentType: "application/json",
+                    data: submissionData,
                     success: function (response) {
-                        $("#modifierList").append(response); // Append fetched HTML
+                        alert("Item Edited Successfully!");
+
+
+                        var myModal = bootstrap.Modal.getInstance(document.getElementById("editMenuItemModal"));
+                        if (myModal) myModal.hide();
+                        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+
+
+                        loadMenuItems(formDataobj.CategoryId, currentPage);
                     },
                     error: function (xhr, status, error) {
-                        console.error('Error fetching modifier groups:', error);
+                        console.error('Error:', xhr.responseText);
                     }
                 });
             }
         });
-         @* $("#editItemForm").submit(function (event) {
+
+
+        function loadMenuItems(categoryId, page = 1) {
+            console.log("Loading Menu Items for Category:", categoryId, "Page:", page);
+
+            $.ajax({
+                url: '/Menu/MenuItem',
+                type: 'GET',
+                data: { categoryId: categoryId, page: page },
+                success: function (data) {
+                    $("#menuItemsContainer").html(data);
+                    sessionStorage.setItem("currentPage", page);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error loading menu items:', xhr.responseText);
+                }
+            });
+        }
+
+
+
+
+        @* $("#editItemForm").submit(function (event) {
             event.preventDefault(); // Prevent normal form submission
 
             var formData = $(this).serialize(); // Serialize form data
@@ -223,7 +447,7 @@
                 }
             });
         }); *@
-         // Listen for changes in min/max selection
+            // Listen for changes in min/max selection
             @* $(document).on("change", ".min-input, .max-input", function () {
                 var parentGroup = $(this).closest(".modifier-group");
                 var groupId = parentGroup.find("input[name*='ModifierGroupId']").val();

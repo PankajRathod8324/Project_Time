@@ -21,6 +21,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
     <style>
@@ -323,7 +324,9 @@
             let selectedTables = [];
             let capacity = 0;
             let sectionId = 0;
+            let selectedTableId = 0;
             let sectionName = "";
+            var FinalCapacity = 0;
 
             console.log("Script loaded successfully!"); // Debugging log
 
@@ -394,6 +397,7 @@
                 console.log(noOfPerson);
                 console.log("noOfperson");
                 var totalcapacity = selectedTables.reduce((sum, table) => sum + table.Capacity, 0);
+                FinalCapacity = totalcapacity;
 
                 if (noOfPerson > totalcapacity) {
                     toastr.warning("Table Capacity is not enough.");
@@ -410,6 +414,7 @@
                 var noOfPerson = $(this).data("no");
                 console.log(noOfPerson + "waitingdata");
                 var totalcapacity = selectedTables.reduce((sum, table) => sum + table.Capacity, 0);
+                FinalCapacity = totalcapacity;
                 if (noOfPerson > totalcapacity) {
                     toastr.warning("Table Capacity is not enough.");
                     $(".assignBtn").prop("disabled", true);
@@ -437,6 +442,7 @@
                 @* var noOfPerson = document.getElementById('noOfPerson').val(); *@
                     console.log(noOfPerson + "waitingdata");
                 var totalcapacity = selectedTables.reduce((sum, table) => sum + table.Capacity, 0);
+                FinalCapacity = totalcapacity;
                 console.log(totalcapacity + "Total Capacirytyvnfj");
                 if (noOfPerson > totalcapacity) {
                     toastr.warning("Table Capacity is not enough.");
@@ -467,6 +473,7 @@
                 @* var noOfPerson = document.getElementById('noOfPerson').val(); *@
                     console.log(noOfPerson + "waitingdata");
                 var totalcapacity = selectedTables.reduce((sum, table) => sum + table.Capacity, 0);
+                FinalCapacity = totalcapacity;
 
                 if (noOfPerson > totalcapacity) {
                     toastr.warning("Table Capacity is not enough.");
@@ -496,61 +503,97 @@
             });
 
             $("#savecustomerdetails").submit(function (e) {
-                e.preventDefault();
-                @* var sectionId = $(this).data("sectionId"); *@
-                    console.log(sectionId);
-                console.log("Submitting Customer Details form");
-                @* var capacity = $(this).data("capacity"); *@
-                    console.log(capacity);
-                // Serialize form fields
-                var formData = $(this).serializeArray();
-                var formDataobj = {};
+    e.preventDefault();
 
-                // Convert serialized array into an object
-                $.each(formData, function (index, field) {
-                    formDataobj[field.name] = field.value;
-                });
-                formDataobj["SectionId"] = sectionId;
-                formDataobj["SelectedTable"] = selectedTables;
+    console.log("Submitting Customer Details form");
 
-                var submissionData = JSON.stringify(formDataobj); // Final JSON string
+    var formData = $(this).serializeArray();
+    var formDataobj = {};
 
-                console.log("Sending data:", submissionData);
+    $.each(formData, function (index, field) {
+        formDataobj[field.name] = field.value;
+    });
 
-                console.log(formDataobj["NoOfPerson"]);
-                let form = $(this);
-                if (form.valid()) {
-                    $.ajax({
-                        url: '/AccountManagerOrderApp/AddCustomerDetail',
-                        type: 'POST',
-                        contentType: "application/json",
-                        data: submissionData,
-                        success: function (response) {
-                            if (response.success == true) {
-                                console.log("Customer added successfully");
-                                toastr.success('Customer Added Successfully!', "Success");
-                                window.location.href = '/AccountManagerOrderApp/MenuOrderApp?customerId=' + response.customerId;
-                            }
-                            else {
-                                console.log("Customer has already Running Order");
-                                toastr.warning("Customer has already Running Order", "Warning");
-                            }
-                            
-                        },
-                        error: function (xhr, status, error) {
-                            console.error('Error:', xhr.responseText); // Log detailed error
-                        }
-                    });
-                }
-                else {
-                    console.log("Form is not valid");
-                    alert("Hiii");
-                    $("#waitinglistmodal").modal("show");
-                }
+    formDataobj["SectionId"] = sectionId;
+    formDataobj["SelectedTable"] = selectedTables;
 
+    var submissionData = JSON.stringify(formDataobj);
+    console.log("Sending data:", submissionData);
 
+    const noOfPerson = parseInt(formDataobj["NoOfPerson"]);
+    const selectedCapacity = parseInt(capacity); // assume this comes from selected table
+    const selectedTableId = selectedTables;      // assumed to be a single tableId
+    const currentSectionId = sectionId;
 
-            });
+    let betterFitFound = false;
+    let bestFitCapacity = null;
+
+    $('.selectable').each(function () {
+        const thisTable = $(this);
+        const thisCapacity = parseInt(thisTable.data('capacity'));
+        const thisSection = thisTable.data('sectionid');
+        const thisStatus = thisTable.data('status');
+        const thisTableId = thisTable.data('tableid');
+
+        @* if (thisSection !== currentSectionId || thisStatus !== 'Available') return; *@
+
+        if (
+            thisCapacity >= noOfPerson &&
+            thisCapacity < selectedCapacity &&
+            thisTableId != selectedTableId
+        ) {
+            betterFitFound = true;
+            bestFitCapacity = thisCapacity;
+        }
+    });
+
+    // Validation check
+    let form = $(this);
+    if (!form.valid()) {
+        console.log("Form is not valid");
+        $("#waitinglistmodal").modal("show");
+        return;
+    }
+
+    // If better fit found, show alert
+    if (betterFitFound) {
+        Swal.fire({
+            title: 'Better Table Available',
+            text: `A table with capacity ${bestFitCapacity} is available. Do you still want to assign the selected table (capacity ${selectedCapacity})?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, assign this',
+            cancelButtonText: 'No, cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                sendCustomerAjax(submissionData);
+            }
+        });
+    } else {
+        sendCustomerAjax(submissionData);
+    }
+});
+
+function sendCustomerAjax(submissionData) {
+    $.ajax({
+        url: '/AccountManagerOrderApp/AddCustomerDetail',
+        type: 'POST',
+        contentType: "application/json",
+        data: submissionData,
+        success: function (response) {
+            if (response.success === true) {
+                toastr.success('Customer Added Successfully!', "Success");
+                window.location.href = '/AccountManagerOrderApp/MenuOrderApp?customerId=' + response.customerId;
+            } else {
+                toastr.warning("Customer has already Running Order", "Warning");
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error:', xhr.responseText);
+        }
+    });
+}
+
             $(".savewaitingTokenDeatails").submit(function (e) {
                 e.preventDefault();
                 @* var sectionId = $(this).data("sectionId"); *@
@@ -650,6 +693,8 @@
                     let customerId = $(this).attr("data-customerId");
                     @* sectionId = $(".select") *@
                     let selectedsectionId = $(this).data("sectionid");
+                    selectedTableId = $(this).data("tableid");
+                    sectionId = $(this).data("sectionid");
 
                     console.log(selectedsectionId + " " + "selectedsectionId" + sectionId);
                     console.log(customerId);

@@ -27,3 +27,4 @@ D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\Entities\obj\Debug\net7.0\refint\
 D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\Entities\obj\Debug\net7.0\Entities.pdb
 D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\Entities\obj\Debug\net7.0\Entities.genruntimeconfig.cache
 D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\Entities\obj\Debug\net7.0\ref\Entities.dll
+D:\PizzaShop_N_Tier-main\PizzaShop_N_Tier-main\Entities\obj\Debug\net7.0\Entities.sourcelink.json

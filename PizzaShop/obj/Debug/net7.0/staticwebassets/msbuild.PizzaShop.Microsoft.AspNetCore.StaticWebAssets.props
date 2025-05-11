@@ -756,6 +756,24 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\0f918634-974e-40fa-a969-abc0afd1852f_Screenshot (10).png'))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\148be4b9-1416-4f7e-8ef9-74f10a9bff87.jpg'))">
+      <SourceType>Package</SourceType>
+      <SourceId>PizzaShop</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/PizzaShop</BasePath>
+      <RelativePath>images/148be4b9-1416-4f7e-8ef9-74f10a9bff87.jpg</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>dz2tyv25ys</Fingerprint>
+      <Integrity>p61SCjqbop+KN4EjJeRb4VA33dsuvGclFQ6xJMOpnsw=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\148be4b9-1416-4f7e-8ef9-74f10a9bff87.jpg'))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\1812ca07-8200-43c9-bda0-2a7f1b4b2464.jpg'))">
       <SourceType>Package</SourceType>
       <SourceId>PizzaShop</SourceId>

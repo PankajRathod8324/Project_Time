@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "Rm9zNWGAN3QSW/HVZMUUgfiiC8mAS9v6krDxfuxJFJk=",
+  "Hash": "PEcQSKmCKc3vENBturVgm8q5ReZmt15Tqh6gian7NUo=",
   "Source": "PizzaShop",
   "BasePath": "_content/PizzaShop",
   "Mode": "Default",
@@ -939,6 +939,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\images\\0f918634-974e-40fa-a969-abc0afd1852f_Screenshot (10).png"
+    },
+    {
+      "Identity": "D:\\PizzaShop_N_Tier-main\\PizzaShop_N_Tier-main\\PizzaShop\\wwwroot\\images\\148be4b9-1416-4f7e-8ef9-74f10a9bff87.jpg",
+      "SourceId": "PizzaShop",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\PizzaShop_N_Tier-main\\PizzaShop_N_Tier-main\\PizzaShop\\wwwroot\\",
+      "BasePath": "_content/PizzaShop",
+      "RelativePath": "images/148be4b9-1416-4f7e-8ef9-74f10a9bff87#[.{fingerprint}]?.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "dz2tyv25ys",
+      "Integrity": "p61SCjqbop+KN4EjJeRb4VA33dsuvGclFQ6xJMOpnsw=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\148be4b9-1416-4f7e-8ef9-74f10a9bff87.jpg"
     },
     {
       "Identity": "D:\\PizzaShop_N_Tier-main\\PizzaShop_N_Tier-main\\PizzaShop\\wwwroot\\images\\1812ca07-8200-43c9-bda0-2a7f1b4b2464.jpg",
@@ -6798,6 +6819,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-fwTw0HKwBZcqirUMdCsMxAbCzViqkdSHM/zqh4ueO64="
+        }
+      ]
+    },
+    {
+      "Route": "images/148be4b9-1416-4f7e-8ef9-74f10a9bff87.dz2tyv25ys.jpg",
+      "AssetFile": "D:\\PizzaShop_N_Tier-main\\PizzaShop_N_Tier-main\\PizzaShop\\wwwroot\\images\\148be4b9-1416-4f7e-8ef9-74f10a9bff87.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "156359"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"p61SCjqbop+KN4EjJeRb4VA33dsuvGclFQ6xJMOpnsw=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 11 May 2025 17:13:28 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "dz2tyv25ys"
+        },
+        {
+          "Name": "label",
+          "Value": "images/148be4b9-1416-4f7e-8ef9-74f10a9bff87.jpg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-p61SCjqbop+KN4EjJeRb4VA33dsuvGclFQ6xJMOpnsw="
+        }
+      ]
+    },
+    {
+      "Route": "images/148be4b9-1416-4f7e-8ef9-74f10a9bff87.jpg",
+      "AssetFile": "D:\\PizzaShop_N_Tier-main\\PizzaShop_N_Tier-main\\PizzaShop\\wwwroot\\images\\148be4b9-1416-4f7e-8ef9-74f10a9bff87.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "156359"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"p61SCjqbop+KN4EjJeRb4VA33dsuvGclFQ6xJMOpnsw=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 11 May 2025 17:13:28 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-p61SCjqbop+KN4EjJeRb4VA33dsuvGclFQ6xJMOpnsw="
         }
       ]
     },
