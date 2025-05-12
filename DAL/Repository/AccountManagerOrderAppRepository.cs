@@ -49,7 +49,7 @@ public class AccountManagerOrderAppRepository : IAccountManagerOrderAppRepositor
 
 
         var groupedByOrder = tableInfoList
-      .GroupBy(x => x.Order?.OrderId)
+      .GroupBy(x => x.Order?.CustomerId)
       .SelectMany(group =>
       {
           if (group.Key != null && group.Count() > 1)
@@ -314,7 +314,7 @@ public class AccountManagerOrderAppRepository : IAccountManagerOrderAppRepositor
 
     public WaitingList IsInWaitingList(string email)
     {
-        return _context.WaitingLists.FirstOrDefault(c => c.Email == email);
+        return _context.WaitingLists.FirstOrDefault(c => c.Email == email && c.IsDeleted == false);
     }
 
     public void AddInWaitingList(WaitingList customerTable)

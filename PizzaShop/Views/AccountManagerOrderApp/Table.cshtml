@@ -623,7 +623,15 @@ function sendCustomerAjax(submissionData) {
                     contentType: "application/json",
                     data: submissionData,
                     success: function (response) {
-                        toastr.success('Customer Added Successfully!', "Success");
+                        if(response.success == true)
+                        {
+                            toastr.success('Waiting Token is Created Successfully!', "Success");
+                            $('#waitingtokendetails').modal('hide');
+                        }
+                        else
+                        {
+                            toastr.warning("Waiting Token is already exist", "Warning");
+                        }
                     },
                     error: function (xhr, status, error) {
                         console.error('Error:', xhr.responseText); // Log detailed error

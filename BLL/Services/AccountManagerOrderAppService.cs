@@ -232,9 +232,6 @@ public class AccountManagerOrderAppService : IAccountManagerOrderAppService
 
     public bool AddInWaitingList([FromBody] JsonObject customerdata)
     {
-        var waitingIdValue = customerdata["WaitingId"];
-        var existingCustomer = _accountmanagerorderapprepository.GetWaitingData(waitingIdValue != null ? TryParseInt(waitingIdValue) : 0);
-
 
         // Extract customer details from JSON
         string email = customerdata["email"]?.ToString() ?? string.Empty;
@@ -242,24 +239,13 @@ public class AccountManagerOrderAppService : IAccountManagerOrderAppService
         string phone = customerdata["Phone"]?.ToString() ?? string.Empty;
         int noOfPerson = TryParseInt(customerdata["noOfPerson"] ?? 0);
         int sectionId = TryParseInt(customerdata["SectionId"] ?? 0);
-        var alreadyHasToken = _accountmanagerorderapprepository.GetWaitingDataByEmail(email);
-
-        if (alreadyHasToken.Email == email)
+        var alreadyhaveToken = _accountmanagerorderapprepository.IsInWaitingList(email);
+        if(alreadyhaveToken != null)
         {
             return false;
         }
-        if (existingCustomer != null)
-        {
-            existingCustomer.Email = email;
-            existingCustomer.Name = name;
-            existingCustomer.Phone = phone;
-            existingCustomer.NoOfPerson = noOfPerson;
-            existingCustomer.SectionId = sectionId;
-            _accountmanagerorderapprepository.UpdateWaitingList(existingCustomer);
-        }
         else
         {
-            // Customer does not exist -> Insert new customer
             var newCustomer = new WaitingList
             {
                 Email = email,
@@ -269,8 +255,10 @@ public class AccountManagerOrderAppService : IAccountManagerOrderAppService
                 SectionId = sectionId
             };
             _accountmanagerorderapprepository.AddInWaitingList(newCustomer);
+
+            return true;
         }
-        return true;
+
     }
 
     public WaitingListVM GetWaitingTokenById(int waitingId)
@@ -777,11 +765,15 @@ public class AccountManagerOrderAppService : IAccountManagerOrderAppService
 
         foreach (var table in tables)
         {
-            var selectedtable = _tableRepository.GetTableById(table.TableId ?? 0);
-            selectedtable.StatusId = 1;
-            table.IsActive = false;
-            _accountmanagerorderapprepository.UpdateCustomerTableStatus(selectedtable.TableId);
-            _tableRepository.UpdateTable(selectedtable);
+            if (table.IsActive == true)
+            {
+                var selectedtable = _tableRepository.GetTableById(table.TableId ?? 0);
+                selectedtable.StatusId = 1;
+                table.IsActive = false;
+                _accountmanagerorderapprepository.UpdateCustomerTableStatus(selectedtable.TableId);
+                _tableRepository.UpdateTable(selectedtable);
+            }
+
         }
 
         var paymentmodeid = _orderRepository.GetPaymentModeIdByMode(paymentOption);
@@ -818,11 +810,14 @@ public class AccountManagerOrderAppService : IAccountManagerOrderAppService
 
         foreach (var table in tables)
         {
-            var selectedtable = _tableRepository.GetTableById(table.TableId ?? 0);
-            selectedtable.StatusId = 1;
-            table.IsActive = false;
-            _accountmanagerorderapprepository.UpdateCustomerTableStatus(selectedtable.TableId);
-            _tableRepository.UpdateTable(selectedtable);
+            if (table.IsActive == true)
+            {
+                var selectedtable = _tableRepository.GetTableById(table.TableId ?? 0);
+                selectedtable.StatusId = 1;
+                table.IsActive = false;
+                _accountmanagerorderapprepository.UpdateCustomerTableStatus(selectedtable.TableId);
+                _tableRepository.UpdateTable(selectedtable);
+            }
         }
 
         return true;
