@@ -15,7 +15,7 @@ using X.PagedList.Extensions;
 
 namespace PizzaShop.Controllers;
 
-
+[Authorize]
 public class MenuController : Controller
 {
     private readonly IMenuService _menuService;

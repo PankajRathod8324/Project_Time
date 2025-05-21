@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
-using  DAL.Interfaces;
+using DAL.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
@@ -43,14 +43,15 @@ public class UserService : IUserService
         if (user != null && user.IsDeleted == false && user.IsActive == true && BCrypt.Net.BCrypt.Verify(password, user.Password))
         {
             var userRole = _userRepository.GetUserRole(email);
-            if(user.LastLogin == null)
+            if (user.LastLogin == null)
             {
                 return "Hii";
             }
-            else{
+            else
+            {
                 return GenerateJwtToken(email, userRole);
             }
-            
+
         }
         if (user.IsActive == false && BCrypt.Net.BCrypt.Verify(password, user.Password))
         {
@@ -67,7 +68,7 @@ public class UserService : IUserService
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.Email, email),
-            new Claim("role", role)
+            new Claim(ClaimTypes.Role, role)
         };
 
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -86,13 +87,13 @@ public class UserService : IUserService
         Console.WriteLine("Generated JWT Token: " + tokenValue);
 
         var jwtToken = tokenHandler.ReadToken(tokenValue) as JwtSecurityToken;
-        var roleName = jwtToken?.Claims.FirstOrDefault(c => c.Type == "role")?.Value;
+        var roleName = jwtToken?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
         if (jwtToken != null)
         {
             var claims1 = jwtToken.Claims;
 
-            var userId = claims1.FirstOrDefault(c => c.Type == "role")?.Value;
+            var userId = claims1.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             var userEmail = claims1.FirstOrDefault(c => c.Type == "email")?.Value;
 
             Console.WriteLine($"User ID: {userId}");
@@ -274,8 +275,9 @@ public class UserService : IUserService
 
         if (!string.IsNullOrEmpty(filterOptions.Search))
         {
-            string searchLower = filterOptions.Search.ToLower();
-            users = users.Where(u => u.FirstName.ToLower().Contains(searchLower));
+            string searchLower = filterOptions.Search?.Trim().ToLower();
+            users = users.Where(u => u.FirstName.Trim().ToLower().Contains(searchLower));
+
         }
 
         users = filterOptions.SortBy?.ToLower() switch

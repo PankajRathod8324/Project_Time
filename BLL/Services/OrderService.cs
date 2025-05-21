@@ -137,9 +137,11 @@ public class OrderService : IOrderService
 
         if (!string.IsNullOrEmpty(filterOptions.Search))
         {
-            string searchLower = filterOptions.Search.ToLower();
-            orders = orders.Where(u => u.OrderId.ToString().ToLower().Contains(searchLower));
+            string searchLower = filterOptions.Search.Trim().ToLower();
+
+            orders = orders.Where(u => u.OrderId.ToString().Trim().ToLower().Contains(searchLower));
         }
+
 
         Console.WriteLine("Order Status: " + orderStatus);
         var OrderStatusId = _orderRepository.GetOrderStatusIdByStatusName(orderStatus);

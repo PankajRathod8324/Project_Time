@@ -27,8 +27,14 @@ public class PermissionHandler : AuthorizationHandler<PermissionRequirement>
             Console.WriteLine(" No authenticated user found.");
             return;
         }
-
-        var roleClaim = user.Claims.FirstOrDefault(c => c.Type == "role")?.Value;
+        // foreach (var claim in user.Claims)
+        // {
+        //     Console.WriteLine($"Claim: {claim.Type} = {claim.Value}");
+        // }
+        // var roleClaim = user.Claims.FirstOrDefault(c => c.Type == "role")?.Value;
+        // var roleClaim = user.FindFirst("role")?.Value;
+        var roleClaim = user.FindFirst(ClaimTypes.Role)?.Value;
+        
         if (roleClaim == null)
         {
             Console.WriteLine(" Role claim not found.");
@@ -48,11 +54,11 @@ public class PermissionHandler : AuthorizationHandler<PermissionRequirement>
 
         bool hasPermission = requirement.Permission switch
         {
-            string perm when perm.EndsWith("_View") => 
+            string perm when perm.EndsWith("_View") =>
                 userPermissions.Any(p => p.PermissionName == perm.Replace("_View", "") && (bool)p.CanView),
-            string perm when perm.EndsWith("_Edit") => 
+            string perm when perm.EndsWith("_Edit") =>
                 userPermissions.Any(p => p.PermissionName == perm.Replace("_Edit", "") && (bool)p.CanAddEdit),
-            string perm when perm.EndsWith("_Delete") => 
+            string perm when perm.EndsWith("_Delete") =>
                 userPermissions.Any(p => p.PermissionName == perm.Replace("_Delete", "") && (bool)p.CanDelete),
             _ => false
         };

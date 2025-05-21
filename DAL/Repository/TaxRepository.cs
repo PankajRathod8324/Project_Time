@@ -42,7 +42,7 @@ public class TaxRepository : ITaxRepository
 
     public string GetTaxTypeNameById(int statusId)
     {
-        var taxtypename = (from tax in _context.TaxTypes
+        string? taxtypename = (from tax in _context.TaxTypes
                            where tax.TaxTypeId == statusId
                            select tax.TaxTypeName).FirstOrDefault();
         return taxtypename;

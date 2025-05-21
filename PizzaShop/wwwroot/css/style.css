@@ -19,13 +19,15 @@
     color: rgba(0, 102, 167, 1) !important;
 }
 
-.canView, .canEdit, .canDelete {
-    border:  1px solid rgba(0, 102, 167, 1) !important;
+.canView,
+.canEdit,
+.canDelete {
+    border: 1px solid rgba(0, 102, 167, 1) !important;
 }
 
-input[type="checkbox"]{
+input[type="checkbox"] {
     accent-color: rgba(0, 102, 167, 1) !important;
-  }
+}
 
 input,
 select,
@@ -152,7 +154,7 @@ a:hover {
     /* Optional: Add border radius */
 }
 
-.dashboardicon.active div  {
+.dashboardicon.active div {
     color: rgba(0, 102, 167, 1);
     /* Blue text */
     background-color: #dee5f8;
@@ -181,7 +183,7 @@ a:hover {
     top: 0;
     left: 0;
     width: 250px;
-    height: 100% ;
+    height: 100vh;
     background-color: white;
     transition: transform 0.3s ease;
     z-index: 1000;
@@ -219,7 +221,8 @@ a:hover {
 }
 
 .overlay.show {
-    display: block;
+    visibility: visible;
+    opacity: 1;
     /* Show overlay when sidebar is toggled */
 }
 
@@ -234,11 +237,13 @@ a:hover {
 
 }
 
-.allbodybgcolor
-{
-    background-color:  rgb(245,245,245) !important;
+.allbodybgcolor {
+    background-color: rgb(245, 245, 245) !important;
 }
-.hoverDiv:hover , .hoverCategoryDiv:hover, .hoverModifierDiv:hover {
+
+.hoverDiv:hover,
+.hoverCategoryDiv:hover,
+.hoverModifierDiv:hover {
     /* transition: box-shadow 0.3s ease; */
     color: rgba(0, 102, 167, 1) !important;
     font-weight: bold;
@@ -246,7 +251,9 @@ a:hover {
 }
 
 
-.hoverDiv:hover .hoverIcon a , .hoverCategoryDiv:hover .hoverIcon a, .hoverModifierDiv:hover .hoverIcon a {
+.hoverDiv:hover .hoverIcon a,
+.hoverCategoryDiv:hover .hoverIcon a,
+.hoverModifierDiv:hover .hoverIcon a {
     visibility: visible;
     color: rgba(0, 102, 167, 1) !important;
 }
@@ -309,12 +316,15 @@ a:hover {
 }
 
 /* Category List Styling */
-.hoverDiv, .hoverCategoryDiv, .hoverModifierDiv {
+.hoverDiv,
+.hoverCategoryDiv,
+.hoverModifierDiv {
     padding: 10px 15px;
     border-radius: 8px;
     transition: all 0.3s ease-in-out;
     cursor: pointer;
 }
+
 i {
     cursor: pointer;
 }
@@ -341,7 +351,7 @@ i {
 .hoverDiv.active .fa-grip-vertical,
 .hoverDiv.active .edit-btn i,
 .hoverDiv.active .fa-trash-can,
-.hoverCategoryDiv.active p,  
+.hoverCategoryDiv.active p,
 .hoverCategoryDiv.active .fa-grip-vertical,
 .hoverCategoryDiv.active .edit-btn i,
 .hoverCategoryDiv.active .fa-trash-can,
@@ -400,6 +410,7 @@ i {
     /* padding: 20px; */
     /* box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); */
 }
+
 /* 
 .table td,
 .table th {

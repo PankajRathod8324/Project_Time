@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
-using  DAL.Interfaces;
+using DAL.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
@@ -69,12 +69,14 @@ public class TaxService : ITaxService
     {
         var taxes = _taxRepository.GetAllTaxes().AsQueryable();
 
-        if (!string.IsNullOrEmpty(filterOptions.Search))
+        if (!string.IsNullOrWhiteSpace(filterOptions.Search))
         {
-            string searchLower = filterOptions.Search.ToLower();
-            taxes = taxes.Where(u => u.TaxName.ToLower().Contains(searchLower) ||
-                                     u.TaxType.TaxTypeName.ToLower().Contains(searchLower));
+            string searchLower = filterOptions.Search.Trim().ToLower();
+
+            taxes = taxes.Where(u => u.TaxName.Trim().ToLower().Contains(searchLower) ||
+                                     u.TaxType.TaxTypeName.Trim().ToLower().Contains(searchLower));
         }
+
 
         // Get total count and handle page size dynamically
         int totalTables = taxes.Count();

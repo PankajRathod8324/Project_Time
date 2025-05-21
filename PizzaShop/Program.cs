@@ -1,36 +1,32 @@
-using System.Threading.Tasks.Dataflow;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Entities.ViewModel;
-using Entities.Models;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Claims;
+using DinkToPdf;
+using DinkToPdf.Contracts;
+using Entities.Middleware;
+using DAL.Repository;
 using DAL.Interfaces;
 using BLL.Interfaces;
 using BLL.Services;
-using DAL.Repository;
-using BLL.Services;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
-using Rotativa.AspNetCore;
-using Microsoft.AspNetCore.Hosting.Server;
-using DinkToPdf.Contracts;
-using DinkToPdf;
-using Entities.Middleware;
+using Entities.Models;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// -------------------- DB Context --------------------
 var conn = builder.Configuration.GetConnectionString("PizzaShopDbConnection");
 builder.Services.AddDbContext<PizzaShopContext>(q => q.UseNpgsql(conn));
+
+// -------------------- Dependency Injection --------------------
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserService, UserService>(); // Registering the UserService here
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
-builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IMenuRepository, MenuRepository>();
 builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddScoped<ITableAndSectionRepository, TableAndSectionRepository>();
@@ -39,41 +35,20 @@ builder.Services.AddScoped<ITaxRepository, TaxRepository>();
 builder.Services.AddScoped<ITaxService, TaxService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IAccountManagerOrderAppRepository, AccountManagerOrderAppRepository>();
 builder.Services.AddScoped<IAccountManagerOrderAppService, AccountManagerOrderAppService>();
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
-
-// builder.Services.ConfigureApplicationCookie(options => options.LoginPath = "/LoginPage");
-// RotativaConfiguration.Setup("wwwroot\\"); // Path for wkhtmltopdf binaries
-
+builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 
-
-
-// Enable Session
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromDays(30); // 30 min session timeout
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-
-
-// // Add Identity
-// builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-//     .AddEntityFrameworkStores<ApplicationDbContext>()
-//     .AddDefaultTokenProviders();
-
-
-// Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 
-// Configure JWT Authentication
+// -------------------- JWT Authentication --------------------
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
 
@@ -91,72 +66,95 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(key),
-            // RoleClaimType = ClaimTypes.Role
-            RoleClaimType = "role"
-
+            RoleClaimType =  ClaimTypes.Role,
         };
+
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
             {
-                context.Token = context.Request.Cookies["JwtToken"];
+                context.Token = context.Request.Cookies["AuthToken"];
                 return Task.CompletedTask;
             },
+            OnAuthenticationFailed = context =>
+            {
+                if (context.Exception is SecurityTokenExpiredException)
+                {
+                    context.Response.Redirect("/Loginpage");
+                }
+                return Task.CompletedTask;
+            },
+            OnChallenge = context =>
+            {
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.Redirect("/Loginpage");
+                }
+                context.HandleResponse(); // prevents default 401 response
+                return Task.CompletedTask;
+            }
         };
     });
 
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/AccessDenied";
-        options.AccessDeniedPath = "/AccessDenied";
+// builder.Services.AddControllersWithViews(options =>
+// {
+// var policy = new AuthorizationPolicyBuilder()
+//     .RequireAuthenticatedUser()
+//     .Build();
+// options.Filters.Add(new AuthorizeFilter(policy));
+// });
 
-    });
 
+// 🔐 Optional: Cookie auth fallback (if needed for compatibility with [Authorize])
+// builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+//     .AddCookie(options =>
+//     {
+//         options.LoginPath = "/Loginpage";
+//         options.AccessDeniedPath = "/AccessDenied";
+//     });
 
-builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
-
-// 🔥 Configure Role-Based Authorization
+// -------------------- Role/Permission Policies --------------------
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("SuperAdminPolicy", policy => policy.RequireClaim("role", "Super Admin"));
-    options.AddPolicy("AccountManagerPolicy", policy => policy.RequireClaim("role", "Account Manager"));
-    options.AddPolicy("ChefPolicy", policy => policy.RequireClaim("role", "Chef"));
-    options.AddPolicy("ChefOrAccountManagerPolicy", policy => policy.RequireClaim("role", "Chef", "Account Manager"));
-});
+    // Role-based
+    options.AddPolicy("SuperAdminPolicy", policy => policy.RequireClaim(ClaimTypes.Role, "Super Admin"));
+    options.AddPolicy("AccountManagerPolicy", policy => policy.RequireClaim(ClaimTypes.Role, "Account Manager"));
+    options.AddPolicy("ChefPolicy", policy => policy.RequireClaim(ClaimTypes.Role, "Chef"));
+    options.AddPolicy("ChefOrAccountManagerPolicy", policy => policy.RequireClaim(ClaimTypes.Role, "Chef", "Account Manager"));
 
-using (var scope = builder.Services.BuildServiceProvider().CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<PizzaShopContext>();
-    var requiredPermissions = context.Permissions.Select(p => p.PermissionName).Distinct().ToList(); // Fetch unique permissions
-
-    builder.Services.AddAuthorization(options =>
+    // Permission-based
+    using (var scope = builder.Services.BuildServiceProvider().CreateScope())
     {
+        var context = scope.ServiceProvider.GetRequiredService<PizzaShopContext>();
+        var requiredPermissions = context.Permissions
+            .Select(p => p.PermissionName)
+            .Distinct()
+            .ToList();
+
         foreach (var permission in requiredPermissions)
         {
-            options.AddPolicy($"{permission}ViewPolicy", policy => policy.Requirements.Add(new PermissionRequirement($"{permission}_View")));
-            options.AddPolicy($"{permission}EditPolicy", policy => policy.Requirements.Add(new PermissionRequirement($"{permission}_Edit")));
-            options.AddPolicy($"{permission}DeletePolicy", policy => policy.Requirements.Add(new PermissionRequirement($"{permission}_Delete")));
+            options.AddPolicy($"{permission}ViewPolicy", policy =>
+                policy.Requirements.Add(new PermissionRequirement($"{permission}_View")));
+            options.AddPolicy($"{permission}EditPolicy", policy =>
+                policy.Requirements.Add(new PermissionRequirement($"{permission}_Edit")));
+            options.AddPolicy($"{permission}DeletePolicy", policy =>
+                policy.Requirements.Add(new PermissionRequirement($"{permission}_Delete")));
         }
-    });
-}
-
+    }
+});
 
 
 var app = builder.Build();
 
-
+// -------------------- Middleware Pipeline --------------------
 app.UseMiddleware<GlobalExceptionMiddleware>();
-
-app.UseStaticFiles();
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -168,20 +166,20 @@ app.Use(async (context, next) =>
         context.Response.Redirect("/NotFound");
     }
 });
-// var pizzaShopContext = _context.Users.Include(u => u.Role);
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-app.UseSession();
-app.UseAuthentication();
+
+app.UseAuthentication();  // ⬅️ Make sure this is before UseAuthorization
 app.UseAuthorization();
+
+// WebSocket support (optional)
 app.UseWebSockets();
 
+// -------------------- Routes --------------------
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
-
-

@@ -212,10 +212,12 @@ public class MenuService : IMenuService
         var modifier = _menuRepository.GetModifiers().AsQueryable();
         if (!string.IsNullOrEmpty(filterOptions.Search))
         {
-            string searchLower = filterOptions.Search.ToLower();
-            modifier = modifier.Where(u => u.ModifierName.ToLower().Contains(searchLower) ||
-                                     u.ModifierRate.ToString().ToLower().Contains(searchLower));
+            string searchLower = filterOptions.Search.Trim().ToLower();
+
+            modifier = modifier.Where(u => u.ModifierName.Trim().ToLower().Contains(searchLower) ||
+                                           u.ModifierRate.ToString().Trim().ToLower().Contains(searchLower));
         }
+
 
         // Get total count and handle page size dynamically
         int totalTables = modifier.Count();
@@ -662,8 +664,8 @@ public class MenuService : IMenuService
 
     public List<MenuCategoryVM> GetItemByCategoryId(int categoryId, string search)
     {
-        // var user = _httpContextAccessor.HttpContext?.Request.Cookies["Email"];
-        string useremail = _httpContextAccessor.HttpContext?.Request.Cookies["Email"];
+        var httpContext = _httpContextAccessor.HttpContext;
+        string useremail = httpContext?.User?.FindFirst(ClaimTypes.Email)?.Value;
         var user = _userRepository.GetUserByEmail(useremail);
 
         var item = new List<MenuItem>();
@@ -673,18 +675,20 @@ public class MenuService : IMenuService
             item = _menuRepository.GetAllItems();
             if (!string.IsNullOrEmpty(search))
             {
-                string searchLower = search.ToLower();
-                item = item.Where(u => u.ItemName.ToLower().Contains(searchLower)).ToList();
+                string searchLower = search.Trim().ToLower();
+                item = item.Where(u => u.ItemName.Trim().ToLower().Contains(searchLower)).ToList();
             }
+
         }
         else
         {
             item = _menuRepository.GetItemsByCategoryId(categoryId);
             if (!string.IsNullOrEmpty(search))
             {
-                string searchLower = search.ToLower();
-                item = item.Where(u => u.ItemName.ToLower().Contains(searchLower)).ToList();
+                string searchLower = search.Trim().ToLower();
+                item = item.Where(u => u.ItemName.Trim().ToLower().Contains(searchLower)).ToList();
             }
+
         }
 
 
@@ -717,10 +721,12 @@ public class MenuService : IMenuService
 
         if (!string.IsNullOrEmpty(filterOptions.Search))
         {
-            string searchLower = filterOptions.Search.ToLower();
-            menuItems = menuItems.Where(u => u.ItemName.ToLower().Contains(searchLower) ||
-                                     u.Itemtype.ItemType1.ToLower().Contains(searchLower));
+            string searchLower = filterOptions.Search.Trim().ToLower();
+
+            menuItems = menuItems.Where(u => u.ItemName.Trim().ToLower().Contains(searchLower) ||
+                                             u.Itemtype.ItemType1.Trim().ToLower().Contains(searchLower));
         }
+
 
         // Get total count and handle page size dynamically
         int totalItems = menuItems.Count();
@@ -754,12 +760,13 @@ public class MenuService : IMenuService
     public IPagedList<MenuModifierGroupVM> getFilteredMenuModifiers(int groupId, UserFilterOptions filterOptions)
     {
         var menuModifiers = _menuRepository.GetModifiersByModifierGroupId(groupId).AsQueryable();
-
         if (!string.IsNullOrEmpty(filterOptions.Search))
         {
-            string searchLower = filterOptions.Search.ToLower();
-            menuModifiers = menuModifiers.Where(u => u.ModifierName.ToLower().Contains(searchLower));
+            string searchLower = filterOptions.Search.Trim().ToLower();
+
+            menuModifiers = menuModifiers.Where(u => u.ModifierName.Trim().ToLower().Contains(searchLower));
         }
+
 
         // Get total count and handle page size dynamically
         int totalItems = menuModifiers.Count();

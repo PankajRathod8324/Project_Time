@@ -45,6 +45,7 @@ namespace PizzaShop.Controllers
             }
             return View(user);
         }
+
         [HttpPost("Loginpage")]
         public async Task<IActionResult> Loginpage(LoginVM model)
         {
@@ -55,6 +56,7 @@ namespace PizzaShop.Controllers
 
             // Authenticate user and get token
             string token = _userService.AuthenticateUser(model.Email, model.Password);
+
             if (token == null)
             {
                 ModelState.AddModelError(string.Empty, "Invalid email or password.");
@@ -62,108 +64,154 @@ namespace PizzaShop.Controllers
                 TempData["MessageType"] = "error";
                 return View(model);
             }
+
             if (token == "User is inactive.")
             {
                 TempData["Message"] = "User is not Active.";
                 TempData["MessageType"] = "error";
                 return View(model);
             }
-            var olduser = _userService.GetUserByEmail(model.Email);
-            if (olduser.LastLogin == null)
-            {
-                HttpContext.Session.SetString("UserEmail", model.Email);
-                var cookieOptions = new CookieOptions
-                {
-                    Expires = DateTime.UtcNow.AddMinutes(30)
-                };
-                Response.Cookies.Append("Email", model.Email, cookieOptions);
-                // Response.Cookies.Append("ProfilePhoto", selecteduser.ProfilePhoto, cookieOptions);
 
+            var user = _userService.GetUserByEmail(model.Email);
+
+            // Store only JWT token in cookie
+            var cookieOptions = new CookieOptions
+            {
+                Expires = model.RememberMe ? DateTime.UtcNow.AddDays(7) : DateTime.UtcNow.AddMinutes(30),
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            };
+
+            Response.Cookies.Append("AuthToken", token, cookieOptions);
+
+            // Authenticate user using JWT claims
+            // var tokenHandler = new JwtSecurityTokenHandler();
+            // var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+            // var claims = jwtToken?.Claims.ToList();
+
+            // var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            // var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+            // await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+
+            // First-time login → force change password
+            if (user.LastLogin == null)
+            {
                 return RedirectToAction("Changepassword", "User");
             }
-            else
-            {
-                // Store user email in session (even if Remember Me is not checked)
-                HttpContext.Session.SetString("UserEmail", model.Email);
 
-                // If Remember Me is checked, store email & token in cookies
-                if (model.RememberMe)
-                {
-                    var cookieOptions = new CookieOptions
-                    {
-                        Expires = DateTime.UtcNow.AddDays(30)
-                    };
-                    Response.Cookies.Append("Email", model.Email, cookieOptions);
-                    var selecteduser = _userService.GetUserByEmail(model.Email);
-                    Response.Cookies.Append("ProfilePhoto", selecteduser.ProfilePhoto, cookieOptions);
-                    Response.Cookies.Append("Name", selecteduser.FirstName, cookieOptions);
-                    Response.Cookies.Append("AuthToken", token, cookieOptions);
-                }
-                else
-                {
-                    var cookieOptions = new CookieOptions
-                    {
-                        Expires = DateTime.UtcNow.AddMinutes(30)
-                    };
-                    Response.Cookies.Append("Email", model.Email, cookieOptions);
-                    var selecteduser = _userService.GetUserByEmail(model.Email);
-                    Response.Cookies.Append("ProfilePhoto", selecteduser.ProfilePhoto, cookieOptions);
-                    Response.Cookies.Append("Name", selecteduser.FirstName, cookieOptions);
-                    Response.Cookies.Append("AuthToken", token, cookieOptions);
-                }
-
-                // Store JWT in session
-                HttpContext.Session.SetString("AuthToken", token);
-
-                // Fetch user data and store it in session
-                var user = _userService.GetUserByEmail(model.Email);
-                HttpContext.Session.SetString("UserData", JsonConvert.SerializeObject(user));
-
-                // Extract claims from JWT token
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
-                var claims = jwtToken?.Claims.ToList();
-
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
-                if (olduser.RoleId == 1)
-                {
-                    return RedirectToAction("KOT", "AccountManagerOrderApp");
-                }
-                else
-                {
-                    return RedirectToAction("Dashboard", "Home");
-                }
-            }
-
-
+            // Redirect based on role
+            return user.RoleId == 1
+                ? RedirectToAction("KOT", "AccountManagerOrderApp")
+                : RedirectToAction("Dashboard", "Home");
         }
-        public async Task<IActionResult> Logout()
+
+        // public async Task<IActionResult> Loginpage(LoginVM model)
+        // {
+        //     if (!ModelState.IsValid)
+        //     {
+        //         return View(model);
+        //     }
+
+        //     // Authenticate user and get token
+        //     string token = _userService.AuthenticateUser(model.Email, model.Password);
+        //     if (token == null)
+        //     {
+        //         ModelState.AddModelError(string.Empty, "Invalid email or password.");
+        //         TempData["Message"] = "Password or Email is incorrect.";
+        //         TempData["MessageType"] = "error";
+        //         return View(model);
+        //     }
+        //     if (token == "User is inactive.")
+        //     {
+        //         TempData["Message"] = "User is not Active.";
+        //         TempData["MessageType"] = "error";
+        //         return View(model);
+        //     }
+        //     var olduser = _userService.GetUserByEmail(model.Email);
+        //     if (olduser.LastLogin == null)
+        //     {
+        //         HttpContext.Session.SetString("UserEmail", model.Email);
+        //         var cookieOptions = new CookieOptions
+        //         {
+        //             Expires = DateTime.UtcNow.AddMinutes(30)
+        //         };
+        //         Response.Cookies.Append("Email", model.Email, cookieOptions);
+        //         // Response.Cookies.Append("ProfilePhoto", selecteduser.ProfilePhoto, cookieOptions);
+
+        //         return RedirectToAction("Changepassword", "User");
+        //     }
+        //     else
+        //     {
+        //         // Store user email in session (even if Remember Me is not checked)
+        //         HttpContext.Session.SetString("UserEmail", model.Email);
+
+        //         // If Remember Me is checked, store email & token in cookies
+        //         if (model.RememberMe)
+        //         {
+        //             var cookieOptions = new CookieOptions
+        //             {
+        //                 Expires = DateTime.UtcNow.AddDays(30)
+        //             };
+        //             Response.Cookies.Append("Email", model.Email, cookieOptions);
+        //             var selecteduser = _userService.GetUserByEmail(model.Email);
+        //             Response.Cookies.Append("ProfilePhoto", selecteduser.ProfilePhoto, cookieOptions);
+        //             Response.Cookies.Append("Name", selecteduser.FirstName, cookieOptions);
+        //             Response.Cookies.Append("AuthToken", token, cookieOptions);
+        //         }
+        //         else
+        //         {
+        //             var cookieOptions = new CookieOptions
+        //             {
+        //                 Expires = DateTime.UtcNow.AddMinutes(30)
+        //             };
+        //             Response.Cookies.Append("Email", model.Email, cookieOptions);
+        //             var selecteduser = _userService.GetUserByEmail(model.Email);
+        //             Response.Cookies.Append("ProfilePhoto", selecteduser.ProfilePhoto, cookieOptions);
+        //             Response.Cookies.Append("Name", selecteduser.FirstName, cookieOptions);
+        //             Response.Cookies.Append("AuthToken", token, cookieOptions);
+        //         }
+
+        //         // Store JWT in session
+        //         HttpContext.Session.SetString("AuthToken", token);
+
+        //         // Fetch user data and store it in session
+        //         var user = _userService.GetUserByEmail(model.Email);
+        //         HttpContext.Session.SetString("UserData", JsonConvert.SerializeObject(user));
+
+        //         // Extract claims from JWT token
+        //         var tokenHandler = new JwtSecurityTokenHandler();
+        //         var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+        //         var claims = jwtToken?.Claims.ToList();
+
+        //         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        //         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+        //         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+        //         if (olduser.RoleId == 1)
+        //         {
+        //             return RedirectToAction("KOT", "AccountManagerOrderApp");
+        //         }
+        //         else
+        //         {
+        //             return RedirectToAction("Dashboard", "Home");
+        //         }
+        //     }
+
+
+        // }
+        public IActionResult Logout()
         {
-            // Sign out authentication scheme
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-            // Remove session data
-            HttpContext.Session.Remove("UserData");
-            HttpContext.Session.Clear();
-
-            // Expire authentication-related cookies
+            // ✅ Expire authentication-related cookies (JWT + any user info stored client-side)
             if (Request.Cookies["AuthToken"] != null)
             {
                 Response.Cookies.Delete("AuthToken");
             }
-            if (Request.Cookies["Email"] != null)
-            {
-                Response.Cookies.Delete("Email");
-                Response.Cookies.Delete("ProfilePhoto");
-                Response.Cookies.Delete("Name");
 
-            }
 
-            // Redirect to login page
+            // 🔁 Redirect to login
             return RedirectToAction("Loginpage");
         }
+
 
         public IActionResult Forgotpasswordpage(string? email)
         {
@@ -191,29 +239,29 @@ namespace PizzaShop.Controllers
 
 
         // [HttpGet("ResetPassword")]
-        public IActionResult Resetpasswordpage(string email, string token)
+        public IActionResult Resetpasswordpage(string token)
         {
-
+            // Look up the user/email from token
             var user = _userService.GetUserByToken(token);
             if (user == null)
             {
                 TempData["Message"] = "Your reset password link has been used or expired!";
-                TempData["MessageType"] = "error"; // Types: success, error, warning, info
+                TempData["MessageType"] = "error";
                 return RedirectToAction("Loginpage", "Authentication");
-
             }
 
             var model = new ResetPasswordVM
             {
-                Email = email,
+                Email = user.Email, // retrieved from DB/service
                 Token = token
             };
-            Console.WriteLine(model.Token);
-            Console.WriteLine("Auth Controller:  " + model.Email);
+
+            Console.WriteLine("Auth Controller: " + model.Email);
             Console.WriteLine(model.Token);
 
             return View(model);
         }
+
         [HttpPost]
         public async Task<IActionResult> ResetPassword(ResetPasswordVM model)
         {
@@ -250,7 +298,7 @@ namespace PizzaShop.Controllers
         }
         private async Task SendResetEmail(string email, string token)
         {
-            var resetLink = Url.Action("Resetpasswordpage", "Authentication", new { token, email }, Request.Scheme);
+            var resetLink = Url.Action("Resetpasswordpage", "Authentication", new { token}, Request.Scheme);
             var message = new MailMessage("test.dotnet@etatvasoft.com", email);
             message.To.Add(new MailAddress(email));
             message.Subject = "Password Reset Request";

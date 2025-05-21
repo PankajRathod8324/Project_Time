@@ -28,13 +28,12 @@ public class UserController : Controller
     // [Authorize]
     public IActionResult Profile()
     {
-        var email = Request.Cookies["email"];
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;;
 
 
         if (string.IsNullOrEmpty(email))
         {
-            // If email is not found in cookies, get it from session
-            email = HttpContext.Session.GetString("UserEmail");
+             email = User.FindFirst(ClaimTypes.Email)?.Value;
         }
 
         if (string.IsNullOrEmpty(email))
@@ -58,7 +57,7 @@ public class UserController : Controller
     {
 
         PopulateDropdowns(model.CountryId, model.StateId);
-        var email = Request.Cookies["email"];
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;;
         model.Email = email;
 
         _userService.UpdateUserProfile(model, ProfilePhoto);
@@ -72,7 +71,7 @@ public class UserController : Controller
     [Authorize(Policy = "UserEditPolicy")]
     public IActionResult Adduser()
     {
-        var email = Request.Cookies["email"];
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;;
         if (string.IsNullOrEmpty(email))
         {
             return BadRequest("Email is required.");
@@ -117,7 +116,7 @@ public class UserController : Controller
     public IActionResult Edituser(int id)
     {
         var user = _userService.GetUserById(id);
-        var email = Request.Cookies["email"];
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;;
         var loginuser = _userService.GetUserByEmail(email);
         if (loginuser.RoleId == 3 || loginuser.RoleId == 1)
         {
@@ -141,7 +140,7 @@ public class UserController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult Edituser(AddUserVM model, IFormFile ProfileImage)
     {
-        var email = Request.Cookies["email"];
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;;
         var loginuser = _userService.GetUserByEmail(email);
         if (loginuser.RoleId == 3 || loginuser.RoleId == 1)
         {
@@ -223,7 +222,7 @@ public class UserController : Controller
             return View(model);
         }
 
-        var email = Request.Cookies["email"];
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;;
         if (string.IsNullOrEmpty(email))
         {
             return BadRequest("Email is required.");
@@ -262,7 +261,7 @@ public class UserController : Controller
 
     private void PopulateDropdowns(int? countryId = null, int? stateId = null)
     {
-        var email = Request.Cookies["email"];
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;
         var user = _userService.GetUserByEmail(email);
         var role = _userService.GetRoleNameById((int)user.RoleId);
         ViewBag.Roles = _userService.GetAllRoles().Where(r => !(role == "Account Manager" && r.RoleName == "Super Admin")).OrderBy(r => r.Priority).Select(r => new SelectListItem

@@ -83,9 +83,10 @@ public class CustomerService : ICustomerService
 
         if (!string.IsNullOrEmpty(filterOptions.Search))
         {
-            string searchLower = filterOptions.Search.ToLower();
-            customers = customers.Where(u => u.Name.ToString().ToLower().Contains(searchLower));
+            string searchLower = filterOptions.Search.Trim().ToLower();
+            customers = customers.Where(u => u.Name.ToString().Trim().ToLower().Contains(searchLower));
         }
+
 
 
         // var orderStatus12 = orders.Where(u => u.OrderStatus.OrderStatusName.ToString().ToLower().Contains(orderStatus.ToLower()));

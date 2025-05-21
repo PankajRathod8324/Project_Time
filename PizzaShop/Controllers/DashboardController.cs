@@ -2,10 +2,11 @@ using System.Diagnostics;
 using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
 using BLL.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PizzaShop.Controllers;
 
-
+// [Authorize]
 public class DashboardController : Controller
 {
     private readonly IDashboardService _dashboardService;

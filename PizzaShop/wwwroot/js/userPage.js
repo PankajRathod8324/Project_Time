@@ -28,11 +28,11 @@ document.getElementById('sidebarToggle').addEventListener('click', function () {
 });
 
 // Overlay click to hide sidebar
-// document.getElementById('overlay').addEventListener('click', function () {
-//   document.getElementById('sidebar').classList.remove('show');
-//   document.getElementById('content').style.marginLeft = "0"; // Full width
-//   document.getElementById('overlay').classList.remove('show');
-// });
+document.getElementById('sidebarClose').addEventListener('click', function () {
+  document.getElementById('sidebar').classList.remove('show');
+  document.getElementById('content').style.marginLeft = "0";
+  document.getElementById('overlay').classList.remove('show');
+});
 
 // Adjust layout on window resize
 window.addEventListener('resize', function () {

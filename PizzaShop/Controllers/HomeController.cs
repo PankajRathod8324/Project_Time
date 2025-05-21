@@ -12,7 +12,7 @@ using BLL.Interfaces;
 
 namespace PizzaShop.Controllers;
 
-
+// [Authorize]
 public class HomeController : Controller
 {
     // private readonly ILogger<HomeController> _logger;
@@ -86,7 +86,7 @@ public class HomeController : Controller
 
         return View(userViewModels);
     }
-    
+
 
     [Authorize(Policy = "MenuViewPolicy")]
     public IActionResult Menu()
